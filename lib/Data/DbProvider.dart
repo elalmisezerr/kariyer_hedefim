@@ -118,6 +118,11 @@ class DatabaseProvider {
     var result = await db!.rawDelete("delete from ilanlar where id=$id");
     return result;
   }
+  Future<int> deleteBasvuru(int id) async {
+    Database? db = await this.db;
+    var result = await db!.rawDelete("delete from basvurular where id=$id");
+    return result;
+  }
 
   Future<int> updateUser(User user) async {
     Database? db = await this.db;
@@ -137,6 +142,12 @@ class DatabaseProvider {
     Database? db = await this.db;
     var result = await db!.update("ilanlar", ilanlar.toMap(),
         where: "id=?", whereArgs: [ilanlar.id]);
+    return result;
+  }
+  Future<int> updateBasvuru(Basvuru basvuru) async {
+    Database? db = await this.db;
+    var result = await db!.update("basvurular", basvuru.toMap(),
+        where: "id=?", whereArgs: [basvuru.id]);
     return result;
   }
 

@@ -18,6 +18,7 @@ class BasvuruSayfasi extends StatefulWidget {
 class _BasvuruSayfasiState extends State<BasvuruSayfasi> {
   var dbHelper = DatabaseProvider();
   var tarihSimdi=DateTime.now().toString();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +38,6 @@ class _BasvuruSayfasiState extends State<BasvuruSayfasi> {
       ),
     );
   }
-
   void basvur() async {
     var result = await dbHelper.insertBasvuru(Basvuru.withoutId(
         ilanId: widget.ilanlar!.id.toString(),

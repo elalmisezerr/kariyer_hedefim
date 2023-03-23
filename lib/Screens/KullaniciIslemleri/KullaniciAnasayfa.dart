@@ -4,8 +4,8 @@ import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Models/JobAdvertisements.dart';
 import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/BasvuruAnasayfa.dart';
 import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/BasvuruGoruntule.dart';
-import 'package:kariyer_hedefim/Screens/IlanIslemleri/IlanDetay.dart';
 import 'package:kariyer_hedefim/Models/User.dart';
+import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciDetay.dart';
 import 'KullaniciEkle.dart';
 
 class HomeUser extends StatefulWidget {
@@ -26,16 +26,16 @@ class _HomeState extends State<HomeUser> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        backgroundColor: Color(0xFF355891),
+        backgroundColor: const Color(0xFF355891),
         leading: IconButton(
-          icon: Icon(Icons.menu),
+          icon: const Icon(Icons.menu),
           onPressed: (){
 _toggleDrawer();
           },
         ),
-        title: Text("Kullanıcı Anasayfa"),
+        title: const Text("Kullanıcı Anasayfa"),
         actions: <Widget>[
-          IconButton(onPressed: logout, icon: Icon(Icons.logout))
+          IconButton(onPressed: logout, icon: const Icon(Icons.logout))
         ],
       ),
       drawer: createDrawer(),
@@ -44,7 +44,7 @@ _toggleDrawer();
         onPressed: () async {
           final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) =>  UsersAdd()),
+            MaterialPageRoute(builder: (context) =>  const UsersAdd()),
           );
           if (result == true) {
             setState(() {});
@@ -57,8 +57,8 @@ _toggleDrawer();
   }
   govde(){
     return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
+      decoration: const BoxDecoration(
+        image:  DecorationImage(
           image: AssetImage("assect/images/arkabir.png"),
           fit: BoxFit.cover,
         ),
@@ -89,10 +89,10 @@ _toggleDrawer();
       child: Column(
         children: [
           Container(
-            color: Color(0xFF355891),
-            padding: EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+            color: const Color(0xFF355891),
+            padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
             alignment: Alignment.centerLeft,
-            child: Text(
+            child: const Text(
               'Yönetim Paneli',
               style: TextStyle(
                 color: Colors.white,
@@ -110,12 +110,12 @@ _toggleDrawer();
             ),
             onTap: () {
               setState(() {
-                //kullanıcı detay sayfası
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>UserDetail( user: widget.user)));
               });
             },
           ),
           ListTile(
-            title: Text(
+            title: const Text(
               'Başvurularım',
               style: TextStyle(
                 fontSize: 18,
@@ -127,7 +127,7 @@ _toggleDrawer();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BasvuruGoruntule(),
+                    builder: (context) => BasvuruGoruntule(user: widget.user,),
                   ),
                 );
               });
@@ -137,7 +137,7 @@ _toggleDrawer();
             child: Container(),
           ),
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: ElevatedButton(
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.resolveWith<Color?>(
