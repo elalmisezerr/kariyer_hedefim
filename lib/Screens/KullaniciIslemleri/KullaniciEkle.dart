@@ -22,6 +22,7 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin{
   var txtpassWord = TextEditingController();
   var txtTelefon = TextEditingController();
   var txtAdres = TextEditingController();
+  DateTime? _selectedDate;
 
   @override
   Widget build(BuildContext context) {
@@ -272,10 +273,11 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin{
 
       ),
 
+
     );
   }
 
-  addUsers() async {
+  void addUsers() async {
     var result = await dbHelper.insertUser(User.withOutId(
       ad: txtName.text,
       soyad: txtSurname.text,
@@ -286,6 +288,5 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin{
       adres: txtAdres.text,
     ));
     Navigator.pop(context, true);
-    return result;
   }
 }
