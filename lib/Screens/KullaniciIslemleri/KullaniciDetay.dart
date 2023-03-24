@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/GirisKullanici.dart';
+import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciAnasayfa.dart';
 import 'package:kariyer_hedefim/Validation/ValidationUser.dart';
 
 import '../../Data/DbProvider.dart';
 import '../../Models/User.dart';
 
 class UserDetail extends StatefulWidget {
-  User? user;
+  User user;
   UserDetail({Key? key, required this.user}) : super(key: key);
 
   @override
-  State<UserDetail> createState() => _UserDetailState();
+  State<UserDetail> createState() => _UserDetailState(user);
 }
 
-class _UserDetailState extends State<UserDetail> with Useraddvalidationmixin {
-  var formKey = GlobalKey<FormState>();
+enum Options { delete, update }
+
+class _UserDetailState extends State<UserDetail>  {
+  User? user;
   var dbHelper = DatabaseProvider();
   var txtName = TextEditingController();
   var txtSurname = TextEditingController();
@@ -23,64 +27,95 @@ class _UserDetailState extends State<UserDetail> with Useraddvalidationmixin {
   var txtpassWord = TextEditingController();
   var txtTelefon = TextEditingController();
   var txtAdres = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  _UserDetailState(this.user);
 
   @override
   void initState() {
-    // TODO: implement initState
-    txtName.text = widget.user!.ad;
-    txtSurname.text = widget.user!.soyad;
-    txtBirthDate.text = widget.user!.dogumtarihi.toString();
-    txtuserName.text = widget.user!.soyad;
-    txtpassWord.text = widget.user!.password;
-    txtTelefon.text = widget.user!.telefon;
-    txtAdres.text = widget.user!.adres;
+    txtName.text = user!.ad;
+    txtSurname.text = user!.soyad;
+    txtBirthDate.text = DateFormat('yyyy-MM-dd').format(user!.dogumtarihi);
+    txtuserName.text = user!.email;
+    txtpassWord.text = user!.password;
+    txtTelefon.text = user!.telefon;
+    txtAdres.text = user!.adres;
     super.initState();
+
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(" Profil Sayfasına Hoşgeldiniz"),
+        title:
+            Text("${user!.ad} ${user!.soyad}'in Profil Sayfasına Hoşgeldiniz"),
+        actions: <Widget>[
+          PopupMenuButton<Options>(
+              onSelected: selectProcess,
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<Options>>[
+                    PopupMenuItem<Options>(
+                      value: Options.delete,
+                      child: Text("Sil"),
+                    ),
+                    PopupMenuItem<Options>(
+                      value: Options.update,
+                      child: Text("Güncelle"),
+                    ),
+                  ])
+        ],
       ),
       body: Form(
-        key: formKey,
-        child: Padding(
-          padding: EdgeInsets.all(30.0),
-          child: ListView(
+        child: buildGovde(),
+      ),
+    );
+  }
+
+  buildGovde() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          buildName(),
+          SizedBox(
+            height: 5.0,
+          ),
+          buildSurname(),
+          SizedBox(
+            height: 5.0,
+          ),
+          buildBirthDate(),
+          SizedBox(
+            height: 5.0,
+          ),
+          buildUsername(),
+          SizedBox(
+            height: 5.0,
+          ),
+          buildPassword(),
+          SizedBox(
+            height: 5.0,
+          ),
+          buildTelefon(),
+          SizedBox(
+            height: 5.0,
+          ),
+          buildAdres(),
+          SizedBox(
+            height: 5.0,
+          ),
+          Row(
             children: [
-              buildName(),
-              SizedBox(
-                height: 5.0,
+              Flexible(
+                flex: 1,
+                child: buildUpdateButton(),
               ),
-              buildSurname(),
-              SizedBox(
-                height: 5.0,
+              SizedBox(width: 10),
+              Flexible(
+                flex: 1,
+                child: buildDeleteButton(),
               ),
-              buildBirthDate(),
-              SizedBox(
-                height: 5.0,
-              ),
-              buildUsername(),
-              SizedBox(
-                height: 5.0,
-              ),
-              buildPassword(),
-              SizedBox(
-                height: 5.0,
-              ),
-              buildTelefon(),
-              SizedBox(
-                height: 5.0,
-              ),
-              buildAdres(),
-              SizedBox(
-                height: 5.0,
-              ),
-              buildSaveButton()
             ],
           ),
-        ),
+        ],
       ),
     );
   }
@@ -95,7 +130,6 @@ class _UserDetailState extends State<UserDetail> with Useraddvalidationmixin {
         ),
         SizedBox(height: 5.0),
         TextFormField(
-          validator: validateName,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.person),
@@ -116,7 +150,6 @@ class _UserDetailState extends State<UserDetail> with Useraddvalidationmixin {
         ),
         SizedBox(height: 5.0),
         TextFormField(
-          validator: validateSurName,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.person),
@@ -137,14 +170,13 @@ class _UserDetailState extends State<UserDetail> with Useraddvalidationmixin {
         ),
         SizedBox(height: 5.0),
         TextFormField(
-          validator: validateBirtdate,
-          readOnly: true,
+          //readOnly: true,
           onTap: _showDatePicker,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.cake),
           ),
-          controller: txtBirthDate, // değiştirildi
+          controller: txtBirthDate,
         )
       ],
     );
@@ -160,7 +192,6 @@ class _UserDetailState extends State<UserDetail> with Useraddvalidationmixin {
         ),
         SizedBox(height: 5.0),
         TextFormField(
-          validator: validateEmail,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.email),
@@ -182,7 +213,6 @@ class _UserDetailState extends State<UserDetail> with Useraddvalidationmixin {
         ),
         SizedBox(height: 5.0),
         TextFormField(
-          validator: validatePassword,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.lock),
@@ -194,18 +224,16 @@ class _UserDetailState extends State<UserDetail> with Useraddvalidationmixin {
       ],
     );
   }
-
   buildTelefon() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Telefonunuzu girin",
+          "Telefon numaranızı giriniz",
           textAlign: TextAlign.left,
         ),
         SizedBox(height: 5.0),
         TextFormField(
-          validator: validatePhoneNumber,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.phone),
@@ -222,17 +250,17 @@ class _UserDetailState extends State<UserDetail> with Useraddvalidationmixin {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Adresinizi girin",
+          "Adresinizi giriniz",
           textAlign: TextAlign.left,
         ),
         SizedBox(height: 5.0),
         TextFormField(
-          validator: validateAdres,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.house),
+            prefixIcon: Icon(Icons.home),
           ),
           controller: txtAdres,
+          maxLines: 3,
         )
       ],
     );
@@ -252,7 +280,72 @@ class _UserDetailState extends State<UserDetail> with Useraddvalidationmixin {
     }
   }
 
-  buildSaveButton() {
+  void selectProcess(Options options) async {
+    switch (options) {
+      case Options.delete:
+        await dbHelper.deleteUser(user!.id!);
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginUser()));
+        break;
+      case Options.update: {
+          user!.ad = txtName.text;
+          user!.soyad = txtSurname.text;
+          user!.dogumtarihi = DateFormat('yyyy-MM-dd').parse(txtBirthDate.text);
+          user!.email = txtuserName.text;
+          user!.password = txtpassWord.text;
+          user!.telefon = txtTelefon.text;
+          user!.adres = txtAdres.text;
+          await dbHelper.updateUser(user!);
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeUser(user: widget.user)));
+        }
+        break;
+      default:
+    }
+  }
+
+  buildUpdateButton() {
+    return TextButton(
+      onPressed: () async {
+        if (formKey.currentState!.validate()) {
+          formKey.currentState!.save();
+          print(user!.ad);
+          await dbHelper.updateUser(User(
+            id: user!.id,
+            ad: txtName.text,
+            soyad: txtSurname.text,
+            dogumtarihi: DateFormat('yyyy-MM-dd').parse(txtBirthDate.text),
+            email: txtuserName.text,
+            password: txtpassWord.text,
+            telefon: txtTelefon.text,
+            adres: txtAdres.text,
+          ));
+        }
+        Navigator.pop(context, true);
+      },
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        margin: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+        padding: EdgeInsets.symmetric(vertical: 15),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(50)),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+                color: Colors.black,
+                offset: Offset(2, 4),
+                blurRadius: 5,
+                spreadRadius: 2),
+          ],
+          color: Colors.green,
+        ),
+        child: Text(
+          "Güncelle",
+          style: TextStyle(fontSize: 20, color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  buildDeleteButton() {
     return TextButton(
       onPressed: () {
         if (formKey.currentState!.validate()) {
@@ -260,7 +353,7 @@ class _UserDetailState extends State<UserDetail> with Useraddvalidationmixin {
         }
       },
       child: Container(
-        width: MediaQuery.of(context).size.width,
+        // width: MediaQuery.of(context).size.width,
         margin: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
         padding: EdgeInsets.symmetric(vertical: 15),
         alignment: Alignment.center,

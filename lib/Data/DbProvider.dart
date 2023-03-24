@@ -89,9 +89,10 @@ class DatabaseProvider {
     var result = await db!.insert("sirketler", company.toMap());
     return result;
   }
+
   Future<int> insertBasvuru(Basvuru basvuru) async {
     Database? db = await this.db;
-    var result = await db!.insert("basvurular",basvuru.toMap() );
+    var result = await db!.insert("basvurular", basvuru.toMap());
     return result;
   }
 
@@ -140,6 +141,7 @@ class DatabaseProvider {
     return result;
   }
 
+
   Future<User?> checkUser(String email, String password) async {
     final db = await dbProvider.db;
     if (db == null) {
@@ -174,9 +176,10 @@ class DatabaseProvider {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getBasvurularByKullaniciId(String kullaniciId) async {
+  Future<List<Map<String, dynamic>>> getBasvurularByKullaniciId(
+      String kullaniciId) async {
     final db = await dbProvider.db;
-    return await db!.query('basvurular', where: 'kullanici_id = ?', whereArgs: [kullaniciId]);
+    return await db!.query('basvurular',
+        where: 'kullanici_id = ?', whereArgs: [kullaniciId]);
   }
-
 }

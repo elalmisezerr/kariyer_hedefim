@@ -4,8 +4,10 @@ import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Models/JobAdvertisements.dart';
 import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/BasvuruAnasayfa.dart';
 import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/BasvuruGoruntule.dart';
+import 'package:kariyer_hedefim/Screens/GirisEkran%C4%B1.dart';
 import 'package:kariyer_hedefim/Screens/IlanIslemleri/IlanDetay.dart';
 import 'package:kariyer_hedefim/Models/User.dart';
+import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciDetay.dart';
 import 'KullaniciEkle.dart';
 
 class HomeUser extends StatefulWidget {
@@ -111,6 +113,7 @@ _toggleDrawer();
             onTap: () {
               setState(() {
                 //kullanıcı detay sayfası
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>UserDetail(user: widget.user,)));
               });
             },
           ),
@@ -127,7 +130,7 @@ _toggleDrawer();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BasvuruGoruntule(),
+                    builder: (context) => BasvuruGoruntule(user: widget.user,),
                   ),
                 );
               });
@@ -168,7 +171,7 @@ _toggleDrawer();
 
   void logout() {
     setState(() {
-      Navigator.pop(context);
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>GirisEkrani()));
     });
   }
   ListView buildIlanList(final List<Ilanlar> ilanlar) {
