@@ -17,7 +17,7 @@ class BasvuruSayfasi extends StatefulWidget {
 
 class _BasvuruSayfasiState extends State<BasvuruSayfasi> {
   var dbHelper = DatabaseProvider();
-  var tarihSimdi=DateTime.now().toString();
+  var tarihSimdi = DateTime.now().toString();
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +28,7 @@ class _BasvuruSayfasiState extends State<BasvuruSayfasi> {
       body: Center(
         child: ListView(
           children: [
+            govde(),
             ElevatedButton(
                 onPressed: () {
                   basvur();
@@ -38,12 +39,49 @@ class _BasvuruSayfasiState extends State<BasvuruSayfasi> {
       ),
     );
   }
+  govde(){
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assect/images/arkabir.png"),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: FutureBuilder<List<dynamic>>(
+        future: dbHelper.getKullanicilarByIlanlarId(widget.ilanlar!.id.toString()),
+        builder: (context, AsyncSnapshot<List<dynamic>> snapshot) { // updated type
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Hata: ${snapshot.error}'));
+          } else {
+            final kullanicilar = snapshot.data?.cast<String>() ?? []; // cast to List<String>
+            return buildKullaniciList(kullanicilar);
+          }
+        },
+      ),
+    );
+  }
   void basvur() async {
     var result = await dbHelper.insertBasvuru(Basvuru.withoutId(
-        ilanId: widget.ilanlar!.id.toString(),
-        kullaniciId: widget.user.id.toString(),
-        basvuruTarihi:DateFormat('yyyy-MM-dd').parse(tarihSimdi),
+      ilanId: widget.ilanlar!.id.toString(),
+      kullaniciId: widget.user.id.toString(),
+      basvuruTarihi: DateFormat('yyyy-MM-dd').parse(tarihSimdi),
     ));
     Navigator.pop(context, true);
+  }
+
+  Widget buildKullaniciList(List kullanicilar) {
+    return ListView(
+      children: kullanicilar.map(
+            (item) => Card(
+          child: Column(
+            children: [
+              Text(item),
+            ],
+          ),
+        ),
+      ).toList(),
+    );
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kariyer_hedefim/Screens/GirisEkranı.dart';
 
+
 void main() {
   HttpOverrides.global = MyHttpOverrides();
   runApp(const MyApp());
@@ -18,16 +19,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "LOGİN",
       debugShowCheckedModeBanner: false,
-      home: GirisEkrani(),
+      home:GirisEkrani(),
     );
   }
-
 }
-class MyHttpOverrides extends HttpOverrides{
+
+class MyHttpOverrides extends HttpOverrides {
   @override
-  HttpClient createHttpClient(SecurityContext? context){
+  HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
-      ..badCertificateCallback = (X509Certificate cert, String host, int port)=> true;
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }
-

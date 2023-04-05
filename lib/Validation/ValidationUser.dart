@@ -1,4 +1,8 @@
+import '../Data/DbProvider.dart';
+
 class Useraddvalidationmixin{
+  var dbHelper = DatabaseProvider();
+
   String? validateName(String? value) {
     if (value == null || value.isEmpty) {
       return 'Adınızı Giriniz!';
@@ -18,13 +22,17 @@ class Useraddvalidationmixin{
     return null;
   }
   String? validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Boş Geçilemez!';
-    }
-    RegExp emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegExp.hasMatch(value)) {
-      // E-posta adresi geçersiz
-      return 'Lütfen geçerli bir e-posta adresi girin';
+    if(dbHelper.checkIfUsernameExists(value)!=null){
+      return 'Bu kullanıcı adı alınmıştır.';
+    }else{
+      if (value == null || value.isEmpty) {
+        return 'Boş Geçilemez!';
+      }
+      RegExp emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+      if (!emailRegExp.hasMatch(value)) {
+        // E-posta adresi geçersiz
+        return 'Lütfen geçerli bir e-posta adresi girin';
+      }
     }
     // Geçerli e-posta adresi
     return null;

@@ -34,12 +34,14 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
     return Scaffold(
         backgroundColor: Colors.grey[300],
         body: SafeArea(
-          child: Center(
-            child: Form(
-              key: formKey,
-              child: ListView(
-                //mainAxisAlignment: MainAxisAlignment.center,
-                children: govde(),
+          child: Container(
+            child: Center(
+              child: Form(
+                key: formKey,
+                child: ListView(
+                  //mainAxisAlignment: MainAxisAlignment.center,
+                  children: govde(),
+                ),
               ),
             ),
           ),
@@ -48,25 +50,26 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
 
   List<Widget> govde() {
     return [
-      const SizedBox(
-        height: 25,
-      ),
       // logo
       const Icon(
         Icons.person,
-        color: Colors.blueGrey,
+        color: Color(0xffbf1922),
         size: 100,
-      ),
-      const SizedBox(
-        height: 25,
       ),
       // welcome back, you've been missed
       Center(
-        child: Text(
-          "Kariyer Hedefim Uygulamasına Hoşgeldiniz!",
-          style: TextStyle(
-            color: Colors.grey[700],
-            fontSize: 16,
+        child: Container(
+          child: Center(
+            child: Expanded(
+              child: Text(
+                "Kariyer Hedefim Uygulamasına Hoşgeldiniz!",
+                style: TextStyle(
+                  color: Colors.red.shade300,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -98,43 +101,14 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
         ),
       ),
       const SizedBox(
-        height: 25,
+        height: 10,
       ),
       // sign in button
       MyButton(
           onTap:() async {
     await girisYap(userNameController.text, passwordController.text);}),
-
       const SizedBox(
-        height: 25,
-      ),
-      //or continue with
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25.0),
-        child: Row(
-          children: [
-            Expanded(
-                child: Divider(
-                  thickness: 0.5,
-                  color: Colors.grey[500],
-                )),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Text(
-                "Or continue with",
-                style: TextStyle(color: Colors.grey[700]),
-              ),
-            ),
-            Expanded(
-                child: Divider(
-                  thickness: 0.5,
-                  color: Colors.grey[400],
-                ))
-          ],
-        ),
-      ),
-      const SizedBox(
-        height: 25,
+        height: 4,
       ),
       // google+ apple sign in buttons
       Row(
@@ -148,11 +122,6 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
           ),
         ],
       ),
-
-      const SizedBox(
-        height: 25,
-      ),
-
       // not a member? register now
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -163,41 +132,46 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
                   context,
                   MaterialPageRoute(builder: (context) => const UsersAdd()));
             },
-            child: Row(
+            child: Column(
               children: [
-                Text("Üye değil misin?",style: TextStyle(
-                  color: Colors.grey.shade700,
-                ),),
-                SizedBox(
-                  width: 4,
+                Row(
+                  children: [
+                    Text("Üye değil misin?",style: TextStyle(
+                      color: Colors.white,
+                    ),),
+                    SizedBox(
+                      width: 4,
+                    ),
+                    Text(
+                      "Kayıt ol",
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
-                Text(
-                  "Kayıt ol",
-                  style: TextStyle(
-                      color: Colors.grey.shade700, fontWeight: FontWeight.bold),
-                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const GirisEkrani()));
+                      },
+                      child: Text(
+                        "Anasayfa'ya Git",
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                )
               ],
             ),
           ),
         ],
       ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const GirisEkrani()));
-            },
-            child: Text(
-              "Anasayfa'ya Git",
-              style: TextStyle(
-                  color: Colors.grey.shade700, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      )
+
     ];
   }
 

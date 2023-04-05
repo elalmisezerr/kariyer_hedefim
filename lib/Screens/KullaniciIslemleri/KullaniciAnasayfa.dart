@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Models/JobAdvertisements.dart';
-import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/BasvuruAnasayfa.dart';
-import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/BasvuruGoruntule.dart';
 import 'package:kariyer_hedefim/Screens/GirisEkran%C4%B1.dart';
 import 'package:kariyer_hedefim/Screens/IlanIslemleri/IlanDetay.dart';
 import 'package:kariyer_hedefim/Models/User.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciDetay.dart';
-import 'KullaniciEkle.dart';
+import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/Basvurularim.dart';
 
 class HomeUser extends StatefulWidget {
   User user;
@@ -42,27 +40,14 @@ _toggleDrawer();
       ),
       drawer: createDrawer(),
       body:govde(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) =>  UsersAdd()),
-          );
-          if (result == true) {
-            setState(() {});
-          }
-        },
-        tooltip: "Yeni ürün ekle",
-        child: const Icon(Icons.add),
-      ),
     );
   }
   govde(){
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage("assect/images/arkabir.png"),
-          fit: BoxFit.cover,
+          image: AssetImage("assect/images/userhome.jpg"),
+          fit: BoxFit.fill,
         ),
       ),
       child: FutureBuilder<List<Ilanlar>>(
@@ -86,7 +71,8 @@ _toggleDrawer();
     setState(() {
       _scaffoldKey.currentState!.openDrawer();
     });
-  }createDrawer() {
+  }
+  createDrawer() {
     return Drawer(
       child: Column(
         children: [
@@ -130,7 +116,7 @@ _toggleDrawer();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BasvuruGoruntule(user: widget.user,),
+                    builder: (context) => Basvurularim(user: widget.user,),
                   ),
                 );
               });
@@ -144,7 +130,13 @@ _toggleDrawer();
             child: ElevatedButton(
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-                      (Set<MaterialState> states) => Colors.blueGrey,
+                      (Set<MaterialState> states) => Color(0xFF355891),
+                  
+                ),
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                 ),
               ),
               onPressed: () {
@@ -168,7 +160,6 @@ _toggleDrawer();
     );
   }
 
-
   void logout() {
     setState(() {
       Navigator.push(context, MaterialPageRoute(builder: (context)=>GirisEkrani()));
@@ -179,8 +170,13 @@ _toggleDrawer();
       itemCount: ilanlar.length,
       itemBuilder: (BuildContext context, int position) {
         return Card(
-          elevation: 2.0,
+          clipBehavior: Clip.antiAlias,
+          elevation: 8.0,
+          shadowColor: Colors.amber,
           shape: RoundedRectangleBorder(
+            side: BorderSide(
+              color: Colors.white,
+            ),
             borderRadius: BorderRadius.circular(10.0),
           ),
           child: GestureDetector(
@@ -188,14 +184,18 @@ _toggleDrawer();
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => BasvuruSayfasi(
-                    user: widget.user,
-                    ilanlar: ilanlar[position],
-                  ),
+                  builder: (context) => IlanDetay(ilanlar: ilanlar[position], user: widget.user),
                 ),
               );
             },
             child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.black,Colors.blue],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight
+                )
+              ),
               child: ListTile(
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(25.0),
@@ -212,7 +212,7 @@ _toggleDrawer();
                     Text(
                       ilanlar[position].baslik,
                       style: TextStyle(
-                        color: Colors.grey[800],
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -228,11 +228,11 @@ _toggleDrawer();
                             ),
                           ]
                         ),
-                        VerticalDivider(color: Colors.grey[600]),
+                        VerticalDivider(color: Colors.white),
                         Icon(
                           Icons.access_time,
                           size: 16.0,
-                          color: Colors.grey[600],
+                          color: Colors.white,
                         ),
                         SizedBox(width: 5.0),
                         Text(
@@ -241,7 +241,7 @@ _toggleDrawer();
                           ),
                           style: TextStyle(
                             fontSize: 14.0,
-                            color: Colors.grey[600],
+                            color: Colors.white,
                           ),
                         ),
                       ],
@@ -253,7 +253,7 @@ _toggleDrawer();
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: Colors.grey[600],
+                    color: Colors.white,
                   ),
                 ),
               ),

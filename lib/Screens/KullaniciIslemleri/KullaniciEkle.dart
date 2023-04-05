@@ -148,7 +148,6 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin{
         ),
         SizedBox(height: 5.0),
         TextFormField(
-          validator: validateEmail,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.email),

@@ -319,7 +319,7 @@ class _UserDetailState extends State<UserDetail>  {
             adres: txtAdres.text,
           ));
         }
-        Navigator.pop(context, true);
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeUser(user: widget.user)));
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -347,9 +347,12 @@ class _UserDetailState extends State<UserDetail>  {
 
   buildDeleteButton() {
     return TextButton(
-      onPressed: () {
+      onPressed: () async {
         if (formKey.currentState!.validate()) {
           formKey.currentState!.save();
+          await dbHelper.deleteUser(user!.id!);
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginUser()));
+
         }
       },
       child: Container(

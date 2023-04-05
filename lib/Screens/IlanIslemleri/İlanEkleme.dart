@@ -3,7 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Models/Company.dart';
 import 'package:kariyer_hedefim/Models/JobAdvertisements.dart';
-import 'package:kariyer_hedefim/Validation/ValidationUser.dart';
+import 'package:kariyer_hedefim/Screens/SirketIslemleri/AdminAnasayfa.dart';
+import 'package:kariyer_hedefim/Validation/ValidationIlan.dart';
 
 class IlanEkle extends StatefulWidget {
   Company? company;
@@ -13,7 +14,7 @@ class IlanEkle extends StatefulWidget {
   State<IlanEkle> createState() => _IlanEkleState();
 }
 
-class _IlanEkleState extends State<IlanEkle> with Useraddvalidationmixin{
+class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin{
   var formKey = GlobalKey<FormState>();
   var dbHelper=DatabaseProvider();
   var txtBaslik=TextEditingController();
@@ -53,7 +54,7 @@ void initState() {
       ),
     );
   }
-
+  //Başlık Formu
   buildBaslik() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,7 +65,7 @@ void initState() {
         ),
         SizedBox(height: 5.0),
         TextFormField(
-          validator: validateName,
+          validator: validateBaslik,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.person),
@@ -74,6 +75,8 @@ void initState() {
       ],
     );
   }
+
+  //Açıklama Formu
   buildAciklama() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,7 +87,7 @@ void initState() {
         ),
         SizedBox(height: 5.0),
         TextFormField(
-          validator: validateName,
+          validator: validateAciklama,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.textsms_outlined),
@@ -94,6 +97,8 @@ void initState() {
       ],
     );
   }
+
+  //Şirket Id Formu
   buildSirketId() {
    if(widget.company!.id!=null ) {
    return txtSirketId.text = widget.company!.id.toString();
@@ -101,6 +106,8 @@ void initState() {
      return null;
    }
   }
+
+  //Tarih formu
   buildTarih() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,7 +118,7 @@ void initState() {
         ),
         SizedBox(height: 5.0),
         TextFormField(
-          validator: validateBirtdate,
+          validator: validateTarih,
           readOnly: true,
           onTap: _showDatePicker,
           decoration: InputDecoration(
@@ -123,6 +130,8 @@ void initState() {
       ],
     );
   }
+
+  //Tarih seçici
   Future<void> _showDatePicker() async {
     final DateTime? selectedDate = await showDatePicker(
         context: context,
@@ -136,6 +145,8 @@ void initState() {
       });
     }
   }
+
+  //Kaydetme butonu
   buildSaveButton() {
     return TextButton(
       onPressed: () {
@@ -168,6 +179,8 @@ void initState() {
 
     );
   }
+
+  //Kaydetme işlemini sağlayan fonksiyon
   void addIlan() async {
     var result = await dbHelper.insertIlan(Ilanlar.withOutId(
       baslik: txtBaslik.text,
@@ -175,6 +188,6 @@ void initState() {
       sirket_id: int.parse(txtSirketId.text),
       tarih: DateFormat('yyyy-MM-dd').parse(txtTarih.text),
       ));
-    Navigator.pop(context, true);
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeAdmin(company: widget.company, isLoggedin: true,)));
   }
 }

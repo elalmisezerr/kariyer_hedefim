@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MyButton extends StatelessWidget {
@@ -13,13 +12,13 @@ class MyButton extends StatelessWidget {
       onTap: onTap,
 
       child: Container(
-        padding: EdgeInsets.all(25),
-        margin: EdgeInsets.symmetric(horizontal: 25.0),
+        padding: const EdgeInsets.all(15),
+        margin: const EdgeInsets.symmetric(horizontal: 25.0),
         decoration: BoxDecoration(
-          color: Colors.black,
-          borderRadius: BorderRadius.circular(8),
+          color: Color(0xffbf1922).withOpacity(0.7),
+          borderRadius: BorderRadius.circular(20),
         ),
-        child: Center(
+        child: const Center(
           child: Text(
             "Giriş Yap",
             style: TextStyle(
