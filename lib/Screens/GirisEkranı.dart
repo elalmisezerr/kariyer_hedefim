@@ -13,7 +13,7 @@ class GirisEkrani extends StatelessWidget {
     var en = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:Color(0xffbf1922).withOpacity(0.5),
+        backgroundColor:Color(0xffbf1922),
         title: Text("Ana Sayfa"),
         automaticallyImplyLeading: false,
         centerTitle: true,

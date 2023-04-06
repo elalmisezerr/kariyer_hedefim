@@ -137,7 +137,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
                 Row(
                   children: [
                     Text("Üye değil misin?",style: TextStyle(
-                      color: Colors.white,
+                      color: Color(0xffbf1922),
                     ),),
                     SizedBox(
                       width: 4,
@@ -145,7 +145,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
                     Text(
                       "Kayıt ol",
                       style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                          color: Color(0xffbf1922), fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -161,7 +161,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
                       child: Text(
                         "Anasayfa'ya Git",
                         style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
+                            color: Color(0xffbf1922), fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
