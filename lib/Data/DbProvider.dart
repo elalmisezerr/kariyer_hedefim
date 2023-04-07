@@ -142,9 +142,11 @@ class DatabaseProvider {
     return await db!.query('basvurular',
         where: 'kullanici_id = ?', whereArgs: [kullaniciId]);
   }
+
   Future<Company?> getCompanyById(int id) async {
     final db = await dbProvider.db;
-    final result = await db!.query('sirketler', where: 'id = ?', whereArgs: [id]);
+    final result =
+        await db!.query('sirketler', where: 'id = ?', whereArgs: [id]);
     if (result.isNotEmpty) {
       return Company.fromObject(result.first);
     } else {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:intl/intl.dart';
+import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/GirisKullanici.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciAnasayfa.dart';
 import 'package:kariyer_hedefim/Validation/ValidationUser.dart';
@@ -29,6 +31,7 @@ class _UserDetailState extends State<UserDetail>  {
   var txtAdres = TextEditingController();
   final formKey = GlobalKey<FormState>();
   _UserDetailState(this.user);
+  final _advancedDrawerController = AdvancedDrawerController();
 
   @override
   void initState() {
@@ -45,27 +48,68 @@ class _UserDetailState extends State<UserDetail>  {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title:
-            Text("${user!.ad} ${user!.soyad}'in Profil Sayfasına Hoşgeldiniz"),
-        actions: <Widget>[
-          PopupMenuButton<Options>(
-              onSelected: selectProcess,
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<Options>>[
-                    PopupMenuItem<Options>(
-                      value: Options.delete,
-                      child: Text("Sil"),
-                    ),
-                    PopupMenuItem<Options>(
-                      value: Options.update,
-                      child: Text("Güncelle"),
-                    ),
-                  ])
-        ],
+    return AdvancedDrawer(
+      backdropColor: Colors.white,
+      controller: _advancedDrawerController,
+      animationCurve: Curves.easeInOut,
+      animationDuration: const Duration(milliseconds: 300),
+      animateChildDecoration: true,
+      rtlOpening: false,
+      // openScale: 1.0,
+      disabledGestures: false,
+      childDecoration: const BoxDecoration(
+        // NOTICE: Uncomment if you want to add shadow behind the page.
+        // Keep in mind that it may cause animation jerks.
+        // boxShadow: <BoxShadow>[
+        //   BoxShadow(
+        //     color: Colors.black12,
+        //     blurRadius: 0.0,
+        //   ),
+        // ],
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
-      body: Form(
-        child: buildGovde(),
+      drawer: MyDrawer(user:widget.user),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Color(0xffbf1922),
+          leading: IconButton(
+            onPressed: _handleMenuButtonPressed,
+            icon: ValueListenableBuilder<AdvancedDrawerValue>(
+              valueListenable: _advancedDrawerController,
+              builder: (_, value, __) {
+                return AnimatedSwitcher(
+                  duration: Duration(milliseconds: 250),
+                  child: Icon(
+                    value.visible ? Icons.clear : Icons.menu,
+                    key: ValueKey<bool>(value.visible),
+                  ),
+                );
+              },
+            ),
+          ),
+          title: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Expanded(child: Text("${user!.ad}'in Profil Sayfasına Hoşgeldiniz")),
+              ),
+          actions: <Widget>[
+            PopupMenuButton<Options>(
+                onSelected: selectProcess,
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<Options>>[
+                      PopupMenuItem<Options>(
+                        value: Options.delete,
+                        child: Text("Sil"),
+                      ),
+                      PopupMenuItem<Options>(
+                        value: Options.update,
+                        child: Text("Güncelle"),
+                      ),
+                    ])
+          ],
+        ),
+
+        body: Form(
+          child: buildGovde(),
+        ),
       ),
     );
   }
@@ -377,5 +421,10 @@ class _UserDetailState extends State<UserDetail>  {
         ),
       ),
     );
+  }
+  void _handleMenuButtonPressed() {
+    // NOTICE: Manage Advanced Drawer state through the Controller.
+    // _advancedDrawerController.value = AdvancedDrawerValue.visible();
+    _advancedDrawerController.showDrawer();
   }
 }

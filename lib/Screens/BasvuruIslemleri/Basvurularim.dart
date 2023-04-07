@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 
 import '../../Models/JobAdvertisements.dart';
@@ -26,6 +27,7 @@ class _BasvurularimState extends State<Basvurularim> {
         automaticallyImplyLeading: false,
         title: Text("Basvurularım"),
       ),
+      drawer: MyDrawer(user:widget.user!),
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(

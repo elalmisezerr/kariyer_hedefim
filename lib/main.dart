@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kariyer_hedefim/Deneme.dart';
 import 'package:kariyer_hedefim/Screens/GirisEkranı.dart';
 
 
