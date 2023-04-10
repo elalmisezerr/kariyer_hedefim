@@ -44,7 +44,7 @@ class DatabaseProvider {
     await db.execute(
         "CREATE TABLE basvurular (id INTEGER PRIMARY KEY AUTOINCREMENT,ilan_id TEXT,kullanici_id TEXT,basvuru_tarihi TEXT,FOREIGN KEY (ilan_id) REFERENCES ilanlar(id),FOREIGN KEY (kullanici_id) REFERENCES users(id));");
     await db.execute(
-        "CREATE TABLE ilanlar (id INTEGER PRIMARY KEY AUTOINCREMENT,baslik TEXT,aciklama TEXT,sirket_id TEXT,tarih TEXT,FOREIGN KEY (sirket_id) REFERENCES sirketler(id));");
+        "CREATE TABLE ilanlar (id INTEGER PRIMARY KEY AUTOINCREMENT,baslik TEXT,aciklama TEXT,sirket_id TEXT,tarih TEXT,calisma_zamani INTEGER,FOREIGN KEY (sirket_id) REFERENCES sirketler(id));");
   }
 
   //Get List

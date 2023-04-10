@@ -1,3 +1,4 @@
+import 'package:decorated_dropdownbutton/decorated_dropdownbutton.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
@@ -21,6 +22,9 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin{
   var txtaciklama=TextEditingController();
   var txtSirketId=TextEditingController();
   var txtTarih=TextEditingController();
+  var selectedValue='1';
+
+  String? temp;
 
 @override
 void initState() {
@@ -46,6 +50,9 @@ void initState() {
               SizedBox(),
               buildAciklama(),
               buildTarih(),
+              SizedBox(height: 15,),
+              DrpMenu(),
+              SizedBox(),
               buildSaveButton(),
 
             ],
@@ -146,6 +153,44 @@ void initState() {
     }
   }
 
+
+  DrpMenu(){
+    return DecoratedDropdownButton(
+      value: selectedValue,
+      items: [
+        DropdownMenuItem(
+            child: Text("Tam Zamanlı"),
+            value: "1"
+        ),
+
+        DropdownMenuItem(
+            child: Text("Yarı Zamanlı"),
+            value: "2"
+        ),
+        DropdownMenuItem(
+            child: Text("Her İkisi"),
+            value: "3"
+        )
+      ],
+      onChanged: (value) {
+        setState(() {
+          selectedValue = value.toString();
+          temp = value.toString();
+        });
+      },
+
+      color: Colors.orange, //background color //border
+      borderRadius: BorderRadius.circular(20), //border radius
+      style: TextStyle( //text style
+          color:Colors.white,
+          fontSize: 20
+      ),
+      icon: Icon(Icons.arrow_downward), //icon
+      iconEnableColor: Colors.white, //icon enable color
+      dropdownColor: Colors.orange,  //dropdown background color
+    );
+  }
+
   //Kaydetme butonu
   buildSaveButton() {
     return TextButton(
@@ -187,6 +232,7 @@ void initState() {
       aciklama: txtaciklama.text,
       sirket_id: int.parse(txtSirketId.text),
       tarih: DateFormat('yyyy-MM-dd').parse(txtTarih.text),
+      calisma_zamani: int.parse(temp!),
       ));
     Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeAdmin(company: widget.company, isLoggedin: true,)));
   }

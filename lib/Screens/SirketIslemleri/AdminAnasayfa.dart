@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Models/JobAdvertisements.dart';
+import 'package:kariyer_hedefim/Screens/IlanIslemleri/IlanDetay.dart';
 import 'package:kariyer_hedefim/Screens/IlanIslemleri/IlanDuzenle.dart';
 import 'package:kariyer_hedefim/Screens/SirketIslemleri/GirisAdmin.dart';
 
@@ -68,12 +69,6 @@ class _HomeAdminState extends State<HomeAdmin>
       drawer: createDrawer(),
       drawerEnableOpenDragGesture: false,
       body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assect/images/company.jpg"),
-            fit: BoxFit.cover,
-          ),
-        ),
         child: Center(
           child: govde(),
         ),
@@ -101,81 +96,58 @@ class _HomeAdminState extends State<HomeAdmin>
     return ListView.builder(
       itemCount: ilanlar.length,
       itemBuilder: (BuildContext context, int position) {
-        return Card(
-          elevation: 2.0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => IlanDuzenleme(
-                    ilanlar: ilanlar[position],
-                    company: widget.company,
-                  ),
-                ),
-              );
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(1)
-              ),
-              child: ListTile(
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(25.0),
-                  child: Image.network(
-                    'https://img.freepik.com/free-vector/hiring-process_23-2148642176.jpg?w=826&t=st=1679557821~exp=1679558421~hmac=4d5df907230cd7727dfe0cd2aab440d3c1f6d192152521b83d90f489de2a564d',
-                    width: 50.0,
-                    height: 50.0,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      ilanlar[position].baslik.toUpperCase(),
-                      style: TextStyle(
-                        color: Colors.grey[800],
-                        fontWeight: FontWeight.bold,
+        return InkWell(
+          onTap: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>IlanDuzenleme(ilanlar: ilanlar[position], company: widget.company,)));
+          },
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        ilanlar[position].baslik,
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 5.0),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.access_time,
-                          size: 16.0,
-                          color: Colors.grey[600],
-                        ),
-                        SizedBox(width: 5.0),
-                        Text(
-                          DateFormat('yyyy-MM-dd').format(
-                            ilanlar[position].tarih,
-                          ),
-                          style: TextStyle(
-                            fontSize: 14.0,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                subtitle: Text(
-                  ilanlar[position].aciklama,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.grey[600],
+                      Icon(
+                        Icons.bookmark_border,
+                        size: 30.0,
+                      ),
+                    ],
                   ),
-                ),
+                  SizedBox(height: 8.0),
+                  Text(
+                    ilanlar[position].aciklama,
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                  SizedBox(height: 8.0),
+                  Row(
+                    children: [
+                      Icon(Icons.access_time),
+                      SizedBox(width: 5.0),
+                      Text(checkJobTime(
+                              ilanlar[position].calisma_zamani.toString()) ??
+                          "Tam Zamanli"),
+                      SizedBox(width: 10.0),
+                      Icon(Icons.date_range),
+                      SizedBox(width: 5.0),
+                      Text(DateFormat('yyyy-MM-dd')
+                          .format(ilanlar[position].tarih)),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
         );
+        ;
       },
     );
   }
@@ -243,4 +215,96 @@ class _HomeAdminState extends State<HomeAdmin>
       ),
     );
   }
+
+  String? checkJobTime(String? value) {
+    print(value);
+    if (value != null && value.isNotEmpty) {
+      if (value == 1) {
+        return "Tam Zamanlı";
+      } else if (value == 2) {
+        return "Yarı Zamanlı";
+      } else if (value == 3) {
+        return "Her İkisi";
+      }
+    }
+  }
 }
+
+// kart1(){
+//     return Card(
+//       elevation: 2.0,
+//       shape: RoundedRectangleBorder(
+//         borderRadius: BorderRadius.circular(10.0),
+//       ),
+//       child: GestureDetector(
+//         onTap: () {
+//           Navigator.push(
+//             context,
+//             MaterialPageRoute(
+//               builder: (context) => IlanDuzenleme(
+//                 ilanlar: ilanlar[position],
+//                 company: widget.company,
+//               ),
+//             ),
+//           );
+//         },
+//         child: Container(
+//           decoration: BoxDecoration(
+//               color: Colors.white.withOpacity(1)
+//           ),
+//           child: ListTile(
+//             leading: ClipRRect(
+//               borderRadius: BorderRadius.circular(25.0),
+//               child: Image.network(
+//                 'https://img.freepik.com/free-vector/hiring-process_23-2148642176.jpg?w=826&t=st=1679557821~exp=1679558421~hmac=4d5df907230cd7727dfe0cd2aab440d3c1f6d192152521b83d90f489de2a564d',
+//                 width: 50.0,
+//                 height: 50.0,
+//                 fit: BoxFit.cover,
+//               ),
+//             ),
+//             title: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   ilanlar[position].baslik.toUpperCase(),
+//                   style: TextStyle(
+//                     color: Colors.grey[800],
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//                 SizedBox(height: 5.0),
+//                 Row(
+//                   children: [
+//                     Icon(
+//                       Icons.access_time,
+//                       size: 16.0,
+//                       color: Colors.grey[600],
+//                     ),
+//                     SizedBox(width: 5.0),
+//                     Text(
+//                       DateFormat('yyyy-MM-dd').format(
+//                         ilanlar[position].tarih,
+//                       ),
+//                       style: TextStyle(
+//                         fontSize: 14.0,
+//                         color: Colors.grey[600],
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//                 Text(ilanlar[position].calisma_zamani.toString())
+//               ],
+//             ),
+//             subtitle: Text(
+//               ilanlar[position].aciklama,
+//               maxLines: 2,
+//               overflow: TextOverflow.ellipsis,
+//               style: TextStyle(
+//                 color: Colors.grey[600],
+//               ),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+// }

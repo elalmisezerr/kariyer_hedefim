@@ -1,3 +1,4 @@
+import 'package:decorated_dropdownbutton/decorated_dropdownbutton.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/BasvuruGoruntule.dart';
@@ -32,6 +33,9 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
   var txtaciklama = TextEditingController();
   var txtSirketId = TextEditingController();
   var txtTarih = TextEditingController();
+  var temp;
+
+  var selectedValue="1";
 
   _IlanDuzenlemeState(this.company, this.ilanlar);
 
@@ -41,6 +45,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
     txtaciklama.text = ilanlar!.aciklama;
     txtSirketId.text = ilanlar!.sirket_id.toString();
     txtTarih.text = DateFormat('yyyy-MM-dd').format(ilanlar!.tarih);
+    temp=ilanlar!.calisma_zamani.toString();
     super.initState();
   }
 
@@ -74,6 +79,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
               buildTarih(),
               buildUpdateButton(),
               buildBasvuranlarButton(),
+              DropdownButon1(),
             ],
           ),
         ),
@@ -158,6 +164,32 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
     );
   }
 
+  DropdownButon1() {
+    return DecoratedDropdownButton(
+      value: selectedValue,
+      items: [
+        DropdownMenuItem(child: Text("Tam Zamanlı"), value: "1"),
+        DropdownMenuItem(child: Text("Yarı Zamanlı"), value: "2"),
+        DropdownMenuItem(child: Text("Her İkisi"), value: "3")
+      ],
+      onChanged: (value) {
+        setState(() {
+          selectedValue = value.toString();
+          temp = value.toString();
+        });
+      },
+      color: Colors.orange, //background colorer
+      borderRadius: BorderRadius.circular(20), //border radius
+      style: TextStyle(
+          //text style
+          color: Colors.white,
+          fontSize: 20),
+      icon: Icon(Icons.arrow_downward), //icon
+      iconEnableColor: Colors.white, //icon enable color
+      dropdownColor: Colors.orange, //dropdown background color
+    );
+  }
+
   //Tarih seçici
   Future<void> _showDatePicker() async {
     final DateTime? selectedDate = await showDatePicker(
@@ -177,7 +209,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
   buildUpdateButton() {
     return TextButton(
       onPressed: () async {
-        if (formKey.currentState!.validate())  {
+        if (formKey.currentState!.validate()) {
           formKey.currentState!.save();
           print(ilanlar!.baslik);
           await dbHelper.updateIlan(Ilanlar(
@@ -186,10 +218,16 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
             aciklama: txtaciklama.text,
             tarih: DateFormat('yyyy-MM-dd').parse(txtTarih.text),
             sirket_id: company!.id,
+            calisma_zamani: int.parse(temp!),
           ));
         }
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeAdmin(company: company, isLoggedin: false, )));
-
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomeAdmin(
+                      company: company,
+                      isLoggedin: false,
+                    )));
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -213,11 +251,15 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
         ),
       ),
     );
-  } 
+  }
+
   buildBasvuranlarButton() {
     return TextButton(
       onPressed: () async {
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>BasvuruGoruntule(ilanlar: ilanlar)));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => BasvuruGoruntule(ilanlar: ilanlar)));
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -249,8 +291,8 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
     switch (options) {
       case Options.delete:
         await dbHelper.deleteIlan(ilanlar!.id!);
-        Navigator.pop(context,true);
-      break;
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeAdmin(company: widget.company, isLoggedin: true,)));
+        break;
       default:
     }
   }
