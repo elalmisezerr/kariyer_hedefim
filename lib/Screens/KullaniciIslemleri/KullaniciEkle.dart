@@ -238,7 +238,7 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin{
     if (selectedDate != null) {
       setState(() {
         txtBirthDate.text =
-            (DateFormat('yyyy-MM-dd').format(selectedDate)).toString();
+            (DateFormat('dd-MM-yyyy').format(selectedDate)).toString();
       });
     }
   }
@@ -280,7 +280,7 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin{
     var result = await dbHelper.insertUser(User.withOutId(
       ad: txtName.text,
       soyad: txtSurname.text,
-      dogumtarihi: DateFormat('yyyy-MM-dd').parse(txtBirthDate.text),
+      dogumtarihi: DateFormat('dd-MM-yyyy').parse(txtBirthDate.text),
       email: txtuserName.text,
       password: txtpassWord.text,
       telefon: txtTelefon.text,

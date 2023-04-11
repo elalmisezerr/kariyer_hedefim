@@ -18,7 +18,7 @@ class User {
       id: map['id'] as int?,
       ad: map['ad'] as String,
       soyad: map['soyad'] as String,
-      dogumtarihi: DateFormat('yyyy-MM-dd').parse(map['dogumtarihi'] as String),
+      dogumtarihi: DateFormat('dd-MM-yyyy').parse(map['dogumtarihi'] as String),
       email: map['email'] as String,
       password: map['password'] as String,
       telefon: map['telefon'] as String,

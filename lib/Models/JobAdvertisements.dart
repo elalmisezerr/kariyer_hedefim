@@ -31,7 +31,7 @@ class Ilanlar {
       baslik: map['baslik'] as String,
       aciklama: map['aciklama'] as String,
       sirket_id: int.parse(map['sirket_id'].toString()),
-      tarih: DateFormat('yyyy-MM-dd').parse(map['tarih'] as String),
+      tarih: DateFormat('dd-MM-yyyy').parse(map['tarih'] as String),
       calisma_zamani: int.parse(map['calisma_zamani'].toString())
     );
   }

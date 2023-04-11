@@ -38,6 +38,7 @@ dependencies:
   file_picker: ^4.0.0
   flutter_email_sender: ^5.0.1
   decorated_dropdownbutton: ^0.0.3
+  flutter_localization:
 
 
   # The following adds the Cupertino Icons font to your application.

@@ -33,14 +33,18 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.grey[300],
-        body: SafeArea(
-          child: Container(
+        body: Container(
+          child: SafeArea(
             child: Center(
               child: Form(
                 key: formKey,
-                child: ListView(
-                  //mainAxisAlignment: MainAxisAlignment.center,
-                  children: govde(),
+                child: SingleChildScrollView(
+                  child: Container(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: govde(),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -59,8 +63,6 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
       // welcome back, you've been missed
       Center(
         child: Container(
-          child: Center(
-            child: Expanded(
               child: Text(
                 "Kariyer Hedefim Uygulamasına Hoşgeldiniz!",
                 style: TextStyle(
@@ -69,10 +71,8 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
           ),
         ),
-      ),
       // username textfield
       MyTextField(
         validator: validateUserName,
@@ -101,14 +101,14 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
         ),
       ),
       const SizedBox(
-        height: 10,
+        height: 5,
       ),
       // sign in button
       MyButton(
           onTap:() async {
     await girisYap(userNameController.text, passwordController.text);}),
       const SizedBox(
-        height: 4,
+        height: 5,
       ),
       // google+ apple sign in buttons
       Row(
@@ -122,55 +122,58 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
           ),
         ],
       ),
+      const SizedBox(
+        height: 5,
+      ),
       // not a member? register now
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      Column(
         children: [
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const UsersAdd()));
-            },
-            child: Column(
-              children: [
-                Row(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const UsersAdd()));
+                },
+                child: Row(
                   children: [
-                    Text("Üye değil misin?",style: TextStyle(
-                      color: Color(0xffbf1922),
-                    ),),
+                    Text(
+                      "Üye değil misin?",
+                      style: TextStyle(
+                        color: Color(0xffbf1922),
+                      ),
+                    ),
                     SizedBox(
                       width: 4,
                     ),
                     Text(
                       "Kayıt ol",
                       style: TextStyle(
-                          color: Color(0xffbf1922), fontWeight: FontWeight.bold),
+                          color: Color(0xffbf1922),
+                          fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const GirisEkrani()));
-                      },
-                      child: Text(
-                        "Anasayfa'ya Git",
-                        style: TextStyle(
-                            color: Color(0xffbf1922), fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                )
-              ],
+              ),
+            ],
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const GirisEkrani()));
+            },
+            child: Text(
+              "Anasayfa'ya Git",
+              style: TextStyle(
+                  color: Color(0xffbf1922), fontWeight: FontWeight.bold),
             ),
           ),
         ],
       ),
+
 
     ];
   }
@@ -203,3 +206,53 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
     print("çalıştı");
   }
 }
+
+
+// Row(
+// mainAxisAlignment: MainAxisAlignment.center,
+// children: [
+// TextButton(
+// onPressed: () {
+// Navigator.push(
+// context,
+// MaterialPageRoute(builder: (context) => const UsersAdd()));
+// },
+// child: Column(
+// children: [
+// Row(
+// children: [
+// Text("Üye değil misin?",style: TextStyle(
+// color: Color(0xffbf1922),
+// ),),
+// SizedBox(
+// width: 4,
+// ),
+// Text(
+// "Kayıt ol",
+// style: TextStyle(
+// color: Color(0xffbf1922), fontWeight: FontWeight.bold),
+// ),
+// ],
+// ),
+// Row(
+// mainAxisAlignment: MainAxisAlignment.center,
+// children: [
+// TextButton(
+// onPressed: () {
+// Navigator.push(
+// context,
+// MaterialPageRoute(builder: (context) => const GirisEkrani()));
+// },
+// child: Text(
+// "Anasayfa'ya Git",
+// style: TextStyle(
+// color: Color(0xffbf1922), fontWeight: FontWeight.bold),
+// ),
+// ),
+// ],
+// )
+// ],
+// ),
+// ),
+// ],
+// ),

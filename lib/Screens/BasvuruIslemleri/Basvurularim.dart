@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 
 import '../../Models/JobAdvertisements.dart';
 import '../../Models/User.dart';
+import '../GirisEkranı.dart';
 
 class Basvurularim extends StatefulWidget {
   User? user;
@@ -18,40 +20,78 @@ class Basvurularim extends StatefulWidget {
 class _BasvurularimState extends State<Basvurularim> {
   var dbHelper = DatabaseProvider();
 
+  final _advancedDrawerController = AdvancedDrawerController();
+
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        title: Text("Basvurularım"),
+    return AdvancedDrawer(
+      backdropColor: Colors.white,
+      controller: _advancedDrawerController,
+      animationCurve: Curves.elasticInOut,
+      animationDuration: const Duration(milliseconds: 300),
+      animateChildDecoration: true,
+
+      rtlOpening: false,
+      // openScale: 1.0,
+      disabledGestures: false,
+      childDecoration: const BoxDecoration(
+        // NOTICE: Uncomment if you want to add shadow behind the page.
+        // Keep in mind that it may cause animation jerks.
+        // boxShadow: <BoxShadow>[
+        //   BoxShadow(
+        //     color: Colors.black12,
+        //     blurRadius: 0.0,
+        //   ),
+        // ],
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
-      drawer: MyDrawer(user:widget.user!),
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assect/images/arkabir.png"),
-            fit: BoxFit.cover,
+      drawer: MyDrawer(user: widget.user!),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Color(0xffbf1922),
+          leading: IconButton(
+            onPressed: _handleMenuButtonPressed,
+            icon: ValueListenableBuilder<AdvancedDrawerValue>(
+              valueListenable: _advancedDrawerController,
+              builder: (_, value, __) {
+                return AnimatedSwitcher(
+                  duration: Duration(milliseconds: 250),
+                  child: Icon(
+                    value.visible ? Icons.clear : Icons.menu,
+                    key: ValueKey<bool>(value.visible),
+                  ),
+                );
+              },
+            ),
           ),
+          title: Text("Başvurularım"),
         ),
-        child: FutureBuilder<List<Ilanlar>>(
-          future: dbHelper.getIlanlarByKullaniciId(widget.user!.id.toString()),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  'Hata: ${snapshot.error}',
-                  style: TextStyle(fontSize: 10),
-                ),
-              );
-            } else {
-              final ilan = snapshot.data ?? [];
-              return buildIlanList(ilan);
-            }
-          },
+        body: Container(
+          // decoration: BoxDecoration(
+          //   image: DecorationImage(
+          //     image: AssetImage("assect/images/arkabir.png"),
+          //     fit: BoxFit.cover,
+          //   ),
+          // ),
+          child: FutureBuilder<List<Ilanlar>>(
+            future: dbHelper.getIlanlarByKullaniciId(widget.user!.id.toString()),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Hata: ${snapshot.error}',
+                    style: TextStyle(fontSize: 10),
+                  ),
+                );
+              } else {
+                final ilan = snapshot.data ?? [];
+                return buildIlanList(ilan);
+              }
+            },
+          ),
         ),
       ),
     );
@@ -134,6 +174,14 @@ class _BasvurularimState extends State<Basvurularim> {
       },
     );
   }
+
+  void _handleMenuButtonPressed() {
+    // NOTICE: Manage Advanced Drawer state through the Controller.
+    // _advancedDrawerController.value = AdvancedDrawerValue.visible();
+    _advancedDrawerController.showDrawer();
+  }
+
+
 
   Future<String?> sirketIsmiGetir(String sirketId) async {
     final result = await dbHelper.getCompanyById(int.parse(sirketId));

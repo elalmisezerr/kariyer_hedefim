@@ -66,7 +66,7 @@ class _BasvuruSayfasiState extends State<BasvuruSayfasi> {
     var result = await dbHelper.insertBasvuru(Basvuru.withoutId(
       ilanId: widget.ilanlar!.id.toString(),
       kullaniciId: widget.user.id.toString(),
-      basvuruTarihi: DateFormat('yyyy-MM-dd').parse(tarihSimdi),
+      basvuruTarihi: DateFormat('dd-MM-yyyy').parse(tarihSimdi),
     ));
     Navigator.pop(context, true);
   }

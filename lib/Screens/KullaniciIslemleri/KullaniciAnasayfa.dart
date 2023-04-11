@@ -72,12 +72,6 @@ class _HomeState extends State<HomeUser> {
           ],
         ),
         body: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assect/images/userhome.jpg"),
-              fit: BoxFit.fill,
-            ),
-          ),
           child: FutureBuilder<List<Ilanlar>>(
             future: dbHelper.getIlanlar(),
             builder: (context, snapshot) {
@@ -178,7 +172,7 @@ class _HomeState extends State<HomeUser> {
                         ),
                         SizedBox(width: 5.0),
                         Text(
-                          DateFormat('yyyy-MM-dd').format(
+                          DateFormat('dd-MM-yyyy').format(
                             ilanlar[position].tarih,
                           ),
                           style: TextStyle(

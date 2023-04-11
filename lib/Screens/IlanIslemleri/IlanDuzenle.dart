@@ -44,8 +44,9 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
     txtBaslik.text = ilanlar!.baslik;
     txtaciklama.text = ilanlar!.aciklama;
     txtSirketId.text = ilanlar!.sirket_id.toString();
-    txtTarih.text = DateFormat('yyyy-MM-dd').format(ilanlar!.tarih);
+    txtTarih.text = DateFormat('dd-MM-yyyy').format(ilanlar!.tarih);
     temp=ilanlar!.calisma_zamani.toString();
+    selectedValue=ilanlar!.calisma_zamani.toString();
     super.initState();
   }
 
@@ -77,9 +78,9 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
               SizedBox(),
               buildAciklama(),
               buildTarih(),
+              DropdownButon1(),
               buildUpdateButton(),
               buildBasvuranlarButton(),
-              DropdownButon1(),
             ],
           ),
         ),
@@ -200,7 +201,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
     if (selectedDate != null) {
       setState(() {
         txtTarih.text =
-            (DateFormat('yyyy-MM-dd').format(selectedDate)).toString();
+            (DateFormat('dd-MM-yyyy').format(selectedDate)).toString();
       });
     }
   }
@@ -216,7 +217,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
             id: ilanlar!.id,
             baslik: txtBaslik.text,
             aciklama: txtaciklama.text,
-            tarih: DateFormat('yyyy-MM-dd').parse(txtTarih.text),
+            tarih: DateFormat('dd-MM-yyyy').parse(txtTarih.text),
             sirket_id: company!.id,
             calisma_zamani: int.parse(temp!),
           ));
@@ -277,12 +278,11 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
           ],
           color: Colors.orange,
         ),
-        child: Expanded(
+
           child: Text(
             "Başvuranları Görüntüle",
             style: TextStyle(fontSize: 20, color: Colors.white),
           ),
-        ),
       ),
     );
   }

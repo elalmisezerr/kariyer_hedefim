@@ -19,7 +19,7 @@ class UserDetail extends StatefulWidget {
 
 enum Options { delete, update }
 
-class _UserDetailState extends State<UserDetail>  {
+class _UserDetailState extends State<UserDetail> {
   User? user;
   var dbHelper = DatabaseProvider();
   var txtName = TextEditingController();
@@ -35,16 +35,19 @@ class _UserDetailState extends State<UserDetail>  {
 
   @override
   void initState() {
-    txtName.text = user!.ad;
-    txtSurname.text = user!.soyad;
-    txtBirthDate.text = DateFormat('yyyy-MM-dd').format(user!.dogumtarihi);
-    txtuserName.text = user!.email;
-    txtpassWord.text = user!.password;
-    txtTelefon.text = user!.telefon;
-    txtAdres.text = user!.adres;
-    super.initState();
+    txtName.text = user?.ad ?? '';
+    txtSurname.text = user?.soyad ?? '';
+    txtBirthDate.text =
+        DateFormat('dd-MM-yyyy').format(user?.dogumtarihi ?? DateTime.now());
+    txtuserName.text = user?.email ?? '';
+    txtpassWord.text = user?.password ?? '';
+    txtTelefon.text = user?.telefon ?? '';
+    txtAdres.text = user?.adres ?? '';
 
+    super.initState();
   }
+
+  bool _isObscured = true; // şifrenin gizli olup olmadığını takip eder
 
   @override
   Widget build(BuildContext context) {
@@ -68,46 +71,48 @@ class _UserDetailState extends State<UserDetail>  {
         // ],
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
-      drawer: MyDrawer(user:widget.user),
+      drawer: MyDrawer(user: widget.user),
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Color(0xffbf1922),
-          leading: IconButton(
-            onPressed: _handleMenuButtonPressed,
-            icon: ValueListenableBuilder<AdvancedDrawerValue>(
-              valueListenable: _advancedDrawerController,
-              builder: (_, value, __) {
-                return AnimatedSwitcher(
-                  duration: Duration(milliseconds: 250),
-                  child: Icon(
-                    value.visible ? Icons.clear : Icons.menu,
-                    key: ValueKey<bool>(value.visible),
-                  ),
-                );
-              },
-            ),
+        backgroundColor: Color(0xffbf1922),
+        leading: IconButton(
+          onPressed: _handleMenuButtonPressed,
+          icon: ValueListenableBuilder<AdvancedDrawerValue>(
+            valueListenable: _advancedDrawerController,
+            builder: (_, value, __) {
+              return AnimatedSwitcher(
+                duration: Duration(milliseconds: 250),
+                child: Icon(
+                  value.visible ? Icons.clear : Icons.menu,
+                  key: ValueKey<bool>(value.visible),
+                ),
+              );
+            },
           ),
-          title: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Expanded(child: Text("${user!.ad}'in Profil Sayfasına Hoşgeldiniz")),
-              ),
-          actions: <Widget>[
-            PopupMenuButton<Options>(
-                onSelected: selectProcess,
-                itemBuilder: (BuildContext context) => <PopupMenuEntry<Options>>[
-                      PopupMenuItem<Options>(
-                        value: Options.delete,
-                        child: Text("Sil"),
-                      ),
-                      PopupMenuItem<Options>(
-                        value: Options.update,
-                        child: Text("Güncelle"),
-                      ),
-                    ])
-          ],
         ),
+        title: Text(
+          "Hoşgeldin ${user!.ad} ",
+          overflow: TextOverflow.ellipsis,
+        ),
+        actions: <Widget>[
+          PopupMenuButton<Options>(
+            onSelected: selectProcess,
+            itemBuilder: (BuildContext context) =>
+            <PopupMenuEntry<Options>>[
+              PopupMenuItem<Options>(
+                value: Options.delete,
+                child: Text("Sil"),
+              ),
+              PopupMenuItem<Options>(
+                value: Options.update,
+                child: Text("Güncelle"),
+              ),
+            ],
+          )
+        ],
+      ),
 
-        body: Form(
+          body: Form(
           child: buildGovde(),
         ),
       ),
@@ -118,6 +123,10 @@ class _UserDetailState extends State<UserDetail>  {
     return SingleChildScrollView(
       child: Column(
         children: [
+          SizedBox(
+            height: 15,
+          ),
+          // buildExample(),
           buildName(),
           SizedBox(
             height: 5.0,
@@ -130,7 +139,7 @@ class _UserDetailState extends State<UserDetail>  {
           SizedBox(
             height: 5.0,
           ),
-          buildUsername(),
+          buildEmail(),
           SizedBox(
             height: 5.0,
           ),
@@ -164,182 +173,196 @@ class _UserDetailState extends State<UserDetail>  {
     );
   }
 
+
+
   buildName() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Adınızı giriniz",
-          textAlign: TextAlign.left,
-        ),
-        SizedBox(height: 5.0),
-        TextFormField(
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      child: TextField(
+        controller: txtName,
+        decoration: InputDecoration(
             prefixIcon: Icon(Icons.person),
-          ),
-          controller: txtName,
-        )
-      ],
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            hintText: "Adınızı Giriniz",
+            labelText: "Ad",
+            filled: true,
+            fillColor: Colors.white),
+        cursorColor: Colors.yellow,
+      ),
     );
   }
 
   buildSurname() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Soyadınızı giriniz",
-          textAlign: TextAlign.left,
-        ),
-        SizedBox(height: 5.0),
-        TextFormField(
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      child: TextField(
+        controller: txtSurname,
+        decoration: InputDecoration(
             prefixIcon: Icon(Icons.person),
-          ),
-          controller: txtSurname,
-        )
-      ],
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            hintText: "Soyadınızı Giriniz",
+            labelText: "Soyad",
+            filled: true,
+            fillColor: Colors.white),
+        cursorColor: Colors.yellow,
+      ),
     );
   }
 
-  buildBirthDate() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Doğum tarihinizi seçin",
-          textAlign: TextAlign.left,
-        ),
-        SizedBox(height: 5.0),
-        TextFormField(
-          //readOnly: true,
-          onTap: _showDatePicker,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
+
+
+  Widget buildBirthDate() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      child: TextField(
+        onTap: _showDatePicker,
+        controller: txtBirthDate,
+        decoration: InputDecoration(
             prefixIcon: Icon(Icons.cake),
-          ),
-          controller: txtBirthDate,
-        )
-      ],
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            hintText: "Doğum Tarihini Giriniz",
+            labelText: "Doğum Tarihi",
+            filled: true,
+            fillColor: Colors.white),
+        cursorColor: Colors.yellow,
+
+      ),
     );
   }
 
-  buildUsername() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Kullanıcı adı giriniz",
-          textAlign: TextAlign.left,
-        ),
-        SizedBox(height: 5.0),
-        TextFormField(
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
+  buildEmail() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      child: TextField(
+        controller: txtuserName,
+        keyboardType: TextInputType.emailAddress,
+        decoration: InputDecoration(
             prefixIcon: Icon(Icons.email),
-          ),
-          controller: txtuserName,
-          keyboardType: TextInputType.emailAddress,
-        )
-      ],
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            hintText: "Email Giriniz",
+            labelText: "Email",
+            filled: true,
+            fillColor: Colors.white),
+        cursorColor: Colors.yellow,
+      ),
     );
   }
 
   buildPassword() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Şifrenizi girin",
-          textAlign: TextAlign.left,
-        ),
-        SizedBox(height: 5.0),
-        TextFormField(
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.lock),
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      child: TextField(
+        controller: txtpassWord,
+        obscureText: _isObscured,
+        keyboardType: TextInputType.visiblePassword,
+        decoration: InputDecoration(
+          prefixIcon: Icon(Icons.lock),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10))),
+          hintText: "Şifre Giriniz",
+          labelText: "Şifre",
+          filled: true,
+          fillColor: Colors.white,
+          suffixIcon: IconButton(
+            icon: Icon(
+              _isObscured ? Icons.visibility : Icons.visibility_off,
+              color: Colors.grey,
+            ),
+            onPressed: () {
+              setState(() {
+                _isObscured = !_isObscured;
+              });
+            },
           ),
-          controller: txtpassWord,
-          obscureText: true,
-          keyboardType: TextInputType.visiblePassword,
-        )
-      ],
-    );
-  }
-  buildTelefon() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Telefon numaranızı giriniz",
-          textAlign: TextAlign.left,
         ),
-        SizedBox(height: 5.0),
-        TextFormField(
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.phone),
-          ),
-          controller: txtTelefon,
-          keyboardType: TextInputType.phone,
-        )
-      ],
+        cursorColor: Colors.yellow,
+      ),
     );
   }
 
-  buildAdres() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Adresinizi giriniz",
-          textAlign: TextAlign.left,
-        ),
-        SizedBox(height: 5.0),
-        TextFormField(
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
+
+  buildTelefon() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      child: TextField(
+        controller: txtTelefon,
+        keyboardType: TextInputType.phone,
+        decoration: InputDecoration(
+            prefixIcon: Icon(Icons.phone),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            hintText: "Telefon Numarınızı Giriniz",
+            labelText: "Telefon",
+            filled: true,
+            fillColor: Colors.white),
+        cursorColor: Colors.yellow,
+      ),
+    );
+  }buildAdres() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      child: TextField(
+        maxLines: 3,
+        maxLength: 30,
+        controller: txtAdres,
+        keyboardType: TextInputType.streetAddress,
+        decoration: InputDecoration(
             prefixIcon: Icon(Icons.home),
-          ),
-          controller: txtAdres,
-          maxLines: 3,
-        )
-      ],
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            hintText: "Adresinizi Giriniz",
+            labelText: "Adres",
+            filled: true,
+            fillColor: Colors.white),
+        cursorColor: Colors.yellow,
+      ),
     );
   }
+
+
 
   Future<void> _showDatePicker() async {
     final DateTime? selectedDate = await showDatePicker(
         context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime(1900),
-        lastDate: DateTime(2025));
+        lastDate: DateTime(2025),
+        locale: const Locale('tr', 'TR') // Türkçe dil desteği ekledik
+    );
     if (selectedDate != null) {
       setState(() {
-        txtBirthDate.text =
-            (DateFormat('yyyy-MM-dd').format(selectedDate)).toString();
+        // Use DateFormat to format the selected date
+        txtBirthDate.text = DateFormat('dd-MM-yyyy', 'tr_TR').format(selectedDate);
       });
     }
   }
+
 
   void selectProcess(Options options) async {
     switch (options) {
       case Options.delete:
         await dbHelper.deleteUser(user!.id!);
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginUser()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => LoginUser()));
         break;
-      case Options.update: {
+      case Options.update:
+        {
           user!.ad = txtName.text;
           user!.soyad = txtSurname.text;
-          user!.dogumtarihi = DateFormat('yyyy-MM-dd').parse(txtBirthDate.text);
+          user!.dogumtarihi = DateFormat('dd-MM-yyyy').parse(txtBirthDate.text);
           user!.email = txtuserName.text;
           user!.password = txtpassWord.text;
           user!.telefon = txtTelefon.text;
           user!.adres = txtAdres.text;
           await dbHelper.updateUser(user!);
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeUser(user: widget.user)));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => HomeUser(user: widget.user)));
         }
         break;
       default:
@@ -351,19 +374,19 @@ class _UserDetailState extends State<UserDetail>  {
       onPressed: () async {
         if (formKey.currentState!.validate()) {
           formKey.currentState!.save();
-          print(user!.ad);
-          await dbHelper.updateUser(User(
-            id: user!.id,
-            ad: txtName.text,
-            soyad: txtSurname.text,
-            dogumtarihi: DateFormat('yyyy-MM-dd').parse(txtBirthDate.text),
-            email: txtuserName.text,
-            password: txtpassWord.text,
-            telefon: txtTelefon.text,
-            adres: txtAdres.text,
-          ));
+          user!.ad = txtName.text;
+          user!.soyad = txtSurname.text;
+          user!.dogumtarihi = DateFormat('dd-MM-yyyy').parse(txtBirthDate.text);
+          user!.email = txtuserName.text;
+          user!.password = txtpassWord.text;
+          user!.telefon = txtTelefon.text;
+          user!.adres = txtAdres.text;
+          await dbHelper.updateUser(user!);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => HomeUser(user: widget.user)));
         }
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeUser(user: widget.user)));
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -395,8 +418,8 @@ class _UserDetailState extends State<UserDetail>  {
         if (formKey.currentState!.validate()) {
           formKey.currentState!.save();
           await dbHelper.deleteUser(user!.id!);
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginUser()));
-
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => LoginUser()));
         }
       },
       child: Container(
@@ -422,6 +445,7 @@ class _UserDetailState extends State<UserDetail>  {
       ),
     );
   }
+
   void _handleMenuButtonPressed() {
     // NOTICE: Manage Advanced Drawer state through the Controller.
     // _advancedDrawerController.value = AdvancedDrawerValue.visible();

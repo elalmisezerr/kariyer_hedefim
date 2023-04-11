@@ -18,7 +18,6 @@ class LoginCompany extends StatefulWidget {
 }
 
 class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
-
   var dbHelper = DatabaseProvider();
   final userNameController = TextEditingController();
   final passwordController = TextEditingController();
@@ -53,7 +52,6 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
     );
   }
 
-
   List<Widget> govde() {
     return [
       // logo
@@ -68,7 +66,6 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
           child: Text(
             "Kariyer Hedefim Uygulamasına Hoşgeldiniz!",
             style: TextStyle(
-
               color: Color(0xffbf1922),
               fontSize: 15,
               fontWeight: FontWeight.bold,
@@ -98,7 +95,7 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
           children: [
             Text(
               "Parolanızı mı unuttunuz?",
-              style: TextStyle(color: Colors.grey[600]),
+              style: TextStyle(color: Color(0xffbf1922)),
             ),
           ],
         ),
@@ -107,9 +104,9 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
         height: 5,
       ),
       // sign in button
-      MyButton(
-          onTap:() async {
-    await girisYap(userNameController.text, passwordController.text);}),
+      MyButton(onTap: () async {
+        await girisYap(userNameController.text, passwordController.text);
+      }),
       const SizedBox(
         height: 5,
       ),
@@ -138,20 +135,25 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
                 onPressed: () {
                   Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const CompanyAdd()));
+                      MaterialPageRoute(
+                          builder: (context) => const CompanyAdd()));
                 },
                 child: Row(
                   children: [
-                    Text("Üye değil misin?",style: TextStyle(
-                      color: Colors.blue,
-                    ),),
+                    Text(
+                      "Üye değil misin?",
+                      style: TextStyle(
+                        color: Color(0xffbf1922),
+                      ),
+                    ),
                     SizedBox(
                       width: 4,
                     ),
                     Text(
                       "Kayıt ol",
                       style: TextStyle(
-                          color: Colors.blue.shade200, fontWeight: FontWeight.bold),
+                          color: Color(0xffbf1922),
+                          fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -160,46 +162,50 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
           ),
           TextButton(
             onPressed: () {
-              Navigator.push(
-                  context,
+              Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const GirisEkrani()));
             },
             child: Text(
               "Anasayfa'ya Git",
               style: TextStyle(
-                  color: Colors.grey.shade700, fontWeight: FontWeight.bold),
+                  color: Color(0xffbf1922), fontWeight: FontWeight.bold),
             ),
           ),
         ],
       ),
-
     ];
   }
 
-  Future<void> girisYap(String x,String y) async {
+  Future<void> girisYap(String x, String y) async {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
-      var result = await dbHelper.checkCompany(x,y);
+      var result = await dbHelper.checkCompany(x, y);
       saveStudent();
       if (result != null) {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => HomeAdmin(company: result,isLoggedin: true,)));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomeAdmin(
+                      company: result,
+                      isLoggedin: true,
+                    )));
       } else {
         print("Hatalı Giriş");
       }
     }
   }
 
-  Future signIn() async{
-    final user=await GoogleSignInApi.login();
-    if(user==null){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sign In Failed!")));
-    }else{
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>LoggedInPage(user:user)));
+  Future signIn() async {
+    final user = await GoogleSignInApi.login();
+    if (user == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Sign In Failed!")));
+    } else {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => LoggedInPage(user: user)));
     }
-
-
-
   }
+
   void saveStudent() {
     print("çalıştı");
   }
