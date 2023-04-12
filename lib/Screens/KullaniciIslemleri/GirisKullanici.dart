@@ -198,61 +198,9 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
     }else{
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>LoggedInPage(user:user)));
     }
-
-
-
   }
+
   void saveStudent() {
     print("çalıştı");
   }
 }
-
-
-// Row(
-// mainAxisAlignment: MainAxisAlignment.center,
-// children: [
-// TextButton(
-// onPressed: () {
-// Navigator.push(
-// context,
-// MaterialPageRoute(builder: (context) => const UsersAdd()));
-// },
-// child: Column(
-// children: [
-// Row(
-// children: [
-// Text("Üye değil misin?",style: TextStyle(
-// color: Color(0xffbf1922),
-// ),),
-// SizedBox(
-// width: 4,
-// ),
-// Text(
-// "Kayıt ol",
-// style: TextStyle(
-// color: Color(0xffbf1922), fontWeight: FontWeight.bold),
-// ),
-// ],
-// ),
-// Row(
-// mainAxisAlignment: MainAxisAlignment.center,
-// children: [
-// TextButton(
-// onPressed: () {
-// Navigator.push(
-// context,
-// MaterialPageRoute(builder: (context) => const GirisEkrani()));
-// },
-// child: Text(
-// "Anasayfa'ya Git",
-// style: TextStyle(
-// color: Color(0xffbf1922), fontWeight: FontWeight.bold),
-// ),
-// ),
-// ],
-// )
-// ],
-// ),
-// ),
-// ],
-// ),

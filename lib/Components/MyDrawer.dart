@@ -3,6 +3,8 @@ import 'package:kariyer_hedefim/Models/Company.dart';
 import 'package:kariyer_hedefim/Screens/GirisEkran%C4%B1.dart';
 import 'package:kariyer_hedefim/Screens/IlanIslemleri/%C4%B0lanEkleme.dart';
 import 'package:kariyer_hedefim/Screens/SirketIslemleri/AdminAnasayfa.dart';
+import 'package:kariyer_hedefim/Screens/SirketIslemleri/AdminDetay.dart';
+import 'package:kariyer_hedefim/Screens/SirketIslemleri/GirisAdmin.dart';
 
 import '../Models/User.dart';
 import '../Screens/BasvuruIslemleri/Basvurularim.dart';
@@ -138,7 +140,9 @@ class MyDrawerComp extends StatelessWidget {
                 title: Text('Anasayfa'),
               ),
               ListTile(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) =>AdminDetail(company: company,)));
+                },
                 leading: Icon(Icons.account_circle_rounded),
                 title: Text('Profili Düzenle'),
               ),
@@ -153,6 +157,12 @@ class MyDrawerComp extends StatelessWidget {
                 onTap: () {},
                 leading: Icon(Icons.settings),
                 title: Text('Ayarlar'),
+              ),ListTile(
+                onTap: () {
+                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginCompany()), (route) => false);
+                },
+                leading: Icon(Icons.logout),
+                title: Text('Çıkış Yap'),
               ),
               Spacer(),
               DefaultTextStyle(

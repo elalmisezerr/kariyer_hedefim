@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kariyer_hedefim/Components/Button.dart';
-import 'package:kariyer_hedefim/Components/PhoneFormatter.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Models/Company.dart';
-import 'package:kariyer_hedefim/Validation/ValidationUser.dart';
-import '../../models/User.dart';
-import 'package:intl/intl.dart';
+import 'package:kariyer_hedefim/Screens/SirketIslemleri/GirisAdmin.dart';
+import '../../Validation/ValidationCompanyAddMixin.dart';
 
 class CompanyAdd extends StatefulWidget {
   const CompanyAdd({Key? key}) : super(key: key);
@@ -14,7 +11,8 @@ class CompanyAdd extends StatefulWidget {
   State<CompanyAdd> createState() => _CompanyAddState();
 }
 
-class _CompanyAddState extends State<CompanyAdd> with Useraddvalidationmixin {
+class _CompanyAddState extends State<CompanyAdd>
+    with ValidationCompanyAddMixin {
   var formKey = GlobalKey<FormState>();
   var dbHelper = DatabaseProvider();
   var txtName = TextEditingController();
@@ -22,6 +20,15 @@ class _CompanyAddState extends State<CompanyAdd> with Useraddvalidationmixin {
   var txtpassWord = TextEditingController();
   var txtTelefon = TextEditingController();
   var txtAdres = TextEditingController();
+  var x=ValidationCompanyAddMixin();
+
+  var emailError;
+  @override
+  void initState() {
+    super.initState();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,6 +101,7 @@ class _CompanyAddState extends State<CompanyAdd> with Useraddvalidationmixin {
         ),
         SizedBox(height: 5.0),
         TextFormField(
+          validator: validateEmail,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.email),
@@ -160,7 +168,7 @@ class _CompanyAddState extends State<CompanyAdd> with Useraddvalidationmixin {
         ),
         SizedBox(height: 5.0),
         TextFormField(
-          validator: validateAdres,
+          validator: validateSurName,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.house),
@@ -173,10 +181,17 @@ class _CompanyAddState extends State<CompanyAdd> with Useraddvalidationmixin {
 
   buildSaveButton() {
     return TextButton(
-      onPressed: () {
+      onPressed: () async {
         if (formKey.currentState!.validate()) {
           formKey.currentState!.save();
-          addCompanies();
+          bool kullaniciVarMi = await dbHelper.kullaniciAdiKontrolEt(txtuserName.text);
+          if (kullaniciVarMi == false) {
+            addCompanies();
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginCompany()));
+          } else {
+            _showResendDialog();
+          }
+          
         }
       },
       child: Container(
@@ -211,6 +226,34 @@ class _CompanyAddState extends State<CompanyAdd> with Useraddvalidationmixin {
       telefon: txtTelefon.text,
       adres: txtAdres.text,
     ));
-    Navigator.pop(context, true);
+
+    // if (result == 1) {
+    //   Navigator.pop(context, true);
+    // } else {
+    //   _showResendDialog();
+    // }
   }
+  void _showResendDialog() {
+    AlertDialog alert = AlertDialog(
+      title: Text("Uyarı"),
+      content: Text("Bu Kullanıcı Zaten Mevcut"),
+      actions: [
+        ElevatedButton(
+          child: Text("Tamam"),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
 }
+

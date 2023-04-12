@@ -42,9 +42,9 @@ class DatabaseProvider {
     await db.execute(
         "CREATE TABLE sirketler (id INTEGER PRIMARY KEY AUTOINCREMENT,isim TEXT,email TEXT,sifre TEXT,telefon TEXT,adres TEXT);");
     await db.execute(
-        "CREATE TABLE basvurular (id INTEGER PRIMARY KEY AUTOINCREMENT,ilan_id TEXT,kullanici_id TEXT,basvuru_tarihi TEXT,FOREIGN KEY (ilan_id) REFERENCES ilanlar(id),FOREIGN KEY (kullanici_id) REFERENCES users(id));");
+        "CREATE TABLE basvurular (id INTEGER PRIMARY KEY AUTOINCREMENT,ilan_id TEXT,kullanici_id TEXT,basvuru_tarihi TEXT,FOREIGN KEY (ilan_id) REFERENCES ilanlar(id) ON DELETE CASCADE,FOREIGN KEY (kullanici_id) REFERENCES users(id) ON DELETE CASCADE);");
     await db.execute(
-        "CREATE TABLE ilanlar (id INTEGER PRIMARY KEY AUTOINCREMENT,baslik TEXT,aciklama TEXT,sirket_id TEXT,tarih DATE,calisma_zamani INTEGER,FOREIGN KEY (sirket_id) REFERENCES sirketler(id));");
+        "CREATE TABLE ilanlar (id INTEGER PRIMARY KEY AUTOINCREMENT,baslik TEXT,aciklama TEXT,sirket_id TEXT,tarih DATE,calisma_zamani INTEGER,FOREIGN KEY (sirket_id) REFERENCES sirketler(id) ON DELETE CASCADE);");
   }
 
   //Get List
@@ -221,7 +221,10 @@ class DatabaseProvider {
 
   Future<int> deleteCompany(int id) async {
     Database? db = await this.db;
-    var result = await db!.rawDelete("delete from sirketler where id=$id");
+    await db!.execute("DELETE FROM sirketler WHERE id = $id;");
+    await db.execute("DELETE FROM ilanlar WHERE sirket_id = $id;");
+    await db.execute("DELETE FROM basvurular WHERE ilan_id IN (SELECT id FROM ilanlar WHERE sirket_id = $id);");
+    int result = await db.rawUpdate("VACUUM"); // boş alanları temizleme
     return result;
   }
 
@@ -280,6 +283,11 @@ class DatabaseProvider {
     } else {
       return null;
     }
+  } Future<int?> checkIfCompanyExists(String? email) async {
+    Database db = await openDatabase('database.db');
+    int? count = (await db.rawQuery(
+        "SELECT COUNT(*) FROM sirketler WHERE email = '$email'")) as int?;
+ return count;
   }
 
   Future<Company?> checkCompany(String email, String password) async {
@@ -305,7 +313,7 @@ class DatabaseProvider {
       throw Exception('Veritabanı bağlantısı kurulamadı');
     }
     final result = await db.query(
-      'users',
+      'sirketler',
       where: 'email = ?',
       whereArgs: [kullaniciAdi],
     );

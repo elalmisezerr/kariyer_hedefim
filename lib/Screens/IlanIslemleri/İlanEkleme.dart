@@ -135,7 +135,7 @@ void initState() {
   }
   buildBaslik() {
     return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
       child: TextFormField(
         validator: validateBaslik,
         controller: txtBaslik,
@@ -164,7 +164,7 @@ void initState() {
     );
   }  buildAciklama() {
     return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      padding: const EdgeInsets.only(left: 10, right: 10,bottom: 20),
       child: TextFormField(
         maxLines: 3,
         validator: validateAciklama,
@@ -206,7 +206,7 @@ void initState() {
   }
   Widget buildTarih() {
     return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
       child: TextField(
         onTap: _showDatePicker,
         controller: txtTarih,
@@ -256,7 +256,7 @@ void initState() {
 
   DrpMenu(){
     return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
       child: DecoratedDropdownButton(
         value: selectedValue,
         items: [
@@ -282,7 +282,7 @@ void initState() {
         },
 
         color: Color(0xffbf1922), //background color //border
-        borderRadius: BorderRadius.circular(20), //border radius
+        borderRadius: BorderRadius.circular(10), //border radius
         style: TextStyle( //text style
             color:Colors.white,
             fontSize: 20
@@ -297,7 +297,7 @@ void initState() {
   //Kaydetme butonu
   buildSaveButton() {
     return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
       child: TextButton(
         onPressed: () {
           if (formKey.currentState!.validate()) {

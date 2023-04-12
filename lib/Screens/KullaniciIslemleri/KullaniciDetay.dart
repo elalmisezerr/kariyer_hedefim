@@ -372,7 +372,7 @@ class _UserDetailState extends State<UserDetail> {
   buildUpdateButton() {
     return TextButton(
       onPressed: () async {
-        if (formKey.currentState!.validate()) {
+        if (formKey.currentState!.validate() && user!=null) {
           formKey.currentState!.save();
           user!.ad = txtName.text;
           user!.soyad = txtSurname.text;
