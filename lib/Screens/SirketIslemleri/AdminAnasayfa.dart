@@ -104,7 +104,7 @@ class _HomeAdminState extends State<HomeAdmin>
         body: Container(
           child: Center(
             child: FutureBuilder<List<Ilanlar>>(
-              future: dbHelper.getIlanlar(),
+              future: dbHelper.getIlanlarWithId(widget.company!.id.toString()),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());

@@ -219,6 +219,7 @@ class _CompanyAddState extends State<CompanyAdd>
   }
 
   void addCompanies() async {
+    dbHelper.checkIsAdmin();
     var result = await dbHelper.insertCompany(Company.withoutId(
       isim: txtName.text,
       email: txtuserName.text,

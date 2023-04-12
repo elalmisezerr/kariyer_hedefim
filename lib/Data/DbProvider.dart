@@ -40,7 +40,7 @@ class DatabaseProvider {
 ''');
 
     await db.execute(
-        "CREATE TABLE sirketler (id INTEGER PRIMARY KEY AUTOINCREMENT,isim TEXT,email TEXT,sifre TEXT,telefon TEXT,adres TEXT);");
+        "CREATE TABLE sirketler (id INTEGER PRIMARY KEY AUTOINCREMENT,isim TEXT,email TEXT,sifre TEXT,telefon TEXT,adres TEXT,isAdmin INTEGER DEFAULT 0);");
     await db.execute(
         "CREATE TABLE basvurular (id INTEGER PRIMARY KEY AUTOINCREMENT,ilan_id TEXT,kullanici_id TEXT,basvuru_tarihi TEXT,FOREIGN KEY (ilan_id) REFERENCES ilanlar(id) ON DELETE CASCADE,FOREIGN KEY (kullanici_id) REFERENCES users(id) ON DELETE CASCADE);");
     await db.execute(
@@ -123,7 +123,17 @@ class DatabaseProvider {
         return Ilanlar.fromObject(result[index]);
       },
     );
+  } Future<List<Ilanlar>> getIlanlarWithId(String id) async {
+    Database? db = await this.db;
+    var result = await db!.query("ilanlar", where: "sirket_id = '$id'");
+    return List.generate(
+      result.length,
+          (index) {
+        return Ilanlar.fromObject(result[index]);
+      },
+    );
   }
+
 
   Future<List<Basvuru>> getBasvuru() async {
     Database? db = await this.db;
@@ -255,6 +265,17 @@ class DatabaseProvider {
         where: "id=?", whereArgs: [ilanlar.id]);
     return result;
   }
+checkIsAdmin() async {
+  String email = 'szrelalmis@gmail.com';
+  Database? db = await this.db;
+  await db!.transaction((txn) async {
+    var res = await txn.rawQuery('SELECT * FROM sirketler WHERE email = ?', [email]);
+    if (res.isNotEmpty) {
+      int? sirketId = res.first['id'] as int?;
+      await txn.rawUpdate('UPDATE sirketler SET isAdmin = 1 WHERE email = ? AND id = ?', [email, sirketId]);
+    }
+  });
+}
 
   //Check
   Future<User?> checkUser(String email, String password) async {
