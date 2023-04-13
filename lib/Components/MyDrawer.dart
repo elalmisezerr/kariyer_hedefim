@@ -19,8 +19,8 @@ class MyDrawer extends StatelessWidget {
     return SafeArea(
       child: Container(
         child: ListTileTheme(
-          textColor: Color(0xffbf1922),
-          iconColor: Color(0xffbf1922),
+          textColor: const Color(0xffbf1922),
+          iconColor: const Color(0xffbf1922),
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [

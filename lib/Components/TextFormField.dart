@@ -5,7 +5,7 @@ class MyTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
   final validator;
-  const MyTextField({
+  MyTextField({
     super.key,
     required this.validator,
     required this.controller,
@@ -34,6 +34,7 @@ class MyTextField extends StatelessWidget {
           filled: true,
           hintText: hintText,
           hintStyle: TextStyle(color: Colors.grey[500]),
+
         ),
       ),
     );

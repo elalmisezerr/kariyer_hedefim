@@ -4,7 +4,6 @@ import 'package:kariyer_hedefim/Models/JobApplications.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:async';
-
 import '../Models/User.dart';
 
 class DatabaseProvider {
@@ -47,7 +46,7 @@ class DatabaseProvider {
         "CREATE TABLE ilanlar (id INTEGER PRIMARY KEY AUTOINCREMENT,baslik TEXT,aciklama TEXT,sirket_id TEXT,tarih DATE,calisma_zamani INTEGER,FOREIGN KEY (sirket_id) REFERENCES sirketler(id) ON DELETE CASCADE);");
   }
 
-  //Get List
+  //Get Methods
   Future<List<User>> getUsers() async {
     Database? db = await this.db;
     var result = await db!.query("users");
@@ -58,19 +57,6 @@ class DatabaseProvider {
       },
     );
   }
-
-  Future<List<User>> getUserswithIlanId(String ilanid) async {
-    Database? db = await this.db;
-    var result =
-        await db!.query("SELECT * FROM basvurular where ilan_id = $ilanid");
-    return List.generate(
-      result.length,
-      (index) {
-        return User.fromObject(result[index]);
-      },
-    );
-  }
-
   Future<List<User>> getKullanicilarByIlanlarId(String ilanlarId) async {
     final db = await dbProvider.db;
     final result = await db!.rawQuery('''
@@ -86,7 +72,6 @@ class DatabaseProvider {
       },
     );
   }
-
   Future<List<Ilanlar>> getIlanlarByKullaniciId(String userId) async {
     final db = await dbProvider.db;
     final result = await db!.rawQuery('''
@@ -102,7 +87,6 @@ class DatabaseProvider {
       },
     );
   }
-
   Future<List<Company>> getCompanies() async {
     Database? db = await this.db;
     var result = await db!.query("sirketler");
@@ -113,7 +97,6 @@ class DatabaseProvider {
       },
     );
   }
-
   Future<List<Ilanlar>> getIlanlar() async {
     Database? db = await this.db;
     var result = await db!.query("ilanlar");
@@ -123,36 +106,17 @@ class DatabaseProvider {
         return Ilanlar.fromObject(result[index]);
       },
     );
-  } Future<List<Ilanlar>> getIlanlarWithId(String id) async {
+  }
+  Future<List<Ilanlar>> getIlanlarWithId(String id) async {
     Database? db = await this.db;
     var result = await db!.query("ilanlar", where: "sirket_id = '$id'");
     return List.generate(
       result.length,
-          (index) {
+      (index) {
         return Ilanlar.fromObject(result[index]);
       },
     );
   }
-
-
-  Future<List<Basvuru>> getBasvuru() async {
-    Database? db = await this.db;
-    var result = await db!.query("basvurular");
-    return List.generate(
-      result.length,
-      (index) {
-        return Basvuru.fromMap(result[index]);
-      },
-    );
-  }
-
-  Future<List<Map<String, dynamic>>> getBasvurularByKullaniciId(
-      String kullaniciId) async {
-    final db = await dbProvider.db;
-    return await db!.query('basvurular',
-        where: 'kullanici_id = ?', whereArgs: [kullaniciId]);
-  }
-
   Future<Company?> getCompanyById(int id) async {
     final db = await dbProvider.db;
     final result =
@@ -163,8 +127,28 @@ class DatabaseProvider {
       return null;
     }
   }
+  Future<Company?> getCompanyByEmail(String mail) async {
+    final db = await dbProvider.db;
+    final result =
+        await db!.query('sirketler', where: 'email = ?', whereArgs: [mail]);
+    if (result.isNotEmpty) {
+      return Company.fromObject(result.first);
+    } else {
+      return null;
+    }
+  }
+  Future<User?> getUserByEmail(String mail) async {
+    final db = await dbProvider.db;
+    final result =
+        await db!.query('users', where: 'email = ?', whereArgs: [mail]);
+    if (result.isNotEmpty) {
+      return User.fromObject(result.first);
+    } else {
+      return null;
+    }
+  }
 
-  //Insert
+  //Insert Methods
   Future<int> insertUser(User user) async {
     Database? db = await this.db;
     try {
@@ -178,7 +162,6 @@ class DatabaseProvider {
       throw Exception("Aynı kayıt zaten mevcut.");
     }
   }
-
   Future<int> insertCompany(Company company) async {
     Database? db = await this.db;
 
@@ -193,7 +176,6 @@ class DatabaseProvider {
       throw Exception("Aynı kayıt zaten mevcut.");
     }
   }
-
   Future<int> insertBasvuru(Basvuru basvuru) async {
     Database? db = await this.db;
     try {
@@ -207,7 +189,6 @@ class DatabaseProvider {
       throw Exception("Aynı kayıt zaten mevcut.");
     }
   }
-
   Future<int> insertIlan(Ilanlar ilanlar) async {
     Database? db = await this.db;
     try {
@@ -222,62 +203,48 @@ class DatabaseProvider {
     }
   }
 
-  //Delete
+  //Delete Methods
   Future<int> deleteUser(int id) async {
     Database? db = await this.db;
     var result = await db!.rawDelete("delete from users where id=$id");
     return result;
   }
-
   Future<int> deleteCompany(int id) async {
     Database? db = await this.db;
     await db!.execute("DELETE FROM sirketler WHERE id = $id;");
     await db.execute("DELETE FROM ilanlar WHERE sirket_id = $id;");
-    await db.execute("DELETE FROM basvurular WHERE ilan_id IN (SELECT id FROM ilanlar WHERE sirket_id = $id);");
+    await db.execute(
+        "DELETE FROM basvurular WHERE ilan_id IN (SELECT id FROM ilanlar WHERE sirket_id = $id);");
     int result = await db.rawUpdate("VACUUM"); // boş alanları temizleme
     return result;
   }
-
   Future<int> deleteIlan(int id) async {
     Database? db = await this.db;
     var result = await db!.rawDelete("delete from ilanlar where id=$id");
     return result;
   }
 
-  //Update
+  //Update Methods
   Future<int> updateUser(User user) async {
     Database? db = await this.db;
     var result = await db!
         .update("users", user.toMap(), where: "id=?", whereArgs: [user.id]);
     return result;
   }
-
   Future<int> updateCompany(Company company) async {
     Database? db = await this.db;
     var result = await db!.update("sirketler", company.toMap(),
         where: "id=?", whereArgs: [company.id]);
     return result;
   }
-
   Future<int> updateIlan(Ilanlar ilanlar) async {
     Database? db = await this.db;
     var result = await db!.update("ilanlar", ilanlar.toMap(),
         where: "id=?", whereArgs: [ilanlar.id]);
     return result;
   }
-checkIsAdmin() async {
-  String email = 'szrelalmis@gmail.com';
-  Database? db = await this.db;
-  await db!.transaction((txn) async {
-    var res = await txn.rawQuery('SELECT * FROM sirketler WHERE email = ?', [email]);
-    if (res.isNotEmpty) {
-      int? sirketId = res.first['id'] as int?;
-      await txn.rawUpdate('UPDATE sirketler SET isAdmin = 1 WHERE email = ? AND id = ?', [email, sirketId]);
-    }
-  });
-}
 
-  //Check
+  //Check Methods
   Future<User?> checkUser(String email, String password) async {
     final db = await dbProvider.db;
     if (db == null) {
@@ -294,7 +261,19 @@ checkIsAdmin() async {
       return null;
     }
   }
-
+  Future<void> checkIsAdmin(String email) async {
+    Database? db = await this.db;
+    await db!.transaction((txn) async {
+      var res = await txn
+          .rawQuery('SELECT * FROM sirketler WHERE email = ?', [email]);
+      if (res.isNotEmpty) {
+        int? sirketId = res.first['id'] as int?;
+        await txn.rawUpdate(
+            'UPDATE sirketler SET isAdmin = 1 WHERE email = ? AND id = ?',
+            [email, sirketId]);
+      }
+    });
+  }
   Future<String?> checkIfUsernameExists(String? username) async {
     Database db = await openDatabase('database.db');
     int? count = (await db.rawQuery(
@@ -304,13 +283,7 @@ checkIsAdmin() async {
     } else {
       return null;
     }
-  } Future<int?> checkIfCompanyExists(String? email) async {
-    Database db = await openDatabase('database.db');
-    int? count = (await db.rawQuery(
-        "SELECT COUNT(*) FROM sirketler WHERE email = '$email'")) as int?;
- return count;
   }
-
   Future<Company?> checkCompany(String email, String password) async {
     final db = await dbProvider.db;
     if (db == null) {
@@ -327,14 +300,37 @@ checkIsAdmin() async {
       return null;
     }
   }
-
-  Future<bool> kullaniciAdiKontrolEt(String kullaniciAdi) async {
+  Future<bool> basvuruKontrolEt(String userId,String ilanId) async {
+    Database? db = await this.db;
+    if (db == null) {
+      throw Exception('Veritabanı bağlantısı kurulamadı');
+    }
+    final result = await db.query(
+      'basvurular',
+      where: 'kullanici_id = ? AND ilan_id = ?',
+      whereArgs: [userId, ilanId],
+    );
+    return result.isNotEmpty;
+  }
+  Future<bool> sirketAdiKontrolEt(String kullaniciAdi) async {
     Database? db = await this.db;
     if (db == null) {
       throw Exception('Veritabanı bağlantısı kurulamadı');
     }
     final result = await db.query(
       'sirketler',
+      where: 'email = ?',
+      whereArgs: [kullaniciAdi],
+    );
+    return result.isNotEmpty;
+  }
+  Future<bool> kullaniciAdiKontrolEt(String kullaniciAdi) async {
+    Database? db = await this.db;
+    if (db == null) {
+      throw Exception('Veritabanı bağlantısı kurulamadı');
+    }
+    final result = await db.query(
+      'users',
       where: 'email = ?',
       whereArgs: [kullaniciAdi],
     );

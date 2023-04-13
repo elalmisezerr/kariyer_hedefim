@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
+import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/GirisKullanici.dart';
 import 'package:kariyer_hedefim/Validation/ValidationUser.dart';
 import 'package:intl/intl.dart';
 
@@ -12,7 +13,7 @@ class UsersAdd extends StatefulWidget {
   State<UsersAdd> createState() => _UsersAddState();
 }
 
-class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin{
+class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
   var formKey = GlobalKey<FormState>();
   var dbHelper = DatabaseProvider();
   var txtName = TextEditingController();
@@ -115,6 +116,27 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin{
     );
   }
 
+  buildUsername() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Kullanıcı adı giriniz",
+          textAlign: TextAlign.left,
+        ),
+        SizedBox(height: 5.0),
+        TextFormField(
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.email),
+          ),
+          controller: txtuserName,
+          keyboardType: TextInputType.emailAddress,
+        )
+      ],
+    );
+  }
+
   buildBirthDate() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,27 +160,6 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin{
     );
   }
 
-  buildUsername() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Kullanıcı adı giriniz",
-          textAlign: TextAlign.left,
-        ),
-        SizedBox(height: 5.0),
-        TextFormField(
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.email),
-          ),
-          controller: txtuserName,
-          keyboardType: TextInputType.emailAddress,
-        )
-      ],
-    );
-  }
-
   buildPassword() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,11 +175,9 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin{
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.lock),
           ),
-
           controller: txtpassWord,
           obscureText: true,
           keyboardType: TextInputType.visiblePassword,
-
         )
       ],
     );
@@ -198,7 +197,6 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin{
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.phone),
-
           ),
           controller: txtTelefon,
           keyboardType: TextInputType.phone,
@@ -221,7 +219,6 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin{
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.house),
-
           ),
           controller: txtAdres,
         )
@@ -245,34 +242,65 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin{
 
   buildSaveButton() {
     return TextButton(
-      onPressed: () {
+      onPressed: () async {
         if (formKey.currentState!.validate()) {
           formKey.currentState!.save();
-          addUsers();
-        }},
+          bool kullaniciVarMi = await dbHelper.kullaniciAdiKontrolEt(txtuserName.text) ;
+          bool sirketVarmi= await dbHelper.sirketAdiKontrolEt(txtuserName.text);
+          bool kayitVarmi= sirketVarmi || kullaniciVarMi;
+          if (kayitVarmi == false) {
+            addUsers();
+            String email = 'szrelalmis@gmail.com';
+            await dbHelper.checkIsAdmin(email);
+            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginUser()), (route) => false);
+          } else {
+            _showResendDialog();
+          }
+        }
+      },
       child: Container(
         width: MediaQuery.of(context).size.width,
-        margin: EdgeInsets.symmetric(vertical: 15,horizontal: 25),
+        margin: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
         padding: EdgeInsets.symmetric(vertical: 15),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(50)),
           boxShadow: <BoxShadow>[
             BoxShadow(
-              color: Colors.black,
-              offset: Offset(2,4),
-              blurRadius: 5,
-              spreadRadius: 2),
+                color: Colors.black,
+                offset: Offset(2, 4),
+                blurRadius: 5,
+                spreadRadius: 2),
           ],
           color: Colors.grey.shade700,
-
         ),
-      child: Text("Ekle",
-      style: TextStyle(fontSize: 20,color: Colors.white),),
-
+        child: Text(
+          "Ekle",
+          style: TextStyle(fontSize: 20, color: Colors.white),
+        ),
       ),
+    );
+  }
 
+  void _showResendDialog() {
+    AlertDialog alert = AlertDialog(
+      title: Text("Uyarı"),
+      content: Text("Bu Kullanıcı Zaten Mevcut"),
+      actions: [
+        ElevatedButton(
+          child: Text("Tamam"),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
 
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 

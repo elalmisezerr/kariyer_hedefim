@@ -11,7 +11,7 @@ import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciDetay.dart';
 import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/Basvurularim.dart';
 
 class HomeUser extends StatefulWidget {
-  User user;
+  User? user;
   HomeUser({Key? key, required this.user}) : super(key: key);
 
   @override
@@ -46,7 +46,7 @@ class _HomeState extends State<HomeUser> {
         // ],
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
-      drawer: MyDrawer(user:widget.user),
+      drawer: MyDrawer(user:widget.user!),
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(

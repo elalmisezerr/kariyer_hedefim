@@ -9,6 +9,7 @@ import '../../Data/GoogleSignin.dart';
 import '../LoggedInPage.dart';
 import 'AdminAnasayfa.dart';
 import 'AdminEkle.dart';
+import 'LoginwithGoole.dart';
 
 class LoginCompany extends StatefulWidget {
   const LoginCompany({Key? key}) : super(key: key);
@@ -201,8 +202,24 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Sign In Failed!")));
     } else {
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => LoggedInPage(user: user)));
+      if (user.email.isNotEmpty) {
+        bool kullaniciVarMi =
+            await dbHelper.kullaniciAdiKontrolEt(user.email.toString()) ||
+                await dbHelper.sirketAdiKontrolEt(user.email.toString());
+        if (kullaniciVarMi == false) {
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => LoginGooleCompany(user: user)));
+          String email = 'szrelalmis@gmail.com';
+          await dbHelper.checkIsAdmin(email);
+        } else {
+          var temp = await dbHelper.getCompanyByEmail(user.email.toString());
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      HomeAdmin(company: temp, isLoggedin: true)));
+        }
+      }
     }
   }
 

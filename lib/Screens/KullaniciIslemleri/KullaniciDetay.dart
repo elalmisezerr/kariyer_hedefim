@@ -37,13 +37,13 @@ class _UserDetailState extends State<UserDetail> {
   void initState() {
     txtName.text = user?.ad ?? '';
     txtSurname.text = user?.soyad ?? '';
-    txtBirthDate.text =
-        DateFormat('dd-MM-yyyy').format(user?.dogumtarihi ?? DateTime.now());
+    txtBirthDate.text =ParseDate(user!.dogumtarihi.toString())??'';
+      //  DateFormat('dd-MM-yyyy').format(user?.dogumtarihi ?? DateTime.now());
     txtuserName.text = user?.email ?? '';
     txtpassWord.text = user?.password ?? '';
     txtTelefon.text = user?.telefon ?? '';
     txtAdres.text = user?.adres ?? '';
-
+    print(user!.dogumtarihi.toString());
     super.initState();
   }
 
@@ -118,7 +118,11 @@ class _UserDetailState extends State<UserDetail> {
       ),
     );
   }
-
+  ParseDate(String date){
+    DateTime birthDate = DateTime.parse(date);
+    String formattedDate = '${birthDate.day}-${birthDate.month}-${birthDate.year}';
+    return formattedDate;
+  }
   buildGovde() {
     return SingleChildScrollView(
       child: Column(

@@ -62,7 +62,7 @@ class _HomeAdminState extends State<HomeAdmin>
     return AdvancedDrawer(
       backdropColor: Colors.white,
       controller: _advancedDrawerController,
-      animationCurve: Curves.elasticInOut,
+      animationCurve: Curves.bounceInOut,
       animationDuration: const Duration(milliseconds: 300),
       animateChildDecoration: true,
 

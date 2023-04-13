@@ -1,54 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:kariyer_hedefim/Data/DbProvider.dart';
-import 'package:kariyer_hedefim/Models/Company.dart';
-import 'package:kariyer_hedefim/Screens/SirketIslemleri/GirisAdmin.dart';
-import '../../Validation/ValidationCompanyAddMixin.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:intl/intl.dart';
+import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/GirisKullanici.dart';
+import 'package:kariyer_hedefim/Validation/ValidationUser.dart';
 
-class CompanyAdd extends StatefulWidget {
-  const CompanyAdd({Key? key}) : super(key: key);
+import '../../Data/DbProvider.dart';
+import '../../Models/User.dart';
+
+class LoginGoogleUsers extends StatefulWidget {
+  final GoogleSignInAccount userr;
+  LoginGoogleUsers({Key? key, required this.userr}) : super(key: key);
 
   @override
-  State<CompanyAdd> createState() => _CompanyAddState();
+  State<LoginGoogleUsers> createState() => _LoginGoogleUsersState();
 }
 
-class _CompanyAddState extends State<CompanyAdd>
-    with ValidationCompanyAddMixin {
+class _LoginGoogleUsersState extends State<LoginGoogleUsers>
+    with Useraddvalidationmixin {
+  User? user;
   var formKey = GlobalKey<FormState>();
   var dbHelper = DatabaseProvider();
-  var txtName = TextEditingController();
-  var txtuserName = TextEditingController();
   var txtpassWord = TextEditingController();
   var txtTelefon = TextEditingController();
   var txtAdres = TextEditingController();
-  var x = ValidationCompanyAddMixin();
+  var txtBirthDate = TextEditingController();
 
-  var emailError;
+  bool _isObscured = true;
+  late final String fullName;
+  late final String firstName;
+  late final String lastName;
+  late final String emaill;
+
   @override
   void initState() {
+    fullName = widget.userr.displayName ?? '';
+    firstName = fullName.split(' ').first;
+    lastName = fullName.split(' ').last;
+    emaill = widget.userr.email.toString();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.grey[700],
-        title: Text("Şirket ekleme sayfası"),
-      ),
       body: Form(
         key: formKey,
         child: Padding(
           padding: EdgeInsets.all(30.0),
           child: ListView(
             children: [
-              buildName(),
-              SizedBox(
-                height: 5.0,
-              ),
-              buildUsername(),
-              SizedBox(
-                height: 5.0,
-              ),
               buildPassword(),
               SizedBox(
                 height: 5.0,
@@ -69,44 +69,24 @@ class _CompanyAddState extends State<CompanyAdd>
     );
   }
 
-  buildName() {
+  buildBirthDate() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Adınızı giriniz",
+          "Doğum tarihinizi seçin",
           textAlign: TextAlign.left,
         ),
         SizedBox(height: 5.0),
         TextFormField(
-          validator: validateName,
+          validator: validateBirtdate,
+          readOnly: true,
+          onTap: _showDatePicker,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.person),
+            prefixIcon: Icon(Icons.cake),
           ),
-          controller: txtName,
-        )
-      ],
-    );
-  }
-
-  buildUsername() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Email adresinizi giriniz",
-          textAlign: TextAlign.left,
-        ),
-        SizedBox(height: 5.0),
-        TextFormField(
-          validator: validateEmail,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.email),
-          ),
-          controller: txtuserName,
-          keyboardType: TextInputType.emailAddress,
+          controller: txtBirthDate, // değiştirildi
         )
       ],
     );
@@ -167,7 +147,7 @@ class _CompanyAddState extends State<CompanyAdd>
         ),
         SizedBox(height: 5.0),
         TextFormField(
-          validator: validateSurName,
+          validator: validateAdres,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.house),
@@ -178,25 +158,37 @@ class _CompanyAddState extends State<CompanyAdd>
     );
   }
 
+  Future<void> _showDatePicker() async {
+    final DateTime? selectedDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(1900),
+        lastDate: DateTime(2025));
+    if (selectedDate != null) {
+      setState(() {
+        txtBirthDate.text =
+            (DateFormat('dd-MM-yyyy').format(selectedDate)).toString();
+      });
+    }
+  }
+
   buildSaveButton() {
     return TextButton(
       onPressed: () async {
         if (formKey.currentState!.validate()) {
           formKey.currentState!.save();
-          bool kullaniciVarMi = await dbHelper.kullaniciAdiKontrolEt(txtuserName.text) ;
-          bool sirketVarmi= await dbHelper.sirketAdiKontrolEt(txtuserName.text);
-          bool kayitVarmi= sirketVarmi || kullaniciVarMi;
-        if (kayitVarmi == false) {
-            addCompanies();
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => LoginCompany()));
+          bool kullaniciVarMi = await dbHelper
+                  .kullaniciAdiKontrolEt(widget.userr.email.toString()) &&
+              await dbHelper.sirketAdiKontrolEt(widget.userr.email.toString());
+          if (kullaniciVarMi == false) {
+            addUsers();
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => LoginUser()));
             String email = 'szrelalmis@gmail.com';
             await dbHelper.checkIsAdmin(email);
           } else {
             _showResendDialog();
           }
-        }else{
-          print("Eksik bilgi!!");
         }
       },
       child: Container(
@@ -223,22 +215,6 @@ class _CompanyAddState extends State<CompanyAdd>
     );
   }
 
-  void addCompanies() async {
-    var result = await dbHelper.insertCompany(Company.withoutId(
-      isim: txtName.text,
-      email: txtuserName.text,
-      sifre: txtpassWord.text,
-      telefon: txtTelefon.text,
-      adres: txtAdres.text,
-    ));
-
-    // if (result == 1) {
-    //   Navigator.pop(context, true);
-    // } else {
-    //   _showResendDialog();
-    // }
-  }
-
   void _showResendDialog() {
     AlertDialog alert = AlertDialog(
       title: Text("Uyarı"),
@@ -259,5 +235,18 @@ class _CompanyAddState extends State<CompanyAdd>
         return alert;
       },
     );
+  }
+
+  void addUsers() async {
+    var result = await dbHelper.insertUser(User.withOutId(
+      ad: firstName.toString(),
+      soyad: lastName.toString(),
+      dogumtarihi: DateFormat('dd-MM-yyyy').parse(txtBirthDate.text),
+      email: emaill,
+      password: txtpassWord.text,
+      telefon: txtTelefon.text,
+      adres: txtAdres.text,
+    ));
+    Navigator.pop(context, true);
   }
 }
