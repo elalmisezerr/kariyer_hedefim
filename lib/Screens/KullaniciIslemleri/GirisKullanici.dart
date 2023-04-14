@@ -1,4 +1,6 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Screens/GirisEkranı.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/LoginGoogleUsers.dart';
@@ -8,7 +10,6 @@ import 'package:kariyer_hedefim/components/TextFormField.dart';
 import 'package:kariyer_hedefim/validation/ValidationLogin.dart';
 import '../../Data/GoogleSignin.dart';
 import '../../Models/User.dart';
-import '../LoggedInPage.dart';
 import 'KullaniciAnasayfa.dart';
 import 'KullaniciEkle.dart';
 
@@ -30,6 +31,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
   void initState() {
     super.initState();
   }
+
 
   @override
   Widget build(BuildContext context) {

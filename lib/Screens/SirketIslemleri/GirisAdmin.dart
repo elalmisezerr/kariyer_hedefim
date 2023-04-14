@@ -23,6 +23,7 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
   final userNameController = TextEditingController();
   final passwordController = TextEditingController();
   var formKey = GlobalKey<FormState>();
+  bool _isObscured = true;
 
   @override
   void initState() {
@@ -82,12 +83,40 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
         obscureText: false,
       ),
       // password textfield
-      MyTextField(
-        validator: validatePassword,
-        controller: passwordController,
-        hintText: "Şifre",
-        obscureText: true,
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextFormField(
+          validator: validatePassword,
+          controller: passwordController,
+          obscureText: _isObscured,
+          decoration: InputDecoration(
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.white),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.shade400),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            fillColor: Colors.grey.shade200,
+            filled: true,
+            hintText: "Şifre",
+            hintStyle: TextStyle(color: Colors.grey[500]),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _isObscured ? Icons.visibility : Icons.visibility_off,
+                color: Colors.grey,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isObscured = !_isObscured;
+                });
+              },
+            ),
+          ),
+        ),
       ),
+
       // forgot password?
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25.0),

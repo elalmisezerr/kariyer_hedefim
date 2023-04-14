@@ -39,6 +39,8 @@ dependencies:
   flutter_email_sender: ^5.0.1
   decorated_dropdownbutton: ^0.0.3
   flutter_localization:
+  mailer:
+
 
 
   # The following adds the Cupertino Icons font to your application.
