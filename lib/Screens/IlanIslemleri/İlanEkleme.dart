@@ -6,7 +6,7 @@ import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Models/Company.dart';
 import 'package:kariyer_hedefim/Models/JobAdvertisements.dart';
-import 'package:kariyer_hedefim/Screens/SirketIslemleri/AdminAnasayfa.dart';
+import 'package:kariyer_hedefim/Screens/SirketIslemleri/SirketAnasayfa.dart';
 import 'package:kariyer_hedefim/Validation/ValidationIlan.dart';
 
 import '../GirisEkranı.dart';
@@ -339,7 +339,8 @@ void initState() {
       sirket_id: int.parse(txtSirketId.text),
       tarih: DateFormat('dd-MM-yyyy').parse(txtTarih.text),
       calisma_zamani: int.parse(temp ?? "1"),
+      //kategori: "",
       ));
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeAdmin(company: widget.company, isLoggedin: true,)));
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeCompany(company: widget.company, isLoggedin: true,)));
   }
 }

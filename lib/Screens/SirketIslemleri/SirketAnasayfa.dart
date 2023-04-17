@@ -8,18 +8,18 @@ import 'package:kariyer_hedefim/Screens/IlanIslemleri/IlanDuzenle.dart';
 import '../../Models/Company.dart';
 import '../GirisEkranı.dart';
 
-class HomeAdmin extends StatefulWidget {
+class HomeCompany extends StatefulWidget {
   Company? company;
   bool isLoggedin = false;
 
-  HomeAdmin({Key? key, required this.company, required this.isLoggedin})
+  HomeCompany({Key? key, required this.company, required this.isLoggedin})
       : super(key: key);
 
   @override
-  State<HomeAdmin> createState() => _HomeAdminState();
+  State<HomeCompany> createState() => _HomeCompanyState();
 }
 
-class _HomeAdminState extends State<HomeAdmin>
+class _HomeCompanyState extends State<HomeCompany>
     with SingleTickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isDrawerOpen = false;

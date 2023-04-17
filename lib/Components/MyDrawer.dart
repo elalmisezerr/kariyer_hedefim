@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:kariyer_hedefim/Models/Company.dart';
 import 'package:kariyer_hedefim/Screens/GirisEkran%C4%B1.dart';
 import 'package:kariyer_hedefim/Screens/IlanIslemleri/%C4%B0lanEkleme.dart';
-import 'package:kariyer_hedefim/Screens/SirketIslemleri/AdminAnasayfa.dart';
-import 'package:kariyer_hedefim/Screens/SirketIslemleri/AdminDetay.dart';
-import 'package:kariyer_hedefim/Screens/SirketIslemleri/GirisAdmin.dart';
+import 'package:kariyer_hedefim/Screens/SirketIslemleri/SirketAnasayfa.dart';
+import 'package:kariyer_hedefim/Screens/SirketIslemleri/SirketDetay.dart';
+import 'package:kariyer_hedefim/Screens/SirketIslemleri/GirisSirket.dart';
 
 import '../Models/User.dart';
 import '../Screens/BasvuruIslemleri/Basvurularim.dart';
@@ -134,7 +134,7 @@ class MyDrawerComp extends StatelessWidget {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => HomeAdmin(company: company, isLoggedin: true,)));
+                          builder: (context) => HomeCompany(company: company, isLoggedin: true,)));
                 },
                 leading: Icon(Icons.home),
                 title: Text('Anasayfa'),

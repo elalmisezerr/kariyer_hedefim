@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/GirisKullanici.dart';
 import 'package:path/path.dart';
 
-import 'SirketIslemleri/GirisAdmin.dart';
+import 'SirketIslemleri/GirisSirket.dart';
 
 class GirisEkrani extends StatelessWidget {
   const GirisEkrani({Key? key}) : super(key: key);

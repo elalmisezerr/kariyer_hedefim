@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Models/Company.dart';
-import 'package:kariyer_hedefim/Screens/SirketIslemleri/AdminAnasayfa.dart';
-import 'package:kariyer_hedefim/Screens/SirketIslemleri/GirisAdmin.dart';
+import 'package:kariyer_hedefim/Screens/SirketIslemleri/SirketAnasayfa.dart';
+import 'package:kariyer_hedefim/Screens/SirketIslemleri/GirisSirket.dart';
 import 'package:kariyer_hedefim/Validation/ValidationCompanyAddMixin.dart';
 
 import '../../Data/DbProvider.dart';
@@ -262,7 +262,7 @@ class _AdminDetailState extends State<AdminDetail>
             widget.company.adres=txtAdres.text;
             await dbHelper.updateCompany(widget.company).then((value) {
               if (value != null) {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeAdmin(company: widget.company, isLoggedin: true)));
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeCompany(company: widget.company, isLoggedin: true)));
               }
             });
           }

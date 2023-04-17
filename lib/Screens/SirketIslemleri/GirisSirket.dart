@@ -7,8 +7,8 @@ import 'package:kariyer_hedefim/components/TextFormField.dart';
 import 'package:kariyer_hedefim/validation/ValidationLogin.dart';
 import '../../Data/GoogleSignin.dart';
 import '../LoggedInPage.dart';
-import 'AdminAnasayfa.dart';
-import 'AdminEkle.dart';
+import 'SirketAnasayfa.dart';
+import 'SirketEkle.dart';
 import 'LoginwithGoole.dart';
 
 class LoginCompany extends StatefulWidget {
@@ -215,7 +215,7 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => HomeAdmin(
+                builder: (context) => HomeCompany(
                       company: result,
                       isLoggedin: true,
                     )));
@@ -246,7 +246,7 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      HomeAdmin(company: temp, isLoggedin: true)));
+                      HomeCompany(company: temp, isLoggedin: true)));
         }
       }
     }

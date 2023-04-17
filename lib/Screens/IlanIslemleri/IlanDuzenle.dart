@@ -2,7 +2,7 @@ import 'package:decorated_dropdownbutton/decorated_dropdownbutton.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/BasvuruGoruntule.dart';
-import 'package:kariyer_hedefim/Screens/SirketIslemleri/AdminAnasayfa.dart';
+import 'package:kariyer_hedefim/Screens/SirketIslemleri/SirketAnasayfa.dart';
 import 'package:kariyer_hedefim/Validation/ValidationUser.dart';
 import '../../Data/DbProvider.dart';
 import '../../Models/Company.dart';
@@ -220,12 +220,13 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
             tarih: DateFormat('dd-MM-yyyy').parse(txtTarih.text),
             sirket_id: company!.id,
             calisma_zamani: int.parse(temp!),
+            //kategori: "",
           ));
         }
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => HomeAdmin(
+                builder: (context) => HomeCompany(
                       company: company,
                       isLoggedin: false,
                     )));
@@ -291,7 +292,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
     switch (options) {
       case Options.delete:
         await dbHelper.deleteIlan(ilanlar!.id!);
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeAdmin(company: widget.company, isLoggedin: true,)));
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeCompany(company: widget.company, isLoggedin: true,)));
         break;
       default:
     }

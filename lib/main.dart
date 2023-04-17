@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       ],
       title: "LOGİN",
       debugShowCheckedModeBanner: false,
-      home: Deneme(),
+      home: GirisEkrani(),
     );
   }
 }

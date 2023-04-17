@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:intl/intl.dart';
@@ -46,7 +48,7 @@ class _HomeState extends State<HomeUser> {
         // ],
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
-      drawer: MyDrawer(user:widget.user!),
+      drawer: MyDrawer(user: widget.user!),
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
@@ -68,6 +70,11 @@ class _HomeState extends State<HomeUser> {
           ),
           title: Text("Kullanıcı Anasayfa"),
           actions: <Widget>[
+            IconButton(
+                onPressed: () {
+                  showSearch(context: context, delegate: DataSearch(widget.user!));
+                },
+                icon: Icon(Icons.search)),
             IconButton(onPressed: logout, icon: Icon(Icons.logout))
           ],
         ),
@@ -95,7 +102,6 @@ class _HomeState extends State<HomeUser> {
     // _advancedDrawerController.value = AdvancedDrawerValue.visible();
     _advancedDrawerController.showDrawer();
   }
-
 
   void logout() {
     setState(() {
@@ -201,104 +207,124 @@ class _HomeState extends State<HomeUser> {
   }
 }
 
+class DataSearch extends SearchDelegate<String> {
+  var dbHelper = DatabaseProvider();
+  _HomeState? homeuser;
+DataSearch(this.user,);
+User user;
+Ilanlar? selectedilanlar;
 
 
-/*
-
- govde() {
-    return;
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    return [IconButton(onPressed: () {}, icon: Icon(Icons.clear))];
   }
 
-  void _toggleDrawer() async {
-    setState(() {
-      _scaffoldKey.currentState!.openDrawer();
-    });
+  @override
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(
+        onPressed: () {
+          close(context, "");
+        },
+        icon: AnimatedIcon(
+          icon: AnimatedIcons.menu_arrow,
+          progress: transitionAnimation,
+        ));
+  }
+  Future<List<Ilanlar>> getilanlar() async {
+    return await dbHelper.getIlanlar();
   }
 
-  createDrawer2() {
-    return Drawer(
+  @override
+  Widget buildResults(BuildContext context) {
+    return Container(
+      color: Colors.white,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            color: Color(0xFF355891),
-            padding: EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'Yönetim Paneli',
-              style: TextStyle(
+          Card(
+            clipBehavior: Clip.antiAlias,
+            elevation: 8.0,
+            shadowColor: Colors.amber,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
                 color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
               ),
+              borderRadius: BorderRadius.circular(10.0),
             ),
-          ),
-          ListTile(
-            title: Text(
-              'Profil Sayfası',
-              style: TextStyle(
-                fontSize: 18,
-              ),
-            ),
-            onTap: () {
-              setState(() {
-                //kullanıcı detay sayfası
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => UserDetail(
-                              user: widget.user,
-                            )));
-              });
-            },
-          ),
-          ListTile(
-            title: Text(
-              'Başvurularım',
-              style: TextStyle(
-                fontSize: 18,
-              ),
-            ),
-            onTap: () {
-              setState(() {
-                //yapılan başvurular görüntülenir
+            child: GestureDetector(
+              onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => Basvurularim(
-                      user: widget.user,
-                    ),
+                    builder: (context) =>
+                        IlanDetay(ilanlar: selectedilanlar, user: user),
                   ),
                 );
-              });
-            },
-          ),
-          Expanded(
-            child: Container(),
-          ),
-          Padding(
-            padding: EdgeInsets.all(16),
-            child: ElevatedButton(
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-                  (Set<MaterialState> states) => Color(0xFF355891),
-                ),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-              onPressed: () {
-                Navigator.pop(context);
               },
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                child: Text(
-                  'Üst Menüye Dön',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+              child: Container(
+                decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                        colors: [Colors.black, Colors.blue],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight)),
+                child: ListTile(
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(25.0),
+                    child: Image.network(
+                      'https://img.freepik.com/free-vector/hiring-process_23-2148642176.jpg?w=826&t=st=1679557821~exp=1679558421~hmac=4d5df907230cd7727dfe0cd2aab440d3c1f6d192152521b83d90f489de2a564d',
+                      width: 50.0,
+                      height: 50.0,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        selectedilanlar!.baslik,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 5.0),
+                      Row(
+                        children: [
+                          Row(children: [
+                            Icon(
+                              Icons.category,
+                              size: 19.0,
+                              color: Colors.red,
+                            ),
+                          ]),
+                          VerticalDivider(color: Colors.white),
+                          Icon(
+                            Icons.access_time,
+                            size: 16.0,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 5.0),
+                          Text(
+                            DateFormat('dd-MM-yyyy').format(
+                              selectedilanlar!.tarih,
+                            ),
+                            style: TextStyle(
+                              fontSize: 14.0,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  subtitle: Text(
+                    selectedilanlar!.aciklama,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -309,6 +335,51 @@ class _HomeState extends State<HomeUser> {
     );
   }
 
+  Widget buildSuggestions(BuildContext context) {
+    return FutureBuilder<List<Ilanlar?>>(
+      future: getilanlar(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error Occurred'));
+        } else {
+          final ilanlar = snapshot.data!;
+          final suggestionsList = query.isEmpty
+              ? ilanlar.map((i) => i!.baslik).toList()
+              : ilanlar.where((i) => i!.baslik.startsWith(query))
+                  .map((i) => i!.baslik)
+                  .toList();
+          return ListView.builder(
+            itemBuilder: (context, index) => ListTile(
+              leading: Icon(Icons.work_outline_sharp),
+              title: RichText(
+                text: TextSpan(
+                  text: suggestionsList[index].substring(0, query.length),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: suggestionsList[index].substring(query.length),
+                      style: TextStyle(
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              onTap: () {
+                selectedilanlar = ilanlar.firstWhere((i) => i!.baslik == suggestionsList[index]);
+                showResults(context);
+              },
 
-
- */
+            ),
+            itemCount: suggestionsList.length,
+          );
+        }
+      },
+    );
+  }
+}

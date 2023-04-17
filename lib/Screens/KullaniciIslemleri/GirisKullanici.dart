@@ -81,7 +81,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
       MyTextField(
         validator: validateUserName,
         controller: userNameController,
-        hintText: "Username",
+        hintText: "Kullanıcı Adı",
         obscureText: false,
       ),
       // password textfield
@@ -102,7 +102,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
             ),
             fillColor: Colors.grey.shade200,
             filled: true,
-            hintText: "Password",
+            hintText: "Şifre",
             hintStyle: TextStyle(color: Colors.grey[500]),
             suffixIcon: IconButton(
               icon: Icon(

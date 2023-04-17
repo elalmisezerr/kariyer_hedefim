@@ -24,29 +24,26 @@ class IlanDetay extends StatefulWidget {
 class _IlanDetayState extends State<IlanDetay> {
   var dbHelper = DatabaseProvider();
   Future<Company?>? _companyFuture;
-  var txtBody = TextEditingController();
-  var txtSubject = TextEditingController();
-  var txtRecipients = TextEditingController();
-  late final Email email;
-  @override
-  void initState() {
-    _companyFuture = dbHelper
-        .getCompanyById(int.parse(widget.ilanlar!.sirket_id.toString()));
-    email= Email(
-      body: txtBody.text,
-      subject: txtSubject.text,
-      recipients: [txtRecipients.text],
+  var email=TextEditingController();
+  var body=TextEditingController();
+  var subject=TextEditingController();
+  sendEmail (String subject, String body, String recipientemail) async {
+    final Email email = Email(
+      body: body,
+      subject: subject,
+      recipients: [recipientemail],
+// cc: ['cc@example.com'],
+// bcc: ['bcc@example.com'],
+// attachmentPaths: ['/path/to/attachment.zip'],
       isHTML: false,
     );
-    super.initState();
+    await FlutterEmailSender.send(email);
   }
 
+  final _key = GlobalKey<FormState>();
 
-  Future<void> sendEmail(File file) async {
-    final company = await _companyFuture;
-    print(company!.email);
-    if (company != null) {}
-  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -54,40 +51,41 @@ class _IlanDetayState extends State<IlanDetay> {
       appBar: AppBar(
         title: Text("İlan Detay"),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              buildSubject(),
-              buildBody(),
-              buildRecipients(),
-              ElevatedButton(
-                child: Text('E-posta Gönder'),
-                onPressed: () async {
-                  await FlutterEmailSender.send(email);
-                },
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  bool basvuruVarmi = await dbHelper.basvuruKontrolEt(
-                      widget.user!.id.toString(), widget.ilanlar!.id.toString());
-                  if (basvuruVarmi == false) {
-                    dbHelper.insertBasvuru(Basvuru.withoutId(
-                      basvuruTarihi: DateTime.now(),
-                      ilanId: widget.ilanlar!.id.toString(),
-                      kullaniciId: widget.user!.id.toString(),
-                    ));
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => HomeUser(user: widget.user)));
-                  } else {
-                    _showResendDialog();
-                  }
-                },
-                child: Text("Başvur"),
-              ),
-            ],
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Form(
+          key: _key,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                buildSubject(),
+                buildBody(),
+                buildRecipients(),
+                ElevatedButton(
+                  onPressed: () async {
+                    bool basvuruVarmi = await dbHelper.basvuruKontrolEt(
+                        widget.user!.id.toString(), widget.ilanlar!.id.toString());
+                    _key.currentState!.save();
+                    print('${email.text}');
+                    sendEmail(subject.text, body.text, email.text);
+                    if (basvuruVarmi == false) {
+                      dbHelper.insertBasvuru(Basvuru.withoutId(
+                        basvuruTarihi: DateTime.now(),
+                        ilanId: widget.ilanlar!.id.toString(),
+                        kullaniciId: widget.user!.id.toString(),
+                      ));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => HomeUser(user: widget.user)));
+                    } else {
+                      _showResendDialog();
+                    }
+                  },
+                  child: Text("Başvur"),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -121,7 +119,7 @@ class _IlanDetayState extends State<IlanDetay> {
       padding: const EdgeInsets.only(left: 50, right: 50,top: 30),
       child: TextField(
         maxLines: 3,
-        controller: txtBody,
+        controller: body,
         decoration: InputDecoration(
             prefixIcon: Icon(Icons.person),
             border: OutlineInputBorder(
@@ -137,7 +135,7 @@ class _IlanDetayState extends State<IlanDetay> {
     return Padding(
       padding: const EdgeInsets.only(left: 50, right: 50,top: 30),
       child: TextField(
-        controller: txtSubject,
+        controller: subject,
         decoration: InputDecoration(
             prefixIcon: Icon(Icons.person),
             border: OutlineInputBorder(
@@ -153,12 +151,13 @@ class _IlanDetayState extends State<IlanDetay> {
     return Padding(
       padding: const EdgeInsets.only(left: 50, right: 50,top: 30,bottom: 20),
       child: TextField(
-        controller: txtRecipients,
+        controller: email,
         decoration: InputDecoration(
             prefixIcon: Icon(Icons.person),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10))),
-            hintText: "Gönderilecek Kişinin Emailini Girin!!",
+            hintText: "Gönderilecek Emaili Girin!!",
+            hintStyle: TextStyle(fontSize: 12),
             labelText: "Email",
             filled: true,
             fillColor: Colors.white),
@@ -167,4 +166,3 @@ class _IlanDetayState extends State<IlanDetay> {
     );
   }
 }
-
