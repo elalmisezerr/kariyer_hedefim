@@ -49,7 +49,16 @@ class _IlanDetayState extends State<IlanDetay> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: (){
+            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>HomeUser(user: widget.user)), (route) => false);
+          },
+        ),
         title: Text("İlan Detay"),
+        backgroundColor: Color(0xffbf1922),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

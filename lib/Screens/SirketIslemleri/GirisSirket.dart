@@ -6,7 +6,7 @@ import 'package:kariyer_hedefim/components/Square.dart';
 import 'package:kariyer_hedefim/components/TextFormField.dart';
 import 'package:kariyer_hedefim/validation/ValidationLogin.dart';
 import '../../Data/GoogleSignin.dart';
-import '../LoggedInPage.dart';
+import '../AdminIslemleri/HomeAdmin.dart';
 import 'SirketAnasayfa.dart';
 import 'SirketEkle.dart';
 import 'LoginwithGoole.dart';
@@ -32,18 +32,46 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[300],
-      body: Container(
-        child: SafeArea(
-          child: Center(
-            child: Form(
-              key: formKey,
-              child: SingleChildScrollView(
-                child: Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: govde(),
+    return WillPopScope(
+
+      onWillPop: () async {
+
+        bool exit = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Önceki sayfaya dönmek istiyor musunuz?"),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text("HAYIR"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                    GoogleSignInApi.logout();
+          },
+                  child: Text("EVET"),
+                ),
+              ],
+            );
+          },
+        );
+        return exit ?? false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.grey[300],
+        body: Container(
+          child: SafeArea(
+            child: Center(
+              child: Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  child: Container(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: govde(),
+                    ),
                   ),
                 ),
               ),
@@ -209,23 +237,34 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
   Future<void> girisYap(String x, String y) async {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
+
       var result = await dbHelper.checkCompany(x, y);
-      saveStudent();
       if (result != null) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => HomeCompany(
-                      company: result,
-                      isLoggedin: true,
-                    )));
+        if (await dbHelper.isAdminUser(result.email.toString())) {
+          Navigator.push(context,MaterialPageRoute(builder: (context) => HomeAdmin(Mycompany:result)),
+          );
+        } else {
+          Navigator.push(context,MaterialPageRoute(builder: (context) => HomeCompany( company: result, isLoggedin: true,)),
+          );
+        }
       } else {
         print("Hatalı Giriş");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Color(0xffbf1922),
+            content: Text('Giriş Bilgileri Hatalı!!!',style: TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+            )),
+            duration: Duration(seconds: 2,),
+          ),
+
+        );
       }
     }
   }
 
-  Future signIn() async {
+   Future signIn() async {
     final user = await GoogleSignInApi.login();
     if (user == null) {
       ScaffoldMessenger.of(context)
@@ -242,17 +281,22 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
           await dbHelper.checkIsAdmin(email);
         } else {
           var temp = await dbHelper.getCompanyByEmail(user.email.toString());
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      HomeCompany(company: temp, isLoggedin: true)));
+          if (temp != null) {
+            if (await dbHelper.isAdminUser(temp.email.toString())) {
+              Navigator.push(context,MaterialPageRoute(builder: (context) => HomeAdmin(Mycompany:temp)),
+              );
+            } else {
+              Navigator.push(context,MaterialPageRoute(builder: (context) => HomeCompany( company: temp, isLoggedin: true,)),
+              );
+            }
+          } else {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text("User not found!")));
+            print("User not found!");
+          }
         }
       }
     }
   }
 
-  void saveStudent() {
-    print("çalıştı");
-  }
 }

@@ -2,23 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Models/Company.dart';
-import 'package:kariyer_hedefim/Screens/SirketIslemleri/SirketAnasayfa.dart';
-import 'package:kariyer_hedefim/Screens/SirketIslemleri/GirisSirket.dart';
-import 'package:kariyer_hedefim/Validation/ValidationCompanyAddMixin.dart';
+import 'package:kariyer_hedefim/Screens/AdminIslemleri/HomeAdmin.dart';
 
 import '../../Data/DbProvider.dart';
 import '../GirisEkranı.dart';
+import '../SirketIslemleri/GirisSirket.dart';
 
-class CompanyDetail extends StatefulWidget {
-  Company company;
-  CompanyDetail({Key? key, required this.company}) : super(key: key);
-
+class EditAdmin extends StatefulWidget {
+  EditAdmin({Key? key, required this.company}) : super(key: key);
+  late Company? company;
   @override
-  State<CompanyDetail> createState() => _CompanyDetailState();
+  State<EditAdmin> createState() => _EditAdminState();
 }
 
-class _CompanyDetailState extends State<CompanyDetail>
-    with ValidationCompanyAddMixin {
+class _EditAdminState extends State<EditAdmin> {
   var dbHelper = DatabaseProvider();
   var formKey = GlobalKey<FormState>();
   var txtName = TextEditingController();
@@ -44,11 +41,11 @@ class _CompanyDetailState extends State<CompanyDetail>
 
   @override
   void initState() {
-    txtName.text = widget.company.isim;
-    txtuserName.text = widget.company.email;
-    txtpassWord.text = widget.company.sifre;
-    txtTelefon.text = widget.company.telefon;
-    txtAdres.text = widget.company.adres;
+    txtName.text = widget.company!.isim;
+    txtuserName.text = widget.company!.email;
+    txtpassWord.text = widget.company!.sifre;
+    txtTelefon.text = widget.company!.telefon;
+    txtAdres.text = widget.company!.adres;
     super.initState();
   }
 
@@ -67,9 +64,7 @@ class _CompanyDetailState extends State<CompanyDetail>
       childDecoration: const BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
-      drawer: MyDrawerComp(
-        company: widget.company,
-      ),
+      drawer: MyDrawerAdmin(),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Color(0xffbf1922),
@@ -255,14 +250,14 @@ class _CompanyDetailState extends State<CompanyDetail>
       child: ElevatedButton(
         onPressed: () async {
           if (widget.company!=null) {
-            widget.company.isim=txtName.text;
-            widget.company.email=txtuserName.text;
-            widget.company.sifre=txtpassWord.text;
-            widget.company.telefon=txtTelefon.text;
-            widget.company.adres=txtAdres.text;
-            await dbHelper.updateCompany(widget.company).then((value) {
+            widget.company!.isim=txtName.text;
+            widget.company!.email=txtuserName.text;
+            widget.company!.sifre=txtpassWord.text;
+            widget.company!.telefon=txtTelefon.text;
+            widget.company!.adres=txtAdres.text;
+            await dbHelper.updateCompany(widget.company!).then((value) {
               if (value != null) {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeCompany(company: widget.company, isLoggedin: true)));
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeAdmin(Mycompany: widget.company,)));
               }
             });
           }
@@ -274,7 +269,7 @@ class _CompanyDetailState extends State<CompanyDetail>
         style: ElevatedButton.styleFrom(
             padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             primary: Color(0xffbf1922)),
       ),
     );
@@ -284,11 +279,11 @@ class _CompanyDetailState extends State<CompanyDetail>
     return ElevatedButton(
         onPressed: () async {
           if (widget.company!=null) {
-            await dbHelper.deleteCompany(widget.company.id!);
+            await dbHelper.deleteCompany(widget.company!.id!);
 
             Navigator.pushAndRemoveUntil(context,
-                MaterialPageRoute(builder: (context) => LoginCompany()),
-                (Route<dynamic> route) => false,);
+              MaterialPageRoute(builder: (context) => LoginCompany()),
+                  (Route<dynamic> route) => false,);
           }
         },
         child: Text("Sil"));

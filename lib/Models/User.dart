@@ -26,6 +26,8 @@ class User {
      );
   }
 
+  get isAdmin => null;
+
   Map<String, dynamic> toMap() {
     return {
       "id": id,

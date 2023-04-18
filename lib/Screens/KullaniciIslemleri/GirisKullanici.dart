@@ -27,33 +27,60 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
   final passwordController = TextEditingController();
   var formKey = GlobalKey<FormState>();
   bool _isObscured = true;
+
   @override
   void initState() {
+
+    GoogleSignInApi.logout();
     super.initState();
   }
-
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.grey[300],
-        body: Container(
-          child: SafeArea(
-            child: Center(
-              child: Form(
-                key: formKey,
-                child: SingleChildScrollView(
-                  child: Container(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: govde(),
+    return WillPopScope(
+      onWillPop: () async {
+        bool exit = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Önceki sayfaya dönmek istiyor musunuz?"),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text("HAYIR"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                    GoogleSignInApi.logout();
+                  },
+                  child: Text("EVET"),
+                ),
+              ],
+            );
+          },
+        );
+        return exit ?? false;
+      },
+      child: Scaffold(
+          backgroundColor: Colors.grey[300],
+          body: Container(
+            child: SafeArea(
+              child: Center(
+                child: Form(
+                  key: formKey,
+                  child: SingleChildScrollView(
+                    child: Container(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: govde(),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ));
+          )),
+    );
   }
 
   List<Widget> govde() {
@@ -212,7 +239,6 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
       var result = await dbHelper.checkUser(x, y);
-      saveStudent();
       if (result != null) {
         Navigator.push(
             context,
@@ -222,6 +248,17 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
                     )));
       } else {
         print("Hatalı Giriş");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Color(0xffbf1922),
+            content: Text('Giriş Bilgileri Hatalı!!!',style: TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+            )),
+            duration: Duration(seconds: 2,),
+          ),
+
+        );
       }
     }
   }
@@ -229,32 +266,39 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
   Future signIn() async {
     final user = await GoogleSignInApi.login();
     if (user == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Sign In Failed!")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Sign In Failed!")),
+      );
     } else {
       if (user.email.isNotEmpty) {
-        bool kullaniciVarMi =
-            await dbHelper.kullaniciAdiKontrolEt(user.email.toString()) ||
-                await dbHelper.sirketAdiKontrolEt(user.email.toString());
+        bool kullaniciVarMi = await dbHelper.kullaniciAdiKontrolEt(user.email.toString()) ||
+            await dbHelper.sirketAdiKontrolEt(user.email.toString());
         if (kullaniciVarMi == false) {
-          Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => LoginGoogleUsers(userr: user)));
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => LoginGoogleUsers(userr: user)),
+          );
           String email = 'szrelalmis@gmail.com';
           await dbHelper.checkIsAdmin(email);
+          print("Kullanici yok");
         } else {
-          var temp = await dbHelper.getUserByEmail(user.email.toString());
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => HomeUser(
-                        user: temp,
-                      )));
+          try {
+            User? temp = await dbHelper.getUserByEmail(user.email.toString());
+            if (temp != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomeUser(user: temp)),
+              );
+            } else {
+              print("User not found!");
+            }
+          } catch (e) {
+            print("An error occurred while getting the user: $e");
+          }
+
         }
       }
     }
   }
 
-  void saveStudent() {
-    print("çalıştı");
-  }
+
 }

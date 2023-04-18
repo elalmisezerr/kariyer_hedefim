@@ -18,6 +18,7 @@ class Company{
       adres: map['adres'] as String,
     );
   }
+
   Map<String, dynamic> toMap() {
     return {
       "id": id,

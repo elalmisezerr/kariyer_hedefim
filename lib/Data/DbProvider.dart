@@ -148,6 +148,17 @@ class DatabaseProvider {
     }
   }
 
+  Future<bool> isAdminUser(String email) async {
+    final db = await dbProvider.db;
+    final result = await db!.rawQuery(
+        "SELECT isAdmin FROM sirketler WHERE email = ?", [email]);
+    if (result.isNotEmpty) {
+      return result.first["isAdmin"] == 1;
+    } else {
+      return false;
+    }
+  }
+
   //Insert Methods
   Future<int> insertUser(User user) async {
     Database? db = await this.db;

@@ -12,6 +12,8 @@ import 'package:kariyer_hedefim/Models/User.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciDetay.dart';
 import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/Basvurularim.dart';
 
+import '../../Data/GoogleSignin.dart';
+
 class HomeUser extends StatefulWidget {
   User? user;
   HomeUser({Key? key, required this.user}) : super(key: key);
@@ -24,73 +26,101 @@ class _HomeState extends State<HomeUser> {
   var dbHelper = DatabaseProvider();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _advancedDrawerController = AdvancedDrawerController();
-
+  User? _user;
+  @override
+  void initState() {
+  _user=widget.user;
+  super.initState();
+  }
   @override
   Widget build(BuildContext context) {
-    return AdvancedDrawer(
-      backdropColor: Colors.white,
-      controller: _advancedDrawerController,
-      animationCurve: Curves.elasticInOut,
-      animationDuration: const Duration(milliseconds: 300),
-      animateChildDecoration: true,
+    return WillPopScope(
+      onWillPop: () async {
+        bool exit = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Çıkış yapmak istiyor musunuz?"),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text("HAYIR"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text("EVET"),
+                ),
+              ],
+            );
+          },
+        );
+        return exit ?? false;
+      },
+      child: AdvancedDrawer(
+        backdropColor: Colors.white,
+        controller: _advancedDrawerController,
+        animationCurve: Curves.elasticInOut,
+        animationDuration: const Duration(milliseconds: 300),
+        animateChildDecoration: true,
 
-      rtlOpening: false,
-      // openScale: 1.0,
-      disabledGestures: false,
-      childDecoration: const BoxDecoration(
-        // NOTICE: Uncomment if you want to add shadow behind the page.
-        // Keep in mind that it may cause animation jerks.
-        // boxShadow: <BoxShadow>[
-        //   BoxShadow(
-        //     color: Colors.black12,
-        //     blurRadius: 0.0,
-        //   ),
-        // ],
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
-      ),
-      drawer: MyDrawer(user: widget.user!),
-      child: Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          backgroundColor: Color(0xffbf1922),
-          leading: IconButton(
-            onPressed: _handleMenuButtonPressed,
-            icon: ValueListenableBuilder<AdvancedDrawerValue>(
-              valueListenable: _advancedDrawerController,
-              builder: (_, value, __) {
-                return AnimatedSwitcher(
-                  duration: Duration(milliseconds: 250),
-                  child: Icon(
-                    value.visible ? Icons.clear : Icons.menu,
-                    key: ValueKey<bool>(value.visible),
-                  ),
-                );
+        rtlOpening: false,
+        // openScale: 1.0,
+        disabledGestures: false,
+        childDecoration: const BoxDecoration(
+          // NOTICE: Uncomment if you want to add shadow behind the page.
+          // Keep in mind that it may cause animation jerks.
+          // boxShadow: <BoxShadow>[
+          //   BoxShadow(
+          //     color: Colors.black12,
+          //     blurRadius: 0.0,
+          //   ),
+          // ],
+          borderRadius: const BorderRadius.all(Radius.circular(16)),
+        ),
+        drawer: MyDrawer(user: _user!),
+        child: Scaffold(
+          key: _scaffoldKey,
+          appBar: AppBar(
+            backgroundColor: Color(0xffbf1922),
+            leading: IconButton(
+              onPressed: _handleMenuButtonPressed,
+              icon: ValueListenableBuilder<AdvancedDrawerValue>(
+                valueListenable: _advancedDrawerController,
+                builder: (_, value, __) {
+                  return AnimatedSwitcher(
+                    duration: Duration(milliseconds: 250),
+                    child: Icon(
+                      value.visible ? Icons.clear : Icons.menu,
+                      key: ValueKey<bool>(value.visible),
+                    ),
+                  );
+                },
+              ),
+            ),
+            title: Text("Kullanıcı Anasayfa"),
+            actions: <Widget>[
+              IconButton(
+                  onPressed: () {
+                    showSearch(context: context, delegate: DataSearch(widget.user!));
+                  },
+                  icon: Icon(Icons.search)),
+              IconButton(onPressed: logout, icon: Icon(Icons.logout))
+            ],
+          ),
+          body: Container(
+            child: FutureBuilder<List<Ilanlar>>(
+              future: dbHelper.getIlanlar(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Hata: ${snapshot.error}'));
+                } else {
+                  final ilanlar = snapshot.data ?? [];
+                  return buildIlanList(ilanlar);
+                }
               },
             ),
-          ),
-          title: Text("Kullanıcı Anasayfa"),
-          actions: <Widget>[
-            IconButton(
-                onPressed: () {
-                  showSearch(context: context, delegate: DataSearch(widget.user!));
-                },
-                icon: Icon(Icons.search)),
-            IconButton(onPressed: logout, icon: Icon(Icons.logout))
-          ],
-        ),
-        body: Container(
-          child: FutureBuilder<List<Ilanlar>>(
-            future: dbHelper.getIlanlar(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Hata: ${snapshot.error}'));
-              } else {
-                final ilanlar = snapshot.data ?? [];
-                return buildIlanList(ilanlar);
-              }
-            },
           ),
         ),
       ),
@@ -104,7 +134,8 @@ class _HomeState extends State<HomeUser> {
   }
 
   void logout() {
-    setState(() {
+    setState(() async {
+      await GoogleSignInApi.logout();
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => GirisEkrani()));
     });
@@ -124,6 +155,7 @@ class _HomeState extends State<HomeUser> {
             ),
             borderRadius: BorderRadius.circular(10.0),
           ),
+          color: Color(0xffbf1922),
           child: GestureDetector(
             onTap: () {
               Navigator.push(
@@ -137,7 +169,7 @@ class _HomeState extends State<HomeUser> {
             child: Container(
               decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                      colors: [Colors.black, Colors.blue],
+                      colors: [Colors.blue, Colors.blueAccent],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight)),
               child: ListTile(
@@ -201,7 +233,8 @@ class _HomeState extends State<HomeUser> {
               ),
             ),
           ),
-        );
+        )
+        ;
       },
     );
   }
@@ -238,9 +271,9 @@ Ilanlar? selectedilanlar;
   @override
   Widget buildResults(BuildContext context) {
     return Container(
+      margin: EdgeInsets.only(top: 10),
       color: Colors.white,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Card(
             clipBehavior: Clip.antiAlias,

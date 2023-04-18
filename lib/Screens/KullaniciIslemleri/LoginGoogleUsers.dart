@@ -177,15 +177,12 @@ class _LoginGoogleUsersState extends State<LoginGoogleUsers>
       onPressed: () async {
         if (formKey.currentState!.validate()) {
           formKey.currentState!.save();
-          bool kullaniciVarMi = await dbHelper
-                  .kullaniciAdiKontrolEt(widget.userr.email.toString()) &&
-              await dbHelper.sirketAdiKontrolEt(widget.userr.email.toString());
+          bool kullaniciVarMi = await dbHelper.kullaniciAdiKontrolEt(widget.userr.email.toString())||await dbHelper.sirketAdiKontrolEt(widget.userr.email.toString());
           if (kullaniciVarMi == false) {
             addUsers();
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => LoginUser()));
             String email = 'szrelalmis@gmail.com';
             await dbHelper.checkIsAdmin(email);
+            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginUser()), (route) => false);
           } else {
             _showResendDialog();
           }

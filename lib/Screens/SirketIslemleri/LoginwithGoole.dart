@@ -139,7 +139,7 @@ class _LoginGooleCompanyState extends State<LoginGooleCompany> {
       onPressed: () async {
         if (formKey.currentState!.validate()) {
           formKey.currentState!.save();
-          bool kullaniciVarMi = await dbHelper.kullaniciAdiKontrolEt(widget.user.email.toString());
+          bool kullaniciVarMi = await dbHelper.kullaniciAdiKontrolEt(widget.user.email.toString())||await dbHelper.sirketAdiKontrolEt(widget.user.email.toString());
           if (kullaniciVarMi == false) {
             addCompanies();
             Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginCompany()));

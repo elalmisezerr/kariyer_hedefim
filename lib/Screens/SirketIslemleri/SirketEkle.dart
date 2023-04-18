@@ -197,6 +197,11 @@ class _CompanyAddState extends State<CompanyAdd>
           }
         }else{
           print("Eksik bilgi!!");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Invalid login credentials.'),
+            ),
+          );
         }
       },
       child: Container(
