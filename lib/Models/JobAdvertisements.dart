@@ -5,7 +5,7 @@ class Ilanlar {
   String baslik;
   String aciklama;
   int? sirket_id;
-  DateTime tarih;
+  String tarih;
   int calisma_zamani;
   //String kategori; // kategori özelliği eklendi
   Ilanlar(
@@ -33,19 +33,30 @@ class Ilanlar {
       baslik: map['baslik'] as String,
       aciklama: map['aciklama'] as String,
       sirket_id: int.parse(map['sirket_id'].toString()),
-      tarih: DateFormat('dd-MM-yyyy').parse(map['tarih'] as String),
+      tarih: map['tarih'] as String,
       calisma_zamani: int.parse(map['calisma_zamani'].toString()),
      //kategori: map['kategori'] as String, // kategori özelliği eklendi
     );
   }
-
+  String dateFormatterYMD(String date) {
+    final inputFormat = DateFormat('dd-MM-yyyy');
+    final outputFormat = DateFormat.yMd();
+    try {
+      final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
+      final formattedDate = outputFormat.format(dateTime);
+      return formattedDate;
+    } catch (e) {
+      print('Error parsing date: $date');
+      return '';
+    }
+  }
   Map<String, dynamic> toMap() {
     return {
       "id": id,
       "baslik": baslik,
       "aciklama": aciklama,
       "sirket_id": sirket_id,
-      "tarih": tarih.toString(),
+      "tarih": tarih,
       "calisma_zamani": calisma_zamani,
       //"kategori": kategori // kategori özelliği eklendi
     };

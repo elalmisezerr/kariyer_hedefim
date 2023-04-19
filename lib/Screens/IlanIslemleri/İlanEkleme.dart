@@ -162,7 +162,9 @@ void initState() {
 
       ),
     );
-  }  buildAciklama() {
+  }
+
+  buildAciklama() {
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10,bottom: 20),
       child: TextFormField(
@@ -243,7 +245,7 @@ void initState() {
     if (selectedDate != null) {
       setState(() {
         // Use DateFormat to format the selected date
-        txtTarih.text = DateFormat('dd-MM-yyyy').format(selectedDate);
+        txtTarih.text = selectedDate.toString();
       });
     }
   }
@@ -337,10 +339,34 @@ void initState() {
       baslik: txtBaslik.text,
       aciklama: txtaciklama.text,
       sirket_id: int.parse(txtSirketId.text),
-      tarih: DateFormat('dd-MM-yyyy').parse(txtTarih.text),
+      tarih:txtTarih.text,
       calisma_zamani: int.parse(temp ?? "1"),
       //kategori: "",
       ));
     Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeCompany(company: widget.company, isLoggedin: true,)));
+  }
+}
+String dateFormatterDMY(String date) {
+  final inputFormat = DateFormat('yyyy-MM-dd');
+  final outputFormat = DateFormat('dd-MM-yyyy');
+  try {
+    final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
+    final formattedDate = outputFormat.format(dateTime);
+    return formattedDate;
+  } catch (e) {
+    print('Error parsing date: $date');
+    return '';
+  }
+}
+String dateFormatterYMD(String date) {
+  final inputFormat = DateFormat('dd-MM-yyyy');
+  final outputFormat = DateFormat.yMd();
+  try {
+    final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
+    final formattedDate = outputFormat.format(dateTime);
+    return formattedDate;
+  } catch (e) {
+    print('Error parsing date: $date');
+    return '';
   }
 }

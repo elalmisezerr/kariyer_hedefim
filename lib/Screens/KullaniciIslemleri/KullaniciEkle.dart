@@ -234,10 +234,13 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
         lastDate: DateTime(2025));
     if (selectedDate != null) {
       setState(() {
-        txtBirthDate.text =
-            (DateFormat('dd-MM-yyyy').format(selectedDate)).toString();
+        txtBirthDate.text =dateFormatter(selectedDate);
       });
     }
+  }
+  String dateFormatter(DateTime date) {
+    String formattedDate;
+    return formattedDate= "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
   }
 
   buildSaveButton() {
@@ -308,12 +311,35 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
     var result = await dbHelper.insertUser(User.withOutId(
       ad: txtName.text,
       soyad: txtSurname.text,
-      dogumtarihi: DateFormat('dd-MM-yyyy').parse(txtBirthDate.text),
+      dogumtarihi: DateTime.parse(dateFormatterYMD(txtBirthDate.text)),
       email: txtuserName.text,
       password: txtpassWord.text,
       telefon: txtTelefon.text,
       adres: txtAdres.text,
     ));
     Navigator.pop(context, true);
+  }
+}
+String dateFormatterDMY(String date) {
+  final inputFormat = DateFormat('yyyy-MM-dd');
+  final outputFormat = DateFormat('dd-MM-yyyy');
+  try {
+    final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
+    final formattedDate = outputFormat.format(dateTime);
+    return formattedDate;
+  } catch (e) {
+    print('Error parsing date: $date');
+    return '';
+  }
+} String dateFormatterYMD(String date) {
+  final inputFormat = DateFormat('dd-MM-yyyy');
+  final outputFormat = DateFormat('yyyy-MM-dd');
+  try {
+    final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
+    final formattedDate = outputFormat.format(dateTime);
+    return formattedDate;
+  } catch (e) {
+    print('Error parsing date: $date');
+    return '';
   }
 }

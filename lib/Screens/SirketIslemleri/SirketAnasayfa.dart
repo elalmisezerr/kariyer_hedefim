@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
@@ -39,22 +40,35 @@ class _HomeCompanyState extends State<HomeCompany>
     super.initState();
   }
 
-  String dateFormatter(String date) {
+  String dateFormatterDMY(String date) {
     final inputFormat = DateFormat('yyyy-MM-dd');
     final outputFormat = DateFormat('dd-MM-yyyy');
-    final dateTime = inputFormat.parse(date);
-    final formattedDate = outputFormat.format(dateTime);
-    return formattedDate;
+    try {
+      final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
+      final formattedDate = outputFormat.format(dateTime);
+      return formattedDate;
+    } catch (e) {
+      print('Error parsing date: $date');
+      return '';
+    }
+  } String dateFormatterYMD(String date) {
+    final inputFormat = DateFormat('dd-MM-yyyy');
+    final outputFormat = DateFormat('yyyy-MM-dd');
+    try {
+      final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
+      final formattedDate = outputFormat.format(dateTime);
+      return formattedDate;
+    } catch (e) {
+      print('Error parsing date: $date');
+      return '';
+    }
   }
 
 
 
   void logout() {
-    setState(() async {
-      await GoogleSignInApi.logout();
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => GirisEkrani()));
-    });
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => GirisEkrani()));
   }
 
 
@@ -81,7 +95,7 @@ class _HomeCompanyState extends State<HomeCompany>
           );
         },
       );
-      return exit ?? false;
+      return exit ;
     },
       child: AdvancedDrawer(
         backdropColor: Colors.white,
@@ -127,7 +141,9 @@ class _HomeCompanyState extends State<HomeCompany>
                     showSearch(context: context, delegate: DataSearch(widget.company!));
                   },
                   icon: Icon(Icons.search)),
-              IconButton(onPressed: logout, icon: Icon(Icons.logout))
+              IconButton(onPressed: (){
+                logout();
+              }, icon: Icon(Icons.logout))
             ],
           ),
           body: Container(
@@ -202,7 +218,7 @@ class _HomeCompanyState extends State<HomeCompany>
                       SizedBox(width: 10.0),
                       Icon(Icons.date_range),
                       SizedBox(width: 5.0),
-                      Text(dateFormatter(ilanlar[position].tarih.toString())),
+                      Text(ilanlar[position].tarih),
                     ],
                   ),
                 ],
@@ -241,7 +257,29 @@ class DataSearch extends SearchDelegate<String> {
   DataSearch(this.company,);
   Company company;
   Ilanlar? selectedilanlar;
-
+  String dateFormatterDMY(String date) {
+    final inputFormat = DateFormat('yyyy-MM-dd');
+    final outputFormat = DateFormat('dd-MM-yyyy');
+    try {
+      final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
+      final formattedDate = outputFormat.format(dateTime);
+      return formattedDate;
+    } catch (e) {
+      print('Error parsing date: $date');
+      return '';
+    }
+  } String dateFormatterYMD(String date) {
+    final inputFormat = DateFormat('dd-MM-yyyy');
+    final outputFormat = DateFormat('yyyy-MM-dd');
+    try {
+      final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
+      final formattedDate = outputFormat.format(dateTime);
+      return formattedDate;
+    } catch (e) {
+      print('Error parsing date: $date');
+      return '';
+    }
+  }
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -282,6 +320,7 @@ class DataSearch extends SearchDelegate<String> {
             ),
             child: GestureDetector(
               onTap: () {
+                print(selectedilanlar!.tarih);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -333,10 +372,7 @@ class DataSearch extends SearchDelegate<String> {
                             color: Colors.white,
                           ),
                           SizedBox(width: 5.0),
-                          Text(
-                            DateFormat('dd-MM-yyyy').format(
-                              selectedilanlar!.tarih,
-                            ),
+                          Text(selectedilanlar!.tarih,
                             style: TextStyle(
                               fontSize: 14.0,
                               color: Colors.white,

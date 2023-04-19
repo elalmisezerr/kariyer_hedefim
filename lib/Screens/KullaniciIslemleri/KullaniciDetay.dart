@@ -37,7 +37,7 @@ class _UserDetailState extends State<UserDetail> {
   void initState() {
     txtName.text = user?.ad ?? '';
     txtSurname.text = user?.soyad ?? '';
-    txtBirthDate.text =ParseDate(user!.dogumtarihi.toString())??'';
+    txtBirthDate.text =dateFormatter(user!.dogumtarihi);
       //  DateFormat('dd-MM-yyyy').format(user?.dogumtarihi ?? DateTime.now());
     txtuserName.text = user?.email ?? '';
     txtpassWord.text = user?.password ?? '';
@@ -46,7 +46,10 @@ class _UserDetailState extends State<UserDetail> {
     print(user!.dogumtarihi.toString());
     super.initState();
   }
-
+  String dateFormatter(DateTime date) {
+    String formattedDate;
+    return formattedDate= "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
+  }
   bool _isObscured = true; // şifrenin gizli olup olmadığını takip eder
 
   @override
@@ -118,11 +121,7 @@ class _UserDetailState extends State<UserDetail> {
       ),
     );
   }
-  ParseDate(String date){
-    DateTime birthDate = DateTime.parse(date);
-    String formattedDate = '${birthDate.day}-${birthDate.month}-${birthDate.year}';
-    return formattedDate;
-  }
+
   buildGovde() {
     return SingleChildScrollView(
       child: Column(
@@ -340,7 +339,7 @@ class _UserDetailState extends State<UserDetail> {
     if (selectedDate != null) {
       setState(() {
         // Use DateFormat to format the selected date
-        txtBirthDate.text = DateFormat('dd-MM-yyyy', 'tr_TR').format(selectedDate);
+        txtBirthDate.text = dateFormatter(selectedDate);
       });
     }
   }
@@ -357,7 +356,7 @@ class _UserDetailState extends State<UserDetail> {
         {
           user!.ad = txtName.text;
           user!.soyad = txtSurname.text;
-          user!.dogumtarihi = DateFormat('dd-MM-yyyy').parse(txtBirthDate.text);
+          user!.dogumtarihi = DateTime.parse(dateFormatter(DateTime.parse(txtBirthDate.text)));
           user!.email = txtuserName.text;
           user!.password = txtpassWord.text;
           user!.telefon = txtTelefon.text;
@@ -380,7 +379,7 @@ class _UserDetailState extends State<UserDetail> {
           formKey.currentState!.save();
           user!.ad = txtName.text;
           user!.soyad = txtSurname.text;
-          user!.dogumtarihi = DateFormat('dd-MM-yyyy').parse(txtBirthDate.text);
+          user!.dogumtarihi = DateTime.parse(dateFormatter(DateTime.parse(txtBirthDate.text)));
           user!.email = txtuserName.text;
           user!.password = txtpassWord.text;
           user!.telefon = txtTelefon.text;

@@ -5,7 +5,6 @@ import 'package:kariyer_hedefim/Models/JobApplications.dart';
 
 import '../../Models/JobAdvertisements.dart';
 import '../../Models/User.dart';
-import 'BasvuruAnasayfa.dart';
 
 class BasvuruGoruntule extends StatefulWidget {
   Ilanlar? ilanlar;

@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
+import 'package:kariyer_hedefim/Screens/AdminIslemleri/HomeAdmin.dart';
 import 'package:kariyer_hedefim/Screens/GirisEkranı.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/LoginGoogleUsers.dart';
 import 'package:kariyer_hedefim/components/Button.dart';
@@ -59,7 +60,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
             );
           },
         );
-        return exit ?? false;
+        return exit ;
       },
       child: Scaffold(
           backgroundColor: Colors.grey[300],
@@ -270,34 +271,55 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
         SnackBar(content: Text("Sign In Failed!")),
       );
     } else {
-      if (user.email.isNotEmpty) {
-        bool kullaniciVarMi = await dbHelper.kullaniciAdiKontrolEt(user.email.toString()) ||
-            await dbHelper.sirketAdiKontrolEt(user.email.toString());
-        if (kullaniciVarMi == false) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => LoginGoogleUsers(userr: user)),
-          );
-          String email = 'szrelalmis@gmail.com';
-          await dbHelper.checkIsAdmin(email);
-          print("Kullanici yok");
-        } else {
-          try {
-            User? temp = await dbHelper.getUserByEmail(user.email.toString());
-            if (temp != null) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HomeUser(user: temp)),
-              );
-            } else {
-              print("User not found!");
-            }
-          } catch (e) {
-            print("An error occurred while getting the user: $e");
-          }
+      if(user.email.toString()=="szrelalmis@gmail.com"){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeAdmin(Mycompany: user)));
+      }else{
+        if (user.email.isNotEmpty) {
+          bool kullaniciVarMi = await dbHelper.kullaniciAdiKontrolEt(user.email.toString()) || await dbHelper.sirketAdiKontrolEt(user.email.toString());
 
+          if (kullaniciVarMi == false) {
+
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => LoginGoogleUsers(userr: user)),
+            );
+            String email = 'szrelalmis@gmail.com';
+            await dbHelper.checkIsAdmin(email);
+            print("Kullanici yok");
+
+          } else {
+            try {
+              if(await dbHelper.sirketAdiKontrolEt(user.email.toString())==true &&await dbHelper.kullaniciAdiKontrolEt(user.email.toString())==false) {
+                User? temp = await dbHelper.getUserByEmail(user.email.toString());
+                if (temp != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomeUser(user: temp)),
+                  );
+                }else{
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: Color(0xffbf1922),
+                      content: Text('Bu kullanıcı, şirket olarak kaydedilmiş.Lütfen şirket girişi yapın!!!',style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                      )),
+                      duration: Duration(seconds: 2,),
+                    ),
+
+                  );
+                  GoogleSignInApi.logout();
+                }
+              } else {
+                print("User not found!");
+              }
+            } catch (e) {
+              print("An error occurred while getting the user: $e");
+            }
+
+          }
         }
       }
-    }
+      }
   }
 
 

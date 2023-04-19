@@ -57,7 +57,7 @@ class _HomeAdminState extends State<HomeAdmin> {
             );
           },
         );
-        return exit ?? false;
+        return exit ;
       },
       child: AdvancedDrawer(
         backdropColor: Colors.white,

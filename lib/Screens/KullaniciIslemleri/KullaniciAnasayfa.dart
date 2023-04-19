@@ -9,6 +9,7 @@ import 'package:kariyer_hedefim/Models/JobAdvertisements.dart';
 import 'package:kariyer_hedefim/Screens/GirisEkran%C4%B1.dart';
 import 'package:kariyer_hedefim/Screens/IlanIslemleri/IlanDetay.dart';
 import 'package:kariyer_hedefim/Models/User.dart';
+import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/GirisKullanici.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciDetay.dart';
 import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/Basvurularim.dart';
 
@@ -20,6 +21,10 @@ class HomeUser extends StatefulWidget {
 
   @override
   State<HomeUser> createState() => _HomeState();
+}
+String dateFormatter(DateTime date) {
+  String formattedDate;
+  return formattedDate= "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
 }
 
 class _HomeState extends State<HomeUser> {
@@ -40,21 +45,27 @@ class _HomeState extends State<HomeUser> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text("Çıkış yapmak istiyor musunuz?"),
+              backgroundColor: Color(0xffbf1922),
+              title: Text("Çıkış yapmak istiyor musunuz?",style: TextStyle(
+                  fontWeight: FontWeight.bold,color: Colors.white
+              ),),
               actions: <Widget>[
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text("HAYIR"),
+                  child: Text("HAYIR",style: TextStyle(
+                    color: Colors.white,
+                  ),),
                 ),
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: Text("EVET"),
+                  onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginUser()), (route) => false),
+                  child: Text("EVET",style: TextStyle(
+            color: Colors.white,),
                 ),
-              ],
+                )],
             );
           },
         );
-        return exit ?? false;
+        return exit ;
       },
       child: AdvancedDrawer(
         backdropColor: Colors.white,
@@ -169,7 +180,7 @@ class _HomeState extends State<HomeUser> {
             child: Container(
               decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                      colors: [Colors.blue, Colors.blueAccent],
+                      colors: [Color(0xffbf1922), Colors.red],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight)),
               child: ListTile(
@@ -192,17 +203,11 @@ class _HomeState extends State<HomeUser> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    Divider(color: Colors.white),
+
                     SizedBox(height: 5.0),
                     Row(
                       children: [
-                        Row(children: [
-                          Icon(
-                            Icons.category,
-                            size: 19.0,
-                            color: Colors.red,
-                          ),
-                        ]),
-                        VerticalDivider(color: Colors.white),
                         Icon(
                           Icons.access_time,
                           size: 16.0,
@@ -210,9 +215,7 @@ class _HomeState extends State<HomeUser> {
                         ),
                         SizedBox(width: 5.0),
                         Text(
-                          DateFormat('dd-MM-yyyy').format(
-                            ilanlar[position].tarih,
-                          ),
+                        ilanlar[position].tarih,
                           style: TextStyle(
                             fontSize: 14.0,
                             color: Colors.white,
@@ -220,15 +223,23 @@ class _HomeState extends State<HomeUser> {
                         ),
                       ],
                     ),
+                    SizedBox(height: 5.0),
+
                   ],
                 ),
-                subtitle: Text(
-                  ilanlar[position].aciklama,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
+                subtitle: Row(
+                  children: [
+                    Icon(Icons.description,size: 16.0, color: Colors.white),
+                    SizedBox(width: 5.0),
+                    Text(
+                      ilanlar[position].aciklama,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -298,7 +309,7 @@ Ilanlar? selectedilanlar;
               child: Container(
                 decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                        colors: [Colors.black, Colors.blue],
+                        colors: [Colors.red, Colors.orange],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight)),
                 child: ListTile(
@@ -339,9 +350,7 @@ Ilanlar? selectedilanlar;
                           ),
                           SizedBox(width: 5.0),
                           Text(
-                            DateFormat('dd-MM-yyyy').format(
-                              selectedilanlar!.tarih,
-                            ),
+                            selectedilanlar!.tarih,
                             style: TextStyle(
                               fontSize: 14.0,
                               color: Colors.white,

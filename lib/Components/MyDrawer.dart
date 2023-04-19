@@ -222,13 +222,6 @@ class MyDrawerAdmin extends StatefulWidget {
 class _MyDrawerAdminState extends State<MyDrawerAdmin> {
   var dbHelper = DatabaseProvider();
 
-  Future<void> loadCompany() async {
-    Company? company = await dbHelper.getCompanyByEmail("szrelalmis@gmail.com");
-    setState(() {
-      this.company = company;
-    });
-  }
-
 
   late Company? company;
 
@@ -274,7 +267,8 @@ class _MyDrawerAdminState extends State<MyDrawerAdmin> {
               ),
               Expanded(
                 child: ListTile(
-                  onTap: () {
+                  onTap: () async {
+                    company=await dbHelper.getCompanyByEmail("szrelalmis@gmail.com");
                     Navigator.push(
                         context,
                         MaterialPageRoute(

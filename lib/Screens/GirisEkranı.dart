@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kariyer_hedefim/Data/GoogleSignin.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/GirisKullanici.dart';
 import 'package:path/path.dart';
 
@@ -11,37 +12,71 @@ class GirisEkrani extends StatelessWidget {
   Widget build(BuildContext context) {
     var boy = MediaQuery.of(context).size.height;
     var en = MediaQuery.of(context).size.width;
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor:Color(0xffbf1922),
-        title: Text("Ana Sayfa"),
-        automaticallyImplyLeading: false,
-        centerTitle: true,
+    return WillPopScope(
+      onWillPop: () async {
+
+        bool exit = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: Color(0xffbf1922),
+              title: Text("Önceki sayfaya dönmek istiyor musunuz?",style: TextStyle(
+                  fontWeight: FontWeight.bold,color: Colors.white),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text("HAYIR",style: TextStyle(
+                      fontWeight: FontWeight.bold,color: Colors.white),
+                  ),),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                    GoogleSignInApi.logout();
+                  },
+                  child: Text("EVET",style: TextStyle(
+                      fontWeight: FontWeight.bold,color: Colors.white),
+                  ),),
+              ],
+            );
+          },
+        );
+        return exit ;
+      },
+
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor:Color(0xffbf1922),
+          title: Text("Ana Sayfa"),
+          automaticallyImplyLeading: false,
+          centerTitle: true,
+        ),
+        body: Container(
+          color: Colors.white,
+          height: MediaQuery.of(context).size.height  ,
+          child: SingleChildScrollView(
+            child: Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                            Image(image: AssetImage(
+                              "assect/images/Logo2.PNG"
+                            )),
+                            _AdminButton(),
+                            SizedBox(height: 20),
+                            _KullaniciButton(),
+                          ],
+                        ),
+                      ),),
+        )
       ),
-      body: Container(
-        color: Colors.white,
-        height: MediaQuery.of(context).size.height  ,
-        child: SingleChildScrollView(
-          child: Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                          Image(image: AssetImage(
-                            "assect/images/Logo2.PNG"
-                          )),
-                          _AdminButton(),
-                          SizedBox(height: 20),
-                          _KullaniciButton(),
-                        ],
-                      ),
-                    ),),
-      )
     );}
 
   Widget _AdminButton() {
     return Builder(builder: (context) {
       return ElevatedButton(
         onPressed: () {
+          GoogleSignInApi.logout();
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => LoginCompany()));
         },
@@ -67,6 +102,7 @@ class GirisEkrani extends StatelessWidget {
     return Builder(builder: (context) {
       return ElevatedButton(
         onPressed: () {
+          GoogleSignInApi.logout();
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => LoginUser()));
         },

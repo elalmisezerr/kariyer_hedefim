@@ -20,6 +20,7 @@ class MyTextField extends StatelessWidget {
       child: TextFormField(
         validator: validator,
         controller: controller,
+        keyboardType: TextInputType.emailAddress,
         obscureText: obscureText,
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
@@ -34,6 +35,7 @@ class MyTextField extends StatelessWidget {
           filled: true,
           hintText: hintText,
           hintStyle: TextStyle(color: Colors.grey[500]),
+
 
         ),
       ),

@@ -10,7 +10,7 @@ import '../SirketIslemleri/GirisSirket.dart';
 
 class EditAdmin extends StatefulWidget {
   EditAdmin({Key? key, required this.company}) : super(key: key);
-  late Company? company;
+  Company? company;
   @override
   State<EditAdmin> createState() => _EditAdminState();
 }

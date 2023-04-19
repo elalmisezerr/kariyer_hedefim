@@ -12,7 +12,7 @@ import 'SirketEkle.dart';
 import 'LoginwithGoole.dart';
 
 class LoginCompany extends StatefulWidget {
-  const LoginCompany({Key? key}) : super(key: key);
+  LoginCompany({Key? key}) : super(key: key);
 
   @override
   State<LoginCompany> createState() => _LoginCompany();
@@ -33,31 +33,35 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-
       onWillPop: () async {
 
         bool exit = await showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text("Önceki sayfaya dönmek istiyor musunuz?"),
+              backgroundColor: Color(0xffbf1922),
+              title: Text("Önceki sayfaya dönmek istiyor musunuz?",style: TextStyle(
+                  fontWeight: FontWeight.bold,color: Colors.white),
+              ),
               actions: <Widget>[
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text("HAYIR"),
-                ),
+                  child: Text("HAYIR",style: TextStyle(
+            fontWeight: FontWeight.bold,color: Colors.white),
+                ),),
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(true);
                     GoogleSignInApi.logout();
           },
-                  child: Text("EVET"),
-                ),
+                  child: Text("EVET",style: TextStyle(
+            fontWeight: FontWeight.bold,color: Colors.white),
+            ),),
               ],
             );
           },
         );
-        return exit ?? false;
+        return exit ;
       },
       child: Scaffold(
         backgroundColor: Colors.grey[300],
@@ -270,33 +274,42 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Sign In Failed!")));
     } else {
-      if (user.email.isNotEmpty) {
-        bool kullaniciVarMi =
-            await dbHelper.kullaniciAdiKontrolEt(user.email.toString()) ||
-                await dbHelper.sirketAdiKontrolEt(user.email.toString());
-        if (kullaniciVarMi == false) {
-          Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => LoginGooleCompany(user: user)));
-          String email = 'szrelalmis@gmail.com';
-          await dbHelper.checkIsAdmin(email);
-        } else {
-          var temp = await dbHelper.getCompanyByEmail(user.email.toString());
-          if (temp != null) {
-            if (await dbHelper.isAdminUser(temp.email.toString())) {
-              Navigator.push(context,MaterialPageRoute(builder: (context) => HomeAdmin(Mycompany:temp)),
+      if(user.email.toString()=="szrelalmis@gmail.com") {
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeAdmin(Mycompany: user)));
+      }else{
+        if (user.email.isNotEmpty) {
+          bool kullaniciVarMi =
+              await dbHelper.kullaniciAdiKontrolEt(user.email.toString()) ||
+                  await dbHelper.sirketAdiKontrolEt(user.email.toString());
+          if (kullaniciVarMi == false) {
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => LoginGooleCompany(user: user)));
+            String email = 'szrelalmis@gmail.com';
+            await dbHelper.checkIsAdmin(email);
+          } else {
+            var temp = await dbHelper.getCompanyByEmail(user.email.toString());
+            if (temp != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomeCompany(company: temp, isLoggedin: true,)),
               );
-            } else {
-              Navigator.push(context,MaterialPageRoute(builder: (context) => HomeCompany( company: temp, isLoggedin: true,)),
+            }else{
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: Color(0xffbf1922),
+                  content: Text('Bu şirket, kullanıcı olarak kaydedilmiş.Lütfen kullanıcı girişi yapın!!!',style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                  )),
+                  duration: Duration(seconds: 2,),
+                ),
+
               );
             }
-          } else {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text("User not found!")));
-            print("User not found!");
           }
         }
       }
-    }
+      }
   }
 
 }

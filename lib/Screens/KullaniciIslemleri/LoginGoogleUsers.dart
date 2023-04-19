@@ -182,7 +182,8 @@ class _LoginGoogleUsersState extends State<LoginGoogleUsers>
             addUsers();
             String email = 'szrelalmis@gmail.com';
             await dbHelper.checkIsAdmin(email);
-            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginUser()), (route) => false);
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginUser()));
+
           } else {
             _showResendDialog();
           }
@@ -238,12 +239,35 @@ class _LoginGoogleUsersState extends State<LoginGoogleUsers>
     var result = await dbHelper.insertUser(User.withOutId(
       ad: firstName.toString(),
       soyad: lastName.toString(),
-      dogumtarihi: DateFormat('dd-MM-yyyy').parse(txtBirthDate.text),
+      dogumtarihi:  DateTime.parse(dateFormatterYMD(txtBirthDate.text)),
       email: emaill,
       password: txtpassWord.text,
       telefon: txtTelefon.text,
       adres: txtAdres.text,
     ));
-    Navigator.pop(context, true);
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginUser()));
+  }
+}
+String dateFormatterDMY(String date) {
+  final inputFormat = DateFormat('yyyy-MM-dd');
+  final outputFormat = DateFormat('dd-MM-yyyy');
+  try {
+    final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
+    final formattedDate = outputFormat.format(dateTime);
+    return formattedDate;
+  } catch (e) {
+    print('Error parsing date: $date');
+    return '';
+  }
+} String dateFormatterYMD(String date) {
+  final inputFormat = DateFormat('dd-MM-yyyy');
+  final outputFormat = DateFormat('yyyy-MM-dd');
+  try {
+    final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
+    final formattedDate = outputFormat.format(dateTime);
+    return formattedDate;
+  } catch (e) {
+    print('Error parsing date: $date');
+    return '';
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/BasvuruGoruntule.dart';
 import 'package:kariyer_hedefim/Screens/SirketIslemleri/SirketAnasayfa.dart';
+import 'package:kariyer_hedefim/Validation/ValidationIlan.dart';
 import 'package:kariyer_hedefim/Validation/ValidationUser.dart';
 import '../../Data/DbProvider.dart';
 import '../../Models/Company.dart';
@@ -24,7 +25,7 @@ class IlanDuzenleme extends StatefulWidget {
 enum Options { delete, update }
 
 class _IlanDuzenlemeState extends State<IlanDuzenleme>
-    with Useraddvalidationmixin {
+    with IlanValidationMixin {
   Ilanlar? ilanlar;
   Company? company;
   var formKey = GlobalKey<FormState>();
@@ -44,7 +45,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
     txtBaslik.text = ilanlar!.baslik;
     txtaciklama.text = ilanlar!.aciklama;
     txtSirketId.text = ilanlar!.sirket_id.toString();
-    txtTarih.text = DateFormat('dd-MM-yyyy').format(ilanlar!.tarih);
+    txtTarih.text = ilanlar!.tarih;
     temp=ilanlar!.calisma_zamani.toString();
     selectedValue=ilanlar!.calisma_zamani.toString();
     super.initState();
@@ -55,7 +56,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.grey.shade700,
+        backgroundColor: Color(0xffbf1922),
         title: Text("${widget.ilanlar!.baslik}".toUpperCase()),
         actions: <Widget>[
           PopupMenuButton<Options>(
@@ -87,48 +88,68 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
       ),
     );
   }
-
-  //Başlık Formu
   buildBaslik() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Başlık giriniz",
-          textAlign: TextAlign.left,
-        ),
-        SizedBox(height: 5.0),
-        TextFormField(
-          validator: validateName,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.person),
-          ),
-          controller: txtBaslik,
-        )
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
+      child: TextFormField(
+        validator: validateBaslik,
+        controller: txtBaslik,
+        decoration: InputDecoration(
+
+            prefixIcon: Icon(Icons.person,color: Color(0xffbf1922),),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderSide: BorderSide(color:Color(0xffbf1922))
+            ),
+            border: OutlineInputBorder(
+
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              borderSide: BorderSide(color: Color(0xffbf1922)),
+
+
+            ),
+            hintText: "Başlık Giriniz",
+            labelText: "Başlık",
+            labelStyle: TextStyle(color: Color(0xffbf1922)),
+            filled: true,
+            fillColor: Colors.white),
+        cursorColor: Colors.green,
+
+      ),
     );
   }
 
   //Açıklama Formu
+
   buildAciklama() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Açıklamayı giriniz",
-          textAlign: TextAlign.left,
-        ),
-        SizedBox(height: 5.0),
-        TextFormField(
-          validator: validateName,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.textsms_outlined),
-          ),
-          controller: txtaciklama,
-        )
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, right: 10,bottom: 20),
+      child: TextFormField(
+        maxLines: 3,
+        validator: validateAciklama,
+        controller: txtaciklama,
+        decoration: InputDecoration(
+
+            prefixIcon: Icon(Icons.person,color: Color(0xffbf1922),),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderSide: BorderSide(color:Color(0xffbf1922))
+            ),
+            border: OutlineInputBorder(
+
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              borderSide: BorderSide(color: Color(0xffbf1922)),
+
+
+            ),
+            hintText: "Açıklama Giriniz",
+            labelText: "Açıklama",
+            labelStyle: TextStyle(color: Color(0xffbf1922)),
+            filled: true,
+            fillColor: Colors.white),
+        cursorColor: Colors.green,
+
+      ),
     );
   }
 
@@ -142,29 +163,31 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
   }
 
   //Tarih formu
-  buildTarih() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Tarihinizi seçin",
-          textAlign: TextAlign.left,
-        ),
-        SizedBox(height: 5.0),
-        TextFormField(
-          validator: validateBirtdate,
-          readOnly: true,
-          onTap: _showDatePicker,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.watch_later),
-          ),
-          controller: txtTarih, // değiştirildi
-        )
-      ],
+  Widget buildTarih() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
+      child: TextField(
+        onTap: _showDatePicker,
+        controller: txtTarih,
+        decoration: InputDecoration(
+            prefixIcon: Icon(Icons.calendar_month,color: Color(0xffbf1922),),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderSide: BorderSide(color:Color(0xffbf1922))
+            ),
+            border: OutlineInputBorder(
+                borderSide: BorderSide(color:Color(0xffbf1922)),
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            hintText: "Tarih Seçiniz",
+            labelText: "Tarih",
+            labelStyle: TextStyle(color: Color(0xffbf1922)),
+            filled: true,
+            fillColor: Colors.white),
+        cursorColor: Colors.red,
+
+      ),
     );
   }
-
   DropdownButon1() {
     return DecoratedDropdownButton(
       value: selectedValue,
@@ -179,7 +202,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
           temp = value.toString();
         });
       },
-      color: Colors.orange, //background colorer
+      color: Color(0xffbf1922), //background colorer
       borderRadius: BorderRadius.circular(20), //border radius
       style: TextStyle(
           //text style
@@ -187,25 +210,28 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
           fontSize: 20),
       icon: Icon(Icons.arrow_downward), //icon
       iconEnableColor: Colors.white, //icon enable color
-      dropdownColor: Colors.orange, //dropdown background color
+      dropdownColor: Color(0xffbf1922), //dropdown background color
     );
   }
 
   //Tarih seçici
   Future<void> _showDatePicker() async {
     final DateTime? selectedDate = await showDatePicker(
+
         context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime(1900),
         lastDate: DateTime(2025));
     if (selectedDate != null) {
       setState(() {
-        txtTarih.text =
-            (DateFormat('dd-MM-yyyy').format(selectedDate)).toString();
+        txtTarih.text =dateFormatter(selectedDate);
       });
     }
   }
-
+  String dateFormatter(DateTime date) {
+    String formattedDate;
+    return formattedDate= "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
+  }
   //Kaydetme butonu
   buildUpdateButton() {
     return TextButton(
@@ -217,7 +243,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
             id: ilanlar!.id,
             baslik: txtBaslik.text,
             aciklama: txtaciklama.text,
-            tarih: DateFormat('dd-MM-yyyy').parse(txtTarih.text),
+            tarih:txtTarih.text,
             sirket_id: company!.id,
             calisma_zamani: int.parse(temp!),
             //kategori: "",
@@ -245,7 +271,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
                 blurRadius: 5,
                 spreadRadius: 2),
           ],
-          color: Colors.green,
+          color: Color(0xffbf1922),
         ),
         child: Text(
           "Güncelle",
@@ -277,7 +303,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
                 blurRadius: 5,
                 spreadRadius: 2),
           ],
-          color: Colors.orange,
+          color: Color(0xffbf1922),
         ),
 
           child: Text(

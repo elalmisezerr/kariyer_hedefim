@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../Data/DbProvider.dart';
+import '../../Data/GoogleSignin.dart';
 import '../../Models/Company.dart';
 import 'GirisSirket.dart';
 
@@ -35,27 +36,55 @@ class _LoginGooleCompanyState extends State<LoginGooleCompany> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Form(
-        key: formKey,
-        child: Padding(
-          padding: EdgeInsets.all(30.0),
-          child: ListView(
-            children: [
-              buildPassword(),
-              SizedBox(
-                height: 5.0,
-              ),
-              buildTelefon(),
-              SizedBox(
-                height: 5.0,
-              ),
-              buildAdres(),
-              SizedBox(
-                height: 5.0,
-              ),
-              buildSaveButton()
-            ],
+    return WillPopScope(
+
+      onWillPop: () async {
+
+        bool exit = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Önceki sayfaya dönmek istiyor musunuz?"),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text("HAYIR"),
+                ),
+                TextButton(
+                  onPressed: () {
+                   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginCompany()), (route) => false);
+                    GoogleSignInApi.logout();
+                  },
+                  child: Text("EVET"),
+                ),
+              ],
+            );
+          },
+        );
+        return exit ;
+      },
+      child: Scaffold(
+        body: Form(
+          key: formKey,
+          child: Padding(
+            padding: EdgeInsets.all(30.0),
+            child: ListView(
+              children: [
+                buildPassword(),
+                SizedBox(
+                  height: 5.0,
+                ),
+                buildTelefon(),
+                SizedBox(
+                  height: 5.0,
+                ),
+                buildAdres(),
+                SizedBox(
+                  height: 5.0,
+                ),
+                buildSaveButton()
+              ],
+            ),
           ),
         ),
       ),

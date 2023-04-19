@@ -42,7 +42,10 @@ class _IlanDetayState extends State<IlanDetay> {
 
   final _key = GlobalKey<FormState>();
 
-
+  String dateFormatter(DateTime date) {
+    String formattedDate;
+    return formattedDate= "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
+  }
 
 
   @override
@@ -55,7 +58,7 @@ class _IlanDetayState extends State<IlanDetay> {
             Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>HomeUser(user: widget.user)), (route) => false);
           },
         ),
-        title: Text("İlan Detay"),
+        title: Text("Başvuru Sayfası"),
         backgroundColor: Color(0xffbf1922),
         centerTitle: true,
         automaticallyImplyLeading: false,
