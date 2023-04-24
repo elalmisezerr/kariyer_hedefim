@@ -245,7 +245,7 @@ void initState() {
     if (selectedDate != null) {
       setState(() {
         // Use DateFormat to format the selected date
-        txtTarih.text = selectedDate.toString();
+        txtTarih.text =  DateFormat('dd-MM-yyyy').format(selectedDate);
       });
     }
   }

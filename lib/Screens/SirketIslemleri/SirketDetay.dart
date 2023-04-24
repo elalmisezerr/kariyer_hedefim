@@ -260,11 +260,7 @@ class _CompanyDetailState extends State<CompanyDetail>
             widget.company.sifre=txtpassWord.text;
             widget.company.telefon=txtTelefon.text;
             widget.company.adres=txtAdres.text;
-            await dbHelper.updateCompany(widget.company).then((value) {
-              if (value != null) {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeCompany(company: widget.company, isLoggedin: true)));
-              }
-            });
+            _showConfirmUpdateDialog(context, widget.company);
           }
         },
         child: Text(
@@ -284,8 +280,7 @@ class _CompanyDetailState extends State<CompanyDetail>
     return ElevatedButton(
         onPressed: () async {
           if (widget.company!=null) {
-            await dbHelper.deleteCompany(widget.company.id!);
-
+_showConfirmDeleteDialog(context, widget.company);
             Navigator.pushAndRemoveUntil(context,
                 MaterialPageRoute(builder: (context) => LoginCompany()),
                 (Route<dynamic> route) => false,);
@@ -293,4 +288,63 @@ class _CompanyDetailState extends State<CompanyDetail>
         },
         child: Text("Sil"));
   }
+  void _showConfirmDeleteDialog(BuildContext context, Company company) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Kaydı Sil'),
+          content: Text('Kaydı silmek istediğinize emin misiniz?'),
+          actions: [
+            TextButton(
+              child: Text('Hayır'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Evet'),
+              onPressed: () {
+                dbHelper.deleteCompany(company.id!); // Şirketi sil
+                Navigator.of(context).pop();
+                setState(() {}); // Liste güncelle
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+  void _showConfirmUpdateDialog(BuildContext context, Company company) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Kaydı Sil'),
+          content: Text('Kaydı güncellemek istediğinize emin misiniz?'),
+          actions: [
+            TextButton(
+              child: Text('Hayır'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Evet'),
+              onPressed: () async {
+                await dbHelper.updateCompany(widget.company).then((value) {
+                  if (value != null) {
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeCompany(company: widget.company, isLoggedin: true)));
+                  }
+                }); // Şirketi sil
+                Navigator.of(context).pop();
+                setState(() {}); // Liste güncelle
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }

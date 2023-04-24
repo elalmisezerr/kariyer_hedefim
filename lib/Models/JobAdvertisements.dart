@@ -38,18 +38,6 @@ class Ilanlar {
      //kategori: map['kategori'] as String, // kategori özelliği eklendi
     );
   }
-  String dateFormatterYMD(String date) {
-    final inputFormat = DateFormat('dd-MM-yyyy');
-    final outputFormat = DateFormat.yMd();
-    try {
-      final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
-      final formattedDate = outputFormat.format(dateTime);
-      return formattedDate;
-    } catch (e) {
-      print('Error parsing date: $date');
-      return '';
-    }
-  }
   Map<String, dynamic> toMap() {
     return {
       "id": id,

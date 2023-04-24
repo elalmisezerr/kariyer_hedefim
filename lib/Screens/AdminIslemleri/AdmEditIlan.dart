@@ -1,10 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:intl/intl.dart';
+import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Screens/IlanIslemleri/IlanDuzenle.dart';
 
 import '../../Data/DbProvider.dart';
+import '../../Data/GoogleSignin.dart';
 import '../../Models/JobAdvertisements.dart';
+import '../GirisEkranı.dart';
 import '../IlanIslemleri/IlanDetay.dart';
 
 class AdmEditIlan extends StatefulWidget {
@@ -16,26 +20,83 @@ class AdmEditIlan extends StatefulWidget {
 
 class _AdmEditIlanState extends State<AdmEditIlan> {
   var dbHelper = DatabaseProvider();
+  final _advancedDrawerController = AdvancedDrawerController();
+  void _handleMenuButtonPressed() {
+    // NOTICE: Manage Advanced Drawer state through the Controller.
+    // _advancedDrawerController.value = AdvancedDrawerValue.visible();
+    _advancedDrawerController.showDrawer();
+  }
 
+  void logout() {
+    setState(()  {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => GirisEkrani()));
+    });
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Ilanlar"),
+    return AdvancedDrawer(
+      backdropColor: Colors.white,
+      controller: _advancedDrawerController,
+      animationCurve: Curves.bounceInOut,
+      animationDuration: const Duration(milliseconds: 300),
+      animateChildDecoration: true,
+
+      rtlOpening: false,
+      // openScale: 1.0,
+      disabledGestures: false,
+      childDecoration: const BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
-      body: Container(
-        child:FutureBuilder<List<Ilanlar>>(
-          future: dbHelper.getIlanlar(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Hata: ${snapshot.error}'));
-            } else {
-              final ilanlar = snapshot.data ?? [];
-              return buildIlanList(ilanlar);
-            }
-          },
+      drawer: MyDrawerAdmin(),
+      child: Scaffold(
+        appBar:AppBar(
+          backgroundColor: Color(0xffbf1922),
+          leading: IconButton(
+            onPressed: _handleMenuButtonPressed,
+            icon: ValueListenableBuilder<AdvancedDrawerValue>(
+              valueListenable: _advancedDrawerController,
+              builder: (_, value, __) {
+                return AnimatedSwitcher(
+                  duration: Duration(milliseconds: 250),
+                  child: Icon(
+                    value.visible ? Icons.clear : Icons.menu,
+                    key: ValueKey<bool>(value.visible),
+                  ),
+                );
+              },
+            ),
+          ),
+          centerTitle: true,
+
+          title: Text("İlanlar"),
+          automaticallyImplyLeading: false,
+
+          actions: <Widget>[
+            /*IconButton(
+                  onPressed: () {
+                    showSearch(context: context, delegate: DataSearch(widget.company!));
+                  },
+                  icon: Icon(Icons.search)),*/
+            IconButton(onPressed: () async {
+            logout();
+            }, icon: Icon(Icons.logout))
+          ],
+        ),
+        body: Container(
+          child:FutureBuilder<List<Ilanlar>>(
+            future: dbHelper.getIlanlar(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Hata: ${snapshot.error}'));
+              } else {
+                final ilanlar = snapshot.data ?? [];
+                return buildIlanList(ilanlar);
+              }
+            },
+          ),
         ),
       ),
     );
@@ -128,43 +189,49 @@ class _AdmEditIlanState extends State<AdmEditIlan> {
                     color: Colors.white,
                   ),
                 ),
+                trailing: Icon(Icons.delete,size: 30,color: Colors.red,),
+                onTap: () {
+                  _showConfirmDeleteDialog(context, ilanlar[position]);
+                },
               ),
+
             ),
+
           ),
+
         )
         ;
       },
     );
   }
+  void _showConfirmDeleteDialog(BuildContext context, Ilanlar ilanlar) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Kaydı Sil'),
+          content: Text('Kaydı silmek istediğinize emin misiniz?'),
+          actions: [
+            TextButton(
+              child: Text('Hayır'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Evet'),
+              onPressed: () {
+                dbHelper.deleteIlan(ilanlar.id!); // Şirketi sil
+                Navigator.of(context).pop();
+                setState(() {}); // Liste güncelle
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
   getCompanyById(int id) async {
     return await dbHelper.getCompanyById(id as int);
-  }
-}
-String dateFormatterDMY(String date) {
-  final inputFormat = DateFormat('yyyy-MM-dd');
-  final outputFormat = DateFormat('dd-MM-yyyy');
-  try {
-    final dateTime = inputFormat.parse(date.replaceAll('-', '-'));
-    final formattedDate = outputFormat.format(dateTime);
-    return formattedDate;
-  } catch (e) {
-    print('Error parsing date: $date');
-    return '';
-  }
-}
-String dateFormatter(DateTime date) {
-  String formattedDate;
-  return formattedDate= "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
-}
-String dateFormatterYMD(String date) {
-  final inputFormat = DateFormat('dd-MM-yyyy');
-  final outputFormat = DateFormat('yyyy-MM-dd');
-  try {
-    final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
-    final formattedDate = outputFormat.format(dateTime);
-    return formattedDate;
-  } catch (e) {
-    print('Error parsing date: $date');
-    return '';
   }
 }

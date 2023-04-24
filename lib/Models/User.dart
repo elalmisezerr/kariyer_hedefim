@@ -4,7 +4,7 @@ class User {
   int? id;
   String ad;
   String soyad;
-  DateTime dogumtarihi;
+  String dogumtarihi;
   String email;
   String password;
   String telefon;
@@ -18,7 +18,7 @@ class User {
       id: map['id'] as int?,
       ad: map['ad'] as String,
       soyad: map['soyad'] as String,
-      dogumtarihi: DateFormat('dd-MM-yyyy').parse(map['dogumtarihi'] as String),
+      dogumtarihi:map['dogumtarihi'] as String,
       email: map['email'] as String,
       password: map['password'] as String,
       telefon: map['telefon'] as String,
@@ -33,7 +33,7 @@ class User {
       "id": id,
       "ad": ad,
       "soyad": soyad,
-      "dogumtarihi": dogumtarihi.toString(),
+      "dogumtarihi": dogumtarihi,
       "email": email,
       "password": password,
       "telefon":telefon,

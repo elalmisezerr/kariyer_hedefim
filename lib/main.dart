@@ -5,7 +5,6 @@ import 'package:kariyer_hedefim/Screens/GirisEkranı.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 
-import 'Deneme.dart';
 
 
 void main() {
@@ -19,16 +18,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      localizationsDelegates: [
-        // Add MaterialLocalizations.delegate to the list
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        TrCupertinoLocalizations.delegate, // Add this line
-      ],
-      supportedLocales: [
-        const Locale('en', 'US'), // English
-        const Locale('tr', 'TR'), // Turkish
-      ],
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: [
+          const Locale('en', 'US'), // English
+          const Locale('tr', 'TR'), // Turkish
+        ],
       title: "LOGİN",
       debugShowCheckedModeBanner: false,
       home: GirisEkrani(),

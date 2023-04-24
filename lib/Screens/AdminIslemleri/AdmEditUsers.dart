@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
+import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 
 import '../../Data/DbProvider.dart';
+import '../../Data/GoogleSignin.dart';
 import '../../Models/User.dart';
+import '../GirisEkranı.dart';
 
 class AdmEditUsers extends StatefulWidget {
   const AdmEditUsers({Key? key}) : super(key: key);
@@ -13,26 +17,85 @@ class AdmEditUsers extends StatefulWidget {
 
 class _AdmEditUsersState extends State<AdmEditUsers> {
   var dbHelper = DatabaseProvider();
+  final _advancedDrawerController = AdvancedDrawerController();
+  void _handleMenuButtonPressed() {
+    // NOTICE: Manage Advanced Drawer state through the Controller.
+    // _advancedDrawerController.value = AdvancedDrawerValue.visible();
+    _advancedDrawerController.showDrawer();
+  }
 
+  void logout() {
+    setState(() async {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => GirisEkrani()));
+    });
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Kullanıcılar"),
+    return AdvancedDrawer(
+      backdropColor: Colors.white,
+      controller: _advancedDrawerController,
+      animationCurve: Curves.bounceInOut,
+      animationDuration: const Duration(milliseconds: 300),
+      animateChildDecoration: true,
+
+      rtlOpening: false,
+      // openScale: 1.0,
+      disabledGestures: false,
+      childDecoration: const BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
-      body: Container(
-        child:FutureBuilder<List<User>>(
-          future: dbHelper.getUsers(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Hata: ${snapshot.error}',style: TextStyle(fontSize: 10),),);
-            } else {
-              final users = snapshot.data ?? [];
-              return buildUserList(users);
-            }
-          },
+      drawer: MyDrawerAdmin(),
+      child: Scaffold(
+        appBar:AppBar(
+          backgroundColor: Color(0xffbf1922),
+          leading: IconButton(
+            onPressed: _handleMenuButtonPressed,
+            icon: ValueListenableBuilder<AdvancedDrawerValue>(
+              valueListenable: _advancedDrawerController,
+              builder: (_, value, __) {
+                return AnimatedSwitcher(
+                  duration: Duration(milliseconds: 250),
+                  child: Icon(
+                    value.visible ? Icons.clear : Icons.menu,
+                    key: ValueKey<bool>(value.visible),
+                  ),
+                );
+              },
+            ),
+          ),
+          centerTitle: true,
+
+          title: Text("Kullanıcılar"),
+          automaticallyImplyLeading: false,
+
+          actions: <Widget>[
+            /*IconButton(
+                  onPressed: () {
+                    showSearch(context: context, delegate: DataSearch(widget.company!));
+                  },
+                  icon: Icon(Icons.search)),*/
+            IconButton(onPressed: () async {
+             /* await GoogleSignInApi.logout();
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>GirisEkrani()), (route) => false);
+           */ logout();
+            }, icon: Icon(Icons.logout))
+          ],
+        ),
+        body: Container(
+          child:FutureBuilder<List<User>>(
+            future: dbHelper.getUsers(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Hata: ${snapshot.error}',style: TextStyle(fontSize: 10),),);
+              } else {
+                final users = snapshot.data ?? [];
+                return buildUserList(users);
+              }
+            },
+          ),
         ),
       ),
     );
@@ -123,13 +186,41 @@ class _AdmEditUsersState extends State<AdmEditUsers> {
                   ),
                 ],
               ),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {},
+                trailing: Icon(Icons.delete,size: 30,color: Colors.red,),
+                onTap: () {
+                  _showConfirmDeleteDialog(context, users[position]);
+                }
             ),
           ),
         );
       },
     );
   }
-
+  void _showConfirmDeleteDialog(BuildContext context, User user) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Kaydı Sil'),
+          content: Text('Kaydı silmek istediğinize emin misiniz?'),
+          actions: [
+            TextButton(
+              child: Text('Hayır'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Evet'),
+              onPressed: () {
+                dbHelper.deleteUser(user.id!); // Şirketi sil
+                Navigator.of(context).pop();
+                setState(() {}); // Liste güncelle
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

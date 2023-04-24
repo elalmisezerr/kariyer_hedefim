@@ -27,43 +27,62 @@ class _LoginGooleCompanyState extends State<LoginGooleCompany> {
   late final String email;
   @override
   void initState() {
-
     fullName = widget.user.displayName ?? '';
     firstName = fullName.split(' ').first;
-    email=widget.user.email.toString();
+    email = widget.user.email.toString();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-
       onWillPop: () async {
-
         bool exit = await showDialog(
           context: context,
+          barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text("Önceki sayfaya dönmek istiyor musunuz?"),
+              backgroundColor: Color(0xffbf1922),
+              title: Text(
+                "Önceki sayfaya dönmek istiyor musunuz?",
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              ),
               actions: <Widget>[
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text("HAYIR"),
+                  child: Text(
+                    "HAYIR",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
-                   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginCompany()), (route) => false);
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginCompany()),
+                        (route) => false);
                     GoogleSignInApi.logout();
                   },
-                  child: Text("EVET"),
+                  child: Text(
+                    "EVET",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
                 ),
               ],
             );
           },
         );
-        return exit ;
+        return exit;
       },
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Color(0xffbf1922),
+          title: Text("Google Kayıt Sayfası"),
+          centerTitle: true,
+        ),
         body: Form(
           key: formKey,
           child: Padding(
@@ -91,10 +110,9 @@ class _LoginGooleCompanyState extends State<LoginGooleCompany> {
     );
   }
 
-
   buildPassword() {
     return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
       child: TextField(
         controller: txtpassWord,
         obscureText: _isObscured,
@@ -126,7 +144,7 @@ class _LoginGooleCompanyState extends State<LoginGooleCompany> {
 
   buildTelefon() {
     return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
       child: TextField(
         controller: txtTelefon,
         keyboardType: TextInputType.phone,
@@ -145,7 +163,7 @@ class _LoginGooleCompanyState extends State<LoginGooleCompany> {
 
   buildAdres() {
     return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 0),
       child: TextField(
         maxLines: 3,
         maxLength: 30,
@@ -163,21 +181,24 @@ class _LoginGooleCompanyState extends State<LoginGooleCompany> {
       ),
     );
   }
+
   buildSaveButton() {
     return TextButton(
       onPressed: () async {
         if (formKey.currentState!.validate()) {
           formKey.currentState!.save();
-          bool kullaniciVarMi = await dbHelper.kullaniciAdiKontrolEt(widget.user.email.toString())||await dbHelper.sirketAdiKontrolEt(widget.user.email.toString());
+          bool kullaniciVarMi = await dbHelper
+                  .kullaniciAdiKontrolEt(widget.user.email.toString()) ||
+              await dbHelper.sirketAdiKontrolEt(widget.user.email.toString());
           if (kullaniciVarMi == false) {
             addCompanies();
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginCompany()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => LoginCompany()));
             String email = 'szrelalmis@gmail.com';
             await dbHelper.checkIsAdmin(email);
           } else {
             _showResendDialog();
           }
-
         }
       },
       child: Container(
@@ -186,7 +207,7 @@ class _LoginGooleCompanyState extends State<LoginGooleCompany> {
         padding: EdgeInsets.symmetric(vertical: 15),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(50)),
+          borderRadius: BorderRadius.all(Radius.circular(10)),
           boxShadow: <BoxShadow>[
             BoxShadow(
                 color: Colors.black,
@@ -194,7 +215,7 @@ class _LoginGooleCompanyState extends State<LoginGooleCompany> {
                 blurRadius: 5,
                 spreadRadius: 2),
           ],
-          color: Colors.grey.shade700,
+          color: Color(0xffbf1922),
         ),
         child: Text(
           "Ekle",
@@ -219,6 +240,7 @@ class _LoginGooleCompanyState extends State<LoginGooleCompany> {
     //   _showResendDialog();
     // }
   }
+
   void _showResendDialog() {
     AlertDialog alert = AlertDialog(
       title: Text("Uyarı"),
@@ -240,5 +262,4 @@ class _LoginGooleCompanyState extends State<LoginGooleCompany> {
       },
     );
   }
-
 }

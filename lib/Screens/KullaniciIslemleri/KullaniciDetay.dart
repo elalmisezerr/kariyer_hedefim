@@ -37,13 +37,12 @@ class _UserDetailState extends State<UserDetail> {
   void initState() {
     txtName.text = user?.ad ?? '';
     txtSurname.text = user?.soyad ?? '';
-    txtBirthDate.text =dateFormatter(user!.dogumtarihi);
+    txtBirthDate.text =user!.dogumtarihi;
       //  DateFormat('dd-MM-yyyy').format(user?.dogumtarihi ?? DateTime.now());
     txtuserName.text = user?.email ?? '';
     txtpassWord.text = user?.password ?? '';
     txtTelefon.text = user?.telefon ?? '';
     txtAdres.text = user?.adres ?? '';
-    print(user!.dogumtarihi.toString());
     super.initState();
   }
   String dateFormatter(DateTime date) {
@@ -123,55 +122,58 @@ class _UserDetailState extends State<UserDetail> {
   }
 
   buildGovde() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          SizedBox(
-            height: 15,
-          ),
-          // buildExample(),
-          buildName(),
-          SizedBox(
-            height: 5.0,
-          ),
-          buildSurname(),
-          SizedBox(
-            height: 5.0,
-          ),
-          buildBirthDate(),
-          SizedBox(
-            height: 5.0,
-          ),
-          buildEmail(),
-          SizedBox(
-            height: 5.0,
-          ),
-          buildPassword(),
-          SizedBox(
-            height: 5.0,
-          ),
-          buildTelefon(),
-          SizedBox(
-            height: 5.0,
-          ),
-          buildAdres(),
-          SizedBox(
-            height: 5.0,
-          ),
-          Row(
-            children: [
-              Flexible(
-                flex: 1,
-                child: buildUpdateButton(),
-              ),
-              SizedBox(width: 10),
-              Flexible(
-                flex: 1,
-                child: buildDeleteButton(),
-              ),
-            ],
-          ),
-        ],
+    return Form(
+      key: formKey,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(
+              height: 15,
+            ),
+            // buildExample(),
+            buildName(),
+            SizedBox(
+              height: 5.0,
+            ),
+            buildSurname(),
+            SizedBox(
+              height: 5.0,
+            ),
+            buildBirthDate(),
+            SizedBox(
+              height: 5.0,
+            ),
+            buildEmail(),
+            SizedBox(
+              height: 5.0,
+            ),
+            buildPassword(),
+            SizedBox(
+              height: 5.0,
+            ),
+            buildTelefon(),
+            SizedBox(
+              height: 5.0,
+            ),
+            buildAdres(),
+            SizedBox(
+              height: 5.0,
+            ),
+            Row(
+              children: [
+                Flexible(
+                  flex: 1,
+                  child: buildUpdateButton(),
+                ),
+                SizedBox(width: 10),
+                Flexible(
+                  flex: 1,
+                  child: buildDeleteButton(),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -213,9 +215,6 @@ class _UserDetailState extends State<UserDetail> {
       ),
     );
   }
-
-
-
   Widget buildBirthDate() {
     return Padding(
       padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
@@ -235,7 +234,6 @@ class _UserDetailState extends State<UserDetail> {
       ),
     );
   }
-
   buildEmail() {
     return Padding(
       padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
@@ -254,7 +252,6 @@ class _UserDetailState extends State<UserDetail> {
       ),
     );
   }
-
   buildPassword() {
     return Padding(
       padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
@@ -286,8 +283,6 @@ class _UserDetailState extends State<UserDetail> {
       ),
     );
   }
-
-
   buildTelefon() {
     return Padding(
       padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
@@ -305,7 +300,8 @@ class _UserDetailState extends State<UserDetail> {
         cursorColor: Colors.yellow,
       ),
     );
-  }buildAdres() {
+  }
+  buildAdres() {
     return Padding(
       padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
       child: TextField(
@@ -325,9 +321,6 @@ class _UserDetailState extends State<UserDetail> {
       ),
     );
   }
-
-
-
   Future<void> _showDatePicker() async {
     final DateTime? selectedDate = await showDatePicker(
         context: context,
@@ -339,12 +332,10 @@ class _UserDetailState extends State<UserDetail> {
     if (selectedDate != null) {
       setState(() {
         // Use DateFormat to format the selected date
-        txtBirthDate.text = dateFormatter(selectedDate);
+        txtBirthDate.text =  DateFormat('dd-MM-yyyy').format(selectedDate);
       });
     }
   }
-
-
   void selectProcess(Options options) async {
     switch (options) {
       case Options.delete:
@@ -356,7 +347,7 @@ class _UserDetailState extends State<UserDetail> {
         {
           user!.ad = txtName.text;
           user!.soyad = txtSurname.text;
-          user!.dogumtarihi = DateTime.parse(dateFormatter(DateTime.parse(txtBirthDate.text)));
+          user!.dogumtarihi =  txtBirthDate.text;
           user!.email = txtuserName.text;
           user!.password = txtpassWord.text;
           user!.telefon = txtTelefon.text;
@@ -365,30 +356,30 @@ class _UserDetailState extends State<UserDetail> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => HomeUser(user: widget.user)));
+                  builder: (context) => HomeUser(Myuser: widget.user)));
         }
         break;
       default:
     }
   }
-
   buildUpdateButton() {
     return TextButton(
       onPressed: () async {
-        if (formKey.currentState!.validate() && user!=null) {
+        if (formKey.currentState!.validate()) {
           formKey.currentState!.save();
           user!.ad = txtName.text;
           user!.soyad = txtSurname.text;
-          user!.dogumtarihi = DateTime.parse(dateFormatter(DateTime.parse(txtBirthDate.text)));
+          user!.dogumtarihi = txtBirthDate.text;
           user!.email = txtuserName.text;
           user!.password = txtpassWord.text;
           user!.telefon = txtTelefon.text;
           user!.adres = txtAdres.text;
           await dbHelper.updateUser(user!);
+          _showResendDialogupdate();
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => HomeUser(user: widget.user)));
+                  builder: (context) => HomeUser(Myuser: widget.user)));
         }
       },
       child: Container(
@@ -405,7 +396,7 @@ class _UserDetailState extends State<UserDetail> {
                 blurRadius: 5,
                 spreadRadius: 2),
           ],
-          color: Colors.green,
+          color:  Color(0xffbf1922),
         ),
         child: Text(
           "Güncelle",
@@ -414,13 +405,54 @@ class _UserDetailState extends State<UserDetail> {
       ),
     );
   }
+  void _showResendDialogupdate() {
+    AlertDialog alert = AlertDialog(
+      title: Text("Uyarı"),
+      content: Text("Kayıt Başarıyla Güncellendi"),
+      actions: [
+        ElevatedButton(
+          child: Text("Tamam"),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
 
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+  void _showResendDialogdelete() {
+    AlertDialog alert = AlertDialog(
+      title: Text("Uyarı"),
+      content: Text("Kayıt Başarıyla Silindi"),
+      actions: [
+        ElevatedButton(
+          child: Text("Tamam"),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
   buildDeleteButton() {
     return TextButton(
       onPressed: () async {
         if (formKey.currentState!.validate()) {
           formKey.currentState!.save();
-          await dbHelper.deleteUser(user!.id!);
+          _showConfirmDeleteDialog(context, user!);
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => LoginUser()));
         }
@@ -439,7 +471,7 @@ class _UserDetailState extends State<UserDetail> {
                 blurRadius: 5,
                 spreadRadius: 2),
           ],
-          color: Colors.grey.shade700,
+          color:  Color(0xffbf1922),
         ),
         child: Text(
           "Ekle",
@@ -448,7 +480,60 @@ class _UserDetailState extends State<UserDetail> {
       ),
     );
   }
-
+  void _showConfirmDeleteDialog(BuildContext context, User user) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Kaydı Sil'),
+          content: Text('Kaydı silmek istediğinize emin misiniz?'),
+          actions: [
+            TextButton(
+              child: Text('Hayır'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Evet'),
+              onPressed: () {
+                dbHelper.deleteUser(user.id!); // Şirketi sil
+                Navigator.of(context).pop();
+                setState(() {}); // Liste güncelle
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+  void _showConfirmUpdateDialog(BuildContext context, User user) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Kaydı Sil'),
+          content: Text('Kaydı güncellemek istediğinize emin misiniz?'),
+          actions: [
+            TextButton(
+              child: Text('Hayır'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Evet'),
+              onPressed: () {
+                dbHelper.deleteUser(user.id!); // Şirketi sil
+                Navigator.of(context).pop();
+                setState(() {}); // Liste güncelle
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
   void _handleMenuButtonPressed() {
     // NOTICE: Manage Advanced Drawer state through the Controller.
     // _advancedDrawerController.value = AdvancedDrawerValue.visible();

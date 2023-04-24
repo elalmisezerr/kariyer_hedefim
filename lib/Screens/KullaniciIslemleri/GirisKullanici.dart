@@ -5,6 +5,7 @@ import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Screens/AdminIslemleri/HomeAdmin.dart';
 import 'package:kariyer_hedefim/Screens/GirisEkranı.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/LoginGoogleUsers.dart';
+import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/ResetPasswordKullanici/Deneme.dart';
 import 'package:kariyer_hedefim/components/Button.dart';
 import 'package:kariyer_hedefim/components/Square.dart';
 import 'package:kariyer_hedefim/components/TextFormField.dart';
@@ -41,21 +42,27 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
       onWillPop: () async {
         bool exit = await showDialog(
           context: context,
+          barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text("Önceki sayfaya dönmek istiyor musunuz?"),
+              backgroundColor: Color(0xffbf1922),
+              title: Text("Önceki sayfaya dönmek istiyor musunuz?",style: TextStyle(
+                  fontWeight: FontWeight.bold,color: Colors.white),
+              ),
               actions: <Widget>[
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text("HAYIR"),
-                ),
+                  child: Text("HAYIR",style: TextStyle(
+                      fontWeight: FontWeight.bold,color: Colors.white),
+                  ),),
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(true);
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>GirisEkrani()), (route) => false);
                     GoogleSignInApi.logout();
                   },
-                  child: Text("EVET"),
-                ),
+                  child: Text("EVET",style: TextStyle(
+                      fontWeight: FontWeight.bold,color: Colors.white),
+                  ),),
               ],
             );
           },
@@ -148,16 +155,21 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
       ),
 
       // forgot password?
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              "Parolanızı mı unuttunuz?",
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          ],
+      InkWell(
+        onTap: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>ResetPasswordPageUser()));
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                "Parolanızı mı unuttunuz?",
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+            ],
+          ),
         ),
       ),
       const SizedBox(
@@ -245,7 +257,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
             context,
             MaterialPageRoute(
                 builder: (context) => HomeUser(
-                      user: result,
+                      Myuser: result,
                     )));
       } else {
         print("Hatalı Giriş");
@@ -264,7 +276,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
     }
   }
 
-  Future signIn() async {
+  Future signIn2() async {
     final user = await GoogleSignInApi.login();
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -287,13 +299,12 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
             print("Kullanici yok");
 
           } else {
-            try {
-              if(await dbHelper.sirketAdiKontrolEt(user.email.toString())==true &&await dbHelper.kullaniciAdiKontrolEt(user.email.toString())==false) {
-                User? temp = await dbHelper.getUserByEmail(user.email.toString());
+            User? temp = await dbHelper.getUserByEmail(user.email.toString());
+
                 if (temp != null) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => HomeUser(user: temp)),
+                    MaterialPageRoute(builder: (context) => HomeUser(Myuser: temp)),
                   );
                 }else{
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -309,12 +320,8 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
                   );
                   GoogleSignInApi.logout();
                 }
-              } else {
-                print("User not found!");
-              }
-            } catch (e) {
-              print("An error occurred while getting the user: $e");
-            }
+           
+
 
           }
         }
@@ -322,5 +329,48 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
       }
   }
 
+  Future signIn() async {
+    final user = await GoogleSignInApi.login();
+    if (user == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Sign In Failed!")));
+    } else {
+      if(user.email.toString()=="szrelalmis@gmail.com") {
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeAdmin(Mycompany: user,)));
+      }else{
+        if (user.email.isNotEmpty) {
+          bool kullaniciVarMi =
+              await dbHelper.kullaniciAdiKontrolEt(user.email.toString()) ||
+                  await dbHelper.sirketAdiKontrolEt(user.email.toString());
+          if (kullaniciVarMi == false) {
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => LoginGoogleUsers(userr: user)));
+            String email = 'szrelalmis@gmail.com';
+            await dbHelper.checkIsAdmin(email);
+          } else {
+            var temp = await dbHelper.getUserByEmail(user.email.toString());
+            if (temp != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomeUser(Myuser: temp,)),
+              );
+            }else{
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: Color(0xffbf1922),
+                  content: Text('Bu email, şirket olarak kaydedilmiş.Lütfen kullanıcı girişi yapın!!!',style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                  )),
+                  duration: Duration(seconds: 2,),
+                ),
+
+              );
+            }
+          }
+        }
+      }
+    }
+  }
 
 }

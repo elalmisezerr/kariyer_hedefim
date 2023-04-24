@@ -4,7 +4,7 @@ class Basvuru {
   int? id;
   String ilanId;
   String kullaniciId;
-  DateTime basvuruTarihi;
+  String basvuruTarihi;
 
   Basvuru({
     required this.id,
@@ -32,7 +32,7 @@ class Basvuru {
       id: map['id'],
       ilanId: map['ilan_id'],
       kullaniciId: map['kullanici_id'],
-      basvuruTarihi:DateFormat('dd-MM-yyyy').parse(map['basvuruTarihi'] as String),
+      basvuruTarihi:map['basvuruTarihi'],
     );
   }
 }

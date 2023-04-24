@@ -224,7 +224,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
         lastDate: DateTime(2025));
     if (selectedDate != null) {
       setState(() {
-        txtTarih.text =dateFormatter(selectedDate);
+        txtTarih.text = DateFormat('dd-MM-yyyy').format(selectedDate);
       });
     }
   }

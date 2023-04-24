@@ -25,8 +25,7 @@ class _HomeAdminState extends State<HomeAdmin> {
   }
 
   void logout() {
-    setState(() async {
-      await GoogleSignInApi.logout();
+    setState(() {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => GirisEkrani()));
     });
@@ -48,8 +47,7 @@ class _HomeAdminState extends State<HomeAdmin> {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(true);
-                    GoogleSignInApi.logout();
+                   logout();
                   },
                   child: Text("EVET"),
                 ),
@@ -73,43 +71,66 @@ class _HomeAdminState extends State<HomeAdmin> {
           borderRadius: const BorderRadius.all(Radius.circular(16)),
         ),
         drawer: MyDrawerAdmin(),
-        child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Color(0xffbf1922),
-            leading: IconButton(
-              onPressed: _handleMenuButtonPressed,
-              icon: ValueListenableBuilder<AdvancedDrawerValue>(
-                valueListenable: _advancedDrawerController,
-                builder: (_, value, __) {
-                  return AnimatedSwitcher(
-                    duration: Duration(milliseconds: 250),
-                    child: Icon(
-                      value.visible ? Icons.clear : Icons.menu,
-                      key: ValueKey<bool>(value.visible),
-                    ),
-                  );
-                },
+          child: Scaffold(
+            appBar: AppBar(
+              backgroundColor: Color(0xffbf1922),
+              leading: IconButton(
+                onPressed: _handleMenuButtonPressed,
+                icon: ValueListenableBuilder<AdvancedDrawerValue>(
+                  valueListenable: _advancedDrawerController,
+                  builder: (_, value, __) {
+                    return AnimatedSwitcher(
+                      duration: Duration(milliseconds: 250),
+                      child: Icon(
+                        value.visible ? Icons.clear : Icons.menu,
+                        key: ValueKey<bool>(value.visible),
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-            centerTitle: true,
+              centerTitle: true,
 
-            title: Text("Şirket Anasayfa"),
-            automaticallyImplyLeading: false,
+              title: Text("Admin Anasayfa"),
+              automaticallyImplyLeading: false,
 
-            actions: <Widget>[
-              /*IconButton(
+              actions: <Widget>[
+                /*IconButton(
                   onPressed: () {
                     showSearch(context: context, delegate: DataSearch(widget.company!));
                   },
                   icon: Icon(Icons.search)),*/
-              IconButton(onPressed: logout, icon: Icon(Icons.logout))
-            ],
+                IconButton(onPressed: () async {
+                  AlertDialog(
+                    backgroundColor: Color(0xffbf1922),
+                    title: Text("Çıkış yapmak istiyor musunuz?",style: TextStyle(
+                        fontWeight: FontWeight.bold,color: Colors.white
+                    ),),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text("HAYIR",style: TextStyle(
+                          color: Colors.white,
+                        ),),
+                      ),
+                      TextButton(
+                        onPressed: () =>logout,
+                        child: Text("EVET",style: TextStyle(
+                          color: Colors.white,),
+                        ),
+                      )],
+                  );
+                }, icon: Icon(Icons.logout))
+              ],
+            ),
+            body: Center(
+              child: Text("Admin Sayfasına Hoşgeldiniz!!",style: TextStyle(
+                  color: Color(0xffbf1922),
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold
+              ),),
+            ),
           ),
-          body: Center(
-          child: Text("Home Admin"),
-        ),
-
-        ),
       ),
     );
   }

@@ -7,6 +7,7 @@ import 'package:kariyer_hedefim/components/TextFormField.dart';
 import 'package:kariyer_hedefim/validation/ValidationLogin.dart';
 import '../../Data/GoogleSignin.dart';
 import '../AdminIslemleri/HomeAdmin.dart';
+import 'ResetPasswordSirket/Deneme.dart';
 import 'SirketAnasayfa.dart';
 import 'SirketEkle.dart';
 import 'LoginwithGoole.dart';
@@ -37,6 +38,7 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
 
         bool exit = await showDialog(
           context: context,
+          barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
               backgroundColor: Color(0xffbf1922),
@@ -51,7 +53,7 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
                 ),),
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(true);
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>GirisEkrani()), (route) => false);
                     GoogleSignInApi.logout();
           },
                   child: Text("EVET",style: TextStyle(
@@ -150,16 +152,21 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
       ),
 
       // forgot password?
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              "Parolanızı mı unuttunuz?",
-              style: TextStyle(color: Color(0xffbf1922)),
-            ),
-          ],
+      InkWell(
+        onTap: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>ResetPasswordPage()));
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                "Parolanızı mı unuttunuz?",
+                style: TextStyle(color: Color(0xffbf1922)),
+              ),
+            ],
+          ),
         ),
       ),
       const SizedBox(
@@ -170,7 +177,7 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
         await girisYap(userNameController.text, passwordController.text);
       }),
       const SizedBox(
-        height: 5,
+        height: 10,
       ),
       // google+ apple sign in buttons
       Row(
@@ -297,7 +304,7 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   backgroundColor: Color(0xffbf1922),
-                  content: Text('Bu şirket, kullanıcı olarak kaydedilmiş.Lütfen kullanıcı girişi yapın!!!',style: TextStyle(
+                  content: Text('Bu email, kullanıcı olarak kaydedilmiş.Lütfen kullanıcı girişi yapın!!!',style: TextStyle(
                     color: Colors.white,
                     fontSize: 15,
                   )),

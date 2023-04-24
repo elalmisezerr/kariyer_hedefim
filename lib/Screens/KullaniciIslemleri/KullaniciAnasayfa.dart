@@ -16,15 +16,17 @@ import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/Basvurularim.dart';
 import '../../Data/GoogleSignin.dart';
 
 class HomeUser extends StatefulWidget {
-  User? user;
-  HomeUser({Key? key, required this.user}) : super(key: key);
+  User? Myuser;
+  HomeUser({Key? key, required this.Myuser}) : super(key: key);
 
   @override
   State<HomeUser> createState() => _HomeState();
 }
+
 String dateFormatter(DateTime date) {
   String formattedDate;
-  return formattedDate= "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
+  return formattedDate =
+      "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
 }
 
 class _HomeState extends State<HomeUser> {
@@ -34,38 +36,52 @@ class _HomeState extends State<HomeUser> {
   User? _user;
   @override
   void initState() {
-  _user=widget.user;
-  super.initState();
+    _user = widget.Myuser;
+    super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
         bool exit = await showDialog(
           context: context,
+          barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
               backgroundColor: Color(0xffbf1922),
-              title: Text("Çıkış yapmak istiyor musunuz?",style: TextStyle(
-                  fontWeight: FontWeight.bold,color: Colors.white
-              ),),
+              title: Text(
+                "Çıkış yapmak istiyor musunuz?",
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              ),
               actions: <Widget>[
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text("HAYIR",style: TextStyle(
-                    color: Colors.white,
-                  ),),
+                  child: Text(
+                    "HAYIR",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
                 TextButton(
-                  onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginUser()), (route) => false),
-                  child: Text("EVET",style: TextStyle(
-            color: Colors.white,),
-                ),
-                )],
+                  onPressed: () => Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginUser()),
+                      (route) => false),
+                  child: Text(
+                    "EVET",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                )
+              ],
             );
           },
         );
-        return exit ;
+        return exit;
       },
       child: AdvancedDrawer(
         backdropColor: Colors.white,
@@ -112,10 +128,42 @@ class _HomeState extends State<HomeUser> {
             actions: <Widget>[
               IconButton(
                   onPressed: () {
-                    showSearch(context: context, delegate: DataSearch(widget.user!));
+                    showSearch(
+                        context: context, delegate: DataSearch(widget.Myuser!));
                   },
                   icon: Icon(Icons.search)),
-              IconButton(onPressed: logout, icon: Icon(Icons.logout))
+              IconButton(
+                  onPressed: () {
+                    AlertDialog(
+                      backgroundColor: Color(0xffbf1922),
+                      title: Text(
+                        "Çıkış yapmak istiyor musunuz?",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: Text(
+                            "HAYIR",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => logout,
+                          child: Text(
+                            "EVET",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      ],
+                    );
+                  },
+                  icon: Icon(Icons.logout))
             ],
           ),
           body: Container(
@@ -146,7 +194,9 @@ class _HomeState extends State<HomeUser> {
 
   void logout() {
     setState(() async {
-      await GoogleSignInApi.logout();
+      if (GoogleSignInApi != null) {
+        await GoogleSignInApi.logout();
+      }
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => GirisEkrani()));
     });
@@ -172,8 +222,8 @@ class _HomeState extends State<HomeUser> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      IlanDetay(ilanlar: ilanlar[position], user: widget.user),
+                  builder: (context) => IlanDetay(
+                      ilanlar: ilanlar[position], user: widget.Myuser),
                 ),
               );
             },
@@ -204,7 +254,6 @@ class _HomeState extends State<HomeUser> {
                       ),
                     ),
                     Divider(color: Colors.white),
-
                     SizedBox(height: 5.0),
                     Row(
                       children: [
@@ -215,7 +264,7 @@ class _HomeState extends State<HomeUser> {
                         ),
                         SizedBox(width: 5.0),
                         Text(
-                        ilanlar[position].tarih,
+                          ilanlar[position].tarih,
                           style: TextStyle(
                             fontSize: 14.0,
                             color: Colors.white,
@@ -224,12 +273,11 @@ class _HomeState extends State<HomeUser> {
                       ],
                     ),
                     SizedBox(height: 5.0),
-
                   ],
                 ),
                 subtitle: Row(
                   children: [
-                    Icon(Icons.description,size: 16.0, color: Colors.white),
+                    Icon(Icons.description, size: 16.0, color: Colors.white),
                     SizedBox(width: 5.0),
                     Text(
                       ilanlar[position].aciklama,
@@ -244,8 +292,7 @@ class _HomeState extends State<HomeUser> {
               ),
             ),
           ),
-        )
-        ;
+        );
       },
     );
   }
@@ -254,10 +301,11 @@ class _HomeState extends State<HomeUser> {
 class DataSearch extends SearchDelegate<String> {
   var dbHelper = DatabaseProvider();
   _HomeState? homeuser;
-DataSearch(this.user,);
-User user;
-Ilanlar? selectedilanlar;
-
+  DataSearch(
+    this.user,
+  );
+  User user;
+  Ilanlar? selectedilanlar;
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -275,6 +323,7 @@ Ilanlar? selectedilanlar;
           progress: transitionAnimation,
         ));
   }
+
   Future<List<Ilanlar>> getilanlar() async {
     return await dbHelper.getIlanlar();
   }
@@ -389,7 +438,8 @@ Ilanlar? selectedilanlar;
           final ilanlar = snapshot.data!;
           final suggestionsList = query.isEmpty
               ? ilanlar.map((i) => i!.baslik).toList()
-              : ilanlar.where((i) => i!.baslik.startsWith(query))
+              : ilanlar
+                  .where((i) => i!.baslik.startsWith(query))
                   .map((i) => i!.baslik)
                   .toList();
           return ListView.builder(
@@ -413,10 +463,10 @@ Ilanlar? selectedilanlar;
                 ),
               ),
               onTap: () {
-                selectedilanlar = ilanlar.firstWhere((i) => i!.baslik == suggestionsList[index]);
+                selectedilanlar = ilanlar
+                    .firstWhere((i) => i!.baslik == suggestionsList[index]);
                 showResults(context);
               },
-
             ),
             itemCount: suggestionsList.length,
           );

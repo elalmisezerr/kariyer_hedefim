@@ -78,6 +78,8 @@ flutter:
       - assect/images/asd.jpg
       - assect/images/arkabir.png
       - assect/images/Logo2.PNG
+      - assect/images/Diyanetlogo.svg
+      - assect/images/Diyanetlogo.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -44,6 +44,8 @@ class DatabaseProvider {
         "CREATE TABLE basvurular (id INTEGER PRIMARY KEY AUTOINCREMENT,ilan_id TEXT,kullanici_id TEXT,basvuru_tarihi TEXT,FOREIGN KEY (ilan_id) REFERENCES ilanlar(id) ON DELETE CASCADE,FOREIGN KEY (kullanici_id) REFERENCES users(id) ON DELETE CASCADE);");
     await db.execute(
         "CREATE TABLE ilanlar (id INTEGER PRIMARY KEY AUTOINCREMENT,baslik TEXT,aciklama TEXT,sirket_id TEXT,tarih TEXT,calisma_zamani INTEGER,FOREIGN KEY (sirket_id) REFERENCES sirketler(id) ON DELETE CASCADE);");
+
+
   }
 
   //Get Methods

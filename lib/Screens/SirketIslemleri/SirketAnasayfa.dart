@@ -67,8 +67,14 @@ class _HomeCompanyState extends State<HomeCompany>
 
 
   void logout() {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => GirisEkrani()));
+    setState(() async{
+      if(GoogleSignInApi!=null){
+        await GoogleSignInApi.logout();
+      }
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => GirisEkrani()));
+    });
+
   }
 
 
@@ -79,6 +85,7 @@ class _HomeCompanyState extends State<HomeCompany>
     onWillPop: () async {
       bool exit = await showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text("Çıkış yapmak istiyor musunuz?"),
@@ -142,7 +149,25 @@ class _HomeCompanyState extends State<HomeCompany>
                   },
                   icon: Icon(Icons.search)),
               IconButton(onPressed: (){
-                logout();
+                AlertDialog(
+                  backgroundColor: Color(0xffbf1922),
+                  title: Text("Çıkış yapmak istiyor musunuz?",style: TextStyle(
+                      fontWeight: FontWeight.bold,color: Colors.white
+                  ),),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: Text("HAYIR",style: TextStyle(
+                        color: Colors.white,
+                      ),),
+                    ),
+                    TextButton(
+                      onPressed: () =>logout,
+                      child: Text("EVET",style: TextStyle(
+                        color: Colors.white,),
+                      ),
+                    )],
+                );
               }, icon: Icon(Icons.logout))
             ],
           ),
@@ -232,7 +257,6 @@ class _HomeCompanyState extends State<HomeCompany>
   }
 
   String? checkJobTime(String? value) {
-    print(value);
     if (value != null && value.isNotEmpty) {
       if (value == '1') {
         return "Tam Zamanlı";

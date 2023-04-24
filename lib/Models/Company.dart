@@ -5,6 +5,8 @@ class Company{
   String sifre;
   String telefon;
   String adres;
+  var isAdmin;
+
 
   Company({this.id,required this.isim,required this.email,required this.sifre, required this.telefon, required this.adres});
   Company.withoutId({required this.isim,required this.email,required this.sifre, required this.telefon, required this.adres});

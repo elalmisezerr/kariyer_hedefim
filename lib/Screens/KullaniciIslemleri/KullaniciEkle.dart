@@ -234,14 +234,11 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
         lastDate: DateTime(2025));
     if (selectedDate != null) {
       setState(() {
-        txtBirthDate.text =dateFormatter(selectedDate);
+        txtBirthDate.text = DateFormat('dd-MM-yyyy').format(selectedDate);
       });
     }
   }
-  String dateFormatter(DateTime date) {
-    String formattedDate;
-    return formattedDate= "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
-  }
+
 
   buildSaveButton() {
     return TextButton(
@@ -256,8 +253,12 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
             String email = 'szrelalmis@gmail.com';
             await dbHelper.checkIsAdmin(email);
             Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginUser()), (route) => false);
-          } else {
+          } else { if(sirketVarmi==true &&kullaniciVarMi==false){
             _showResendDialog();
+          }
+          if(sirketVarmi==false &&kullaniciVarMi==true){
+            _showResendDialog2();
+          }
           }
         }
       },
@@ -306,40 +307,60 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
       },
     );
   }
+  void _showResendDialogcheck() {
+    AlertDialog alert = AlertDialog(
+      title: Text("Uyarı"),
+      content: Text("Kayıt Başarıyla Eklendi"),
+      actions: [
+        ElevatedButton(
+          child: Text("Tamam"),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+  void _showResendDialog2() {
+    AlertDialog alert = AlertDialog(
+      title: Text("Uyarı"),
+      content: Text("Bu email şirket olarak kayıt yapmıştır"),
+      actions: [
+        ElevatedButton(
+          child: Text("Tamam"),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
 
   void addUsers() async {
     var result = await dbHelper.insertUser(User.withOutId(
       ad: txtName.text,
       soyad: txtSurname.text,
-      dogumtarihi: DateTime.parse(dateFormatterYMD(txtBirthDate.text)),
+      dogumtarihi:txtBirthDate.text,
       email: txtuserName.text,
       password: txtpassWord.text,
       telefon: txtTelefon.text,
       adres: txtAdres.text,
     ));
+    _showResendDialogcheck();
     Navigator.pop(context, true);
-  }
-}
-String dateFormatterDMY(String date) {
-  final inputFormat = DateFormat('yyyy-MM-dd');
-  final outputFormat = DateFormat('dd-MM-yyyy');
-  try {
-    final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
-    final formattedDate = outputFormat.format(dateTime);
-    return formattedDate;
-  } catch (e) {
-    print('Error parsing date: $date');
-    return '';
-  }
-} String dateFormatterYMD(String date) {
-  final inputFormat = DateFormat('dd-MM-yyyy');
-  final outputFormat = DateFormat('yyyy-MM-dd');
-  try {
-    final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
-    final formattedDate = outputFormat.format(dateTime);
-    return formattedDate;
-  } catch (e) {
-    print('Error parsing date: $date');
-    return '';
   }
 }

@@ -193,7 +193,14 @@ class _CompanyAddState extends State<CompanyAdd>
             String email = 'szrelalmis@gmail.com';
             await dbHelper.checkIsAdmin(email);
           } else {
+          if(sirketVarmi==true &&kullaniciVarMi==false){
             _showResendDialog();
+          }
+          if(sirketVarmi==false &&kullaniciVarMi==true){
+            _showResendDialog2();
+          }
+
+
           }
         }else{
           print("Eksik bilgi!!");
@@ -248,6 +255,27 @@ class _CompanyAddState extends State<CompanyAdd>
     AlertDialog alert = AlertDialog(
       title: Text("Uyarı"),
       content: Text("Bu Kullanıcı Zaten Mevcut"),
+      actions: [
+        ElevatedButton(
+          child: Text("Tamam"),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+  void _showResendDialog2() {
+    AlertDialog alert = AlertDialog(
+      title: Text("Uyarı"),
+      content: Text("Bu email kullanıcı olarak kayıt yapmıştır"),
       actions: [
         ElevatedButton(
           child: Text("Tamam"),

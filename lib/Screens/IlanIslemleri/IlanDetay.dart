@@ -55,7 +55,7 @@ class _IlanDetayState extends State<IlanDetay> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: (){
-            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>HomeUser(user: widget.user)), (route) => false);
+            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>HomeUser(Myuser: widget.user)), (route) => false);
           },
         ),
         title: Text("Başvuru Sayfası"),
@@ -78,18 +78,17 @@ class _IlanDetayState extends State<IlanDetay> {
                     bool basvuruVarmi = await dbHelper.basvuruKontrolEt(
                         widget.user!.id.toString(), widget.ilanlar!.id.toString());
                     _key.currentState!.save();
-                    print('${email.text}');
                     sendEmail(subject.text, body.text, email.text);
                     if (basvuruVarmi == false) {
                       dbHelper.insertBasvuru(Basvuru.withoutId(
-                        basvuruTarihi: DateTime.now(),
+                        basvuruTarihi: DateTime.now().toString(),
                         ilanId: widget.ilanlar!.id.toString(),
                         kullaniciId: widget.user!.id.toString(),
                       ));
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => HomeUser(user: widget.user)));
+                              builder: (context) => HomeUser(Myuser: widget.user)));
                     } else {
                       _showResendDialog();
                     }
