@@ -281,29 +281,6 @@ class DataSearch extends SearchDelegate<String> {
   DataSearch(this.company,);
   Company company;
   Ilanlar? selectedilanlar;
-  String dateFormatterDMY(String date) {
-    final inputFormat = DateFormat('yyyy-MM-dd');
-    final outputFormat = DateFormat('dd-MM-yyyy');
-    try {
-      final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
-      final formattedDate = outputFormat.format(dateTime);
-      return formattedDate;
-    } catch (e) {
-      print('Error parsing date: $date');
-      return '';
-    }
-  } String dateFormatterYMD(String date) {
-    final inputFormat = DateFormat('dd-MM-yyyy');
-    final outputFormat = DateFormat('yyyy-MM-dd');
-    try {
-      final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
-      final formattedDate = outputFormat.format(dateTime);
-      return formattedDate;
-    } catch (e) {
-      print('Error parsing date: $date');
-      return '';
-    }
-  }
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -321,9 +298,7 @@ class DataSearch extends SearchDelegate<String> {
           progress: transitionAnimation,
         ));
   }
-  Future<List<Ilanlar>> getilanlar() async {
-    return await dbHelper.getIlanlar();
-  }
+
 
   @override
   Widget buildResults(BuildContext context) {
@@ -425,7 +400,7 @@ class DataSearch extends SearchDelegate<String> {
 
   Widget buildSuggestions(BuildContext context) {
     return FutureBuilder<List<Ilanlar?>>(
-      future: getilanlar(),
+      future: dbHelper.getIlanlar(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());

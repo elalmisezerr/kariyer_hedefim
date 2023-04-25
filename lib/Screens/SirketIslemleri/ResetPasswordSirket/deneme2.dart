@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:math';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/GirisKullanici.dart';
 import 'package:kariyer_hedefim/Screens/SirketIslemleri/GirisSirket.dart';
@@ -279,15 +281,34 @@ class _PasswordRecoverState extends State<PasswordRecover> with ValidationCompan
       ],
     );
   }
+  String hashPassword(String password) {
+    var bytes = utf8.encode(password);
+    var digest = sha256.convert(bytes);
+    return digest.toString();
+  }
   buildSaveButton(){
     return TextButton(onPressed: () async {
       if (formKey.currentState!.validate()){
         formKey.currentState!.save();
         var temp=await dbHelper.getCompanyByEmail(widget.email);
         if(txtpassWord.text==txtpassWord2.text){
-          temp!.sifre=txtpassWord.text;
+          temp!.sifre=hashPassword(txtpassWord2.text);
+          print(temp.sifre);
           await dbHelper.updateCompany(temp);
           Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginCompany()));
+        }else{
+          print("Hatalı Giriş");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Color(0xffbf1922),
+              content: Text('Giriş Bilgileri Hatalı!!!',style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+              )),
+              duration: Duration(seconds: 2,),
+            ),
+
+          );
         }
 
       }

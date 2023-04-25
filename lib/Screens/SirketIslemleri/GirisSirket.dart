@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Screens/GirisEkranı.dart';
@@ -174,7 +179,7 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
       ),
       // sign in button
       MyButton(onTap: () async {
-        await girisYap(userNameController.text, passwordController.text);
+        await girisYap(userNameController.text, hashPassword(passwordController.text));
       }),
       const SizedBox(
         height: 10,
@@ -244,11 +249,14 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
       ),
     ];
   }
-
+  String hashPassword(String password) {
+    var bytes = utf8.encode(password);
+    var digest = sha256.convert(bytes);
+    return digest.toString();
+  }
   Future<void> girisYap(String x, String y) async {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
-
       var result = await dbHelper.checkCompany(x, y);
       if (result != null) {
         if (await dbHelper.isAdminUser(result.email.toString())) {
@@ -275,6 +283,11 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
     }
   }
 
+  Future signInFirebase() async {
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: userNameController.text.trim(),
+        password: passwordController.text.trim());
+  }
    Future signIn() async {
     final user = await GoogleSignInApi.login();
     if (user == null) {

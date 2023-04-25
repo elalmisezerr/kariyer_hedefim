@@ -1,16 +1,16 @@
 import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:kariyer_hedefim/Screens/GirisEkranı.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 
-
-
 void main() {
   HttpOverrides.global = MyHttpOverrides();
-  runApp(const MyApp());
+  runApp(MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -18,22 +18,21 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        localizationsDelegates: [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: [
-          const Locale('en', 'US'), // English
-          const Locale('tr', 'TR'), // Turkish
-        ],
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', 'US'), // English
+        const Locale('tr', 'TR'), // Turkish
+      ],
       title: "LOGİN",
       debugShowCheckedModeBanner: false,
       home: GirisEkrani(),
     );
   }
 }
-
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -56,7 +55,7 @@ class TrCupertinoLocalizations extends CupertinoLocalizations {
   // Add more localized strings as necessary...
 
   static const LocalizationsDelegate<CupertinoLocalizations> delegate =
-  _TrCupertinoLocalizationsDelegate();
+      _TrCupertinoLocalizationsDelegate();
 
   @override
   // TODO: implement copyButtonLabel
@@ -72,7 +71,8 @@ class TrCupertinoLocalizations extends CupertinoLocalizations {
 
   @override
   // TODO: implement datePickerDateTimeOrder
-  DatePickerDateTimeOrder get datePickerDateTimeOrder => throw UnimplementedError();
+  DatePickerDateTimeOrder get datePickerDateTimeOrder =>
+      throw UnimplementedError();
 
   @override
   String datePickerDayOfMonth(int dayIndex) {
@@ -210,7 +210,7 @@ class _TrCupertinoLocalizationsDelegate
 
   @override
   Future<CupertinoLocalizations> load(Locale locale) =>
-      SynchronousFuture<TrCupertinoLocalizations>( TrCupertinoLocalizations());
+      SynchronousFuture<TrCupertinoLocalizations>(TrCupertinoLocalizations());
 
   @override
   bool shouldReload(_TrCupertinoLocalizationsDelegate old) => false;
