@@ -6,6 +6,8 @@ import 'package:kariyer_hedefim/Screens/GirisEkranı.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 
+import 'Deneme.dart';
+
 void main() {
   HttpOverrides.global = MyHttpOverrides();
   runApp(MyApp());
@@ -29,7 +31,7 @@ class MyApp extends StatelessWidget {
       ],
       title: "LOGİN",
       debugShowCheckedModeBanner: false,
-      home: GirisEkrani(),
+      home: RichTextEditorScreen(),
     );
   }
 }
