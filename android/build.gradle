@@ -3,20 +3,6 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-//        mavenLocal()
-//        // Any Organization/Company specific repo url goes here
-//        maven {
-//            url "https://repo1.maven.org/maven2"
-//            allowInsecureProtocol = true
-//        }
-//        maven {
-//            url = "http://jcenter.bintray.com"
-//            allowInsecureProtocol = true
-//        }
-//        maven {
-//            url 'http://download.flutter.io'
-//            allowInsecureProtocol = true
-//        }
     }
 
     dependencies {
@@ -29,20 +15,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-//        mavenLocal()
-//        // Any Organization/Company specific repo url goes here
-//        maven {
-//            url "https://repo1.maven.org/maven2"
-//        }
-//
-//        maven {
-//            url = "http://jcenter.bintray.com"
-//            allowInsecureProtocol = true
-//        }
-//        maven {
-//            url 'http://download.flutter.io'
-//            allowInsecureProtocol = true
-//        }
     }
 }
 

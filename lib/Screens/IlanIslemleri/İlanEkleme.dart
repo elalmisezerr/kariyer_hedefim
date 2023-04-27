@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:decorated_dropdownbutton/decorated_dropdownbutton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
@@ -10,23 +12,25 @@ import 'package:kariyer_hedefim/Screens/SirketIslemleri/SirketAnasayfa.dart';
 import 'package:kariyer_hedefim/Validation/ValidationIlan.dart';
 
 import '../GirisEkranı.dart';
+import 'Aciklama.dart';
 
 class IlanEkle extends StatefulWidget {
   Company? company;
-  IlanEkle({Key? key,required this.company}) : super(key: key);
+
+  IlanEkle({Key? key, required this.company}) : super(key: key);
 
   @override
   State<IlanEkle> createState() => _IlanEkleState();
 }
 
-class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin{
+class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
   var formKey = GlobalKey<FormState>();
-  var dbHelper=DatabaseProvider();
-  var txtBaslik=TextEditingController();
-  var txtaciklama=TextEditingController();
-  var txtSirketId=TextEditingController();
-  var txtTarih=TextEditingController();
-  var selectedValue='1';
+  var dbHelper = DatabaseProvider();
+  var txtBaslik = TextEditingController();
+  var txtaciklama = TextEditingController();
+  var txtSirketId = TextEditingController();
+  var txtTarih = TextEditingController();
+  var selectedValue = '1';
   final _advancedDrawerController = AdvancedDrawerController();
   void _handleMenuButtonPressed() {
     // NOTICE: Manage Advanced Drawer state through the Controller.
@@ -36,8 +40,8 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin{
 
   String? temp;
 
-@override
-void initState() {
+  @override
+  void initState() {
     setState(() {
       buildSirketId();
     });
@@ -66,7 +70,9 @@ void initState() {
         // ],
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
-      drawer: MyDrawerComp(company: widget.company!,),
+      drawer: MyDrawerComp(
+        company: widget.company!,
+      ),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Color(0xffbf1922),
@@ -100,11 +106,12 @@ void initState() {
                 SizedBox(),
                 buildAciklama(),
                 buildTarih(),
-                SizedBox(height: 15,),
+                SizedBox(
+                  height: 15,
+                ),
                 DrpMenu(),
                 SizedBox(),
                 buildSaveButton(),
-
               ],
             ),
           ),
@@ -112,6 +119,7 @@ void initState() {
       ),
     );
   }
+
   //Başlık Formu
   buildBaslik2() {
     return Column(
@@ -133,6 +141,7 @@ void initState() {
       ],
     );
   }
+
   buildBaslik() {
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
@@ -140,72 +149,84 @@ void initState() {
         validator: validateBaslik,
         controller: txtBaslik,
         decoration: InputDecoration(
-
-            prefixIcon: Icon(Icons.person,color: Color(0xffbf1922),),
+            prefixIcon: Icon(
+              Icons.person,
+              color: Color(0xffbf1922),
+            ),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color:Color(0xffbf1922))
-            ),
+                borderSide: BorderSide(color: Color(0xffbf1922))),
             border: OutlineInputBorder(
-
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color: Color(0xffbf1922)),
-
-
-        ),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              borderSide: BorderSide(color: Color(0xffbf1922)),
+            ),
             hintText: "Başlık Giriniz",
             labelText: "Başlık",
             labelStyle: TextStyle(color: Color(0xffbf1922)),
             filled: true,
             fillColor: Colors.white),
         cursorColor: Colors.green,
-
       ),
     );
   }
 
   buildAciklama() {
     return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10,bottom: 20),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
       child: TextFormField(
+        onTap: () {
+          Map<String, dynamic> quillMap;
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => RichTextEditorScreen(
+                      text: txtaciklama.text,
+                      company: widget.company,
+                      callback: (value) {
+                        setState(() {
+                          txtaciklama.text = value;
+                          //temp =txtaciklama.text;
+
+                        });
+                      })));
+          txtaciklama.text = jsonDecode(txtaciklama.text);
+          print(txtaciklama.text);
+        },
+        readOnly: true,
         maxLines: 3,
         validator: validateAciklama,
         controller: txtaciklama,
         decoration: InputDecoration(
-
-            prefixIcon: Icon(Icons.person,color: Color(0xffbf1922),),
+            prefixIcon: Icon(
+              Icons.person,
+              color: Color(0xffbf1922),
+            ),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color:Color(0xffbf1922))
-            ),
+                borderSide: BorderSide(color: Color(0xffbf1922))),
             border: OutlineInputBorder(
-
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color: Color(0xffbf1922)),
-
-
-        ),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              borderSide: BorderSide(color: Color(0xffbf1922)),
+            ),
             hintText: "Açıklama Giriniz",
             labelText: "Açıklama",
             labelStyle: TextStyle(color: Color(0xffbf1922)),
             filled: true,
             fillColor: Colors.white),
         cursorColor: Colors.green,
-
       ),
     );
   }
 
-
-
   //Şirket Id Formu
   buildSirketId() {
-   if(widget.company!.id!=null ) {
-   return txtSirketId.text = widget.company!.id.toString();
-    }else{
-     return null;
-   }
+    if (widget.company!.id != null) {
+      return txtSirketId.text = widget.company!.id.toString();
+    } else {
+      return null;
+    }
   }
+
   Widget buildTarih() {
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
@@ -213,13 +234,15 @@ void initState() {
         onTap: _showDatePicker,
         controller: txtTarih,
         decoration: InputDecoration(
-            prefixIcon: Icon(Icons.calendar_month,color: Color(0xffbf1922),),
+            prefixIcon: Icon(
+              Icons.calendar_month,
+              color: Color(0xffbf1922),
+            ),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color:Color(0xffbf1922))
-            ),
+                borderSide: BorderSide(color: Color(0xffbf1922))),
             border: OutlineInputBorder(
-                borderSide: BorderSide(color:Color(0xffbf1922)),
+                borderSide: BorderSide(color: Color(0xffbf1922)),
                 borderRadius: BorderRadius.all(Radius.circular(10))),
             hintText: "Tarih Seçiniz",
             labelText: "Tarih",
@@ -227,7 +250,6 @@ void initState() {
             filled: true,
             fillColor: Colors.white),
         cursorColor: Colors.red,
-
       ),
     );
   }
@@ -241,14 +263,15 @@ void initState() {
         firstDate: DateTime(1900),
         lastDate: DateTime(2025),
         locale: const Locale('tr', 'TR') // Türkçe dil desteği ekledik
-    );
+        );
     if (selectedDate != null) {
       setState(() {
         // Use DateFormat to format the selected date
-        txtTarih.text =  DateFormat('dd-MM-yyyy').format(selectedDate);
+        txtTarih.text = DateFormat('dd-MM-yyyy').format(selectedDate);
       });
     }
   }
+
   void logout() {
     setState(() {
       Navigator.push(
@@ -256,25 +279,15 @@ void initState() {
     });
   }
 
-  DrpMenu(){
+  DrpMenu() {
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
       child: DecoratedDropdownButton(
         value: selectedValue,
         items: [
-          DropdownMenuItem(
-              child: Text("Tam Zamanlı"),
-              value: "1"
-          ),
-
-          DropdownMenuItem(
-              child: Text("Yarı Zamanlı"),
-              value: "2"
-          ),
-          DropdownMenuItem(
-              child: Text("Her İkisi"),
-              value: "3"
-          )
+          DropdownMenuItem(child: Text("Tam Zamanlı"), value: "1"),
+          DropdownMenuItem(child: Text("Yarı Zamanlı"), value: "2"),
+          DropdownMenuItem(child: Text("Her İkisi"), value: "3")
         ],
         onChanged: (value) {
           setState(() {
@@ -285,13 +298,13 @@ void initState() {
 
         color: Color(0xffbf1922), //background color //border
         borderRadius: BorderRadius.circular(10), //border radius
-        style: TextStyle( //text style
-            color:Colors.white,
-            fontSize: 20
-        ),
+        style: TextStyle(
+            //text style
+            color: Colors.white,
+            fontSize: 20),
         icon: Icon(Icons.arrow_downward), //icon
         iconEnableColor: Colors.white, //icon enable color
-        dropdownColor: Color(0xffbf1922),  //dropdown background color
+        dropdownColor: Color(0xffbf1922), //dropdown background color
       ),
     );
   }
@@ -305,10 +318,11 @@ void initState() {
           if (formKey.currentState!.validate()) {
             formKey.currentState!.save();
             addIlan();
-          }},
+          }
+        },
         child: Container(
           width: MediaQuery.of(context).size.width,
-          margin: EdgeInsets.symmetric(vertical: 15,horizontal: 25),
+          margin: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
           padding: EdgeInsets.symmetric(vertical: 15),
           alignment: Alignment.center,
           decoration: BoxDecoration(
@@ -316,19 +330,17 @@ void initState() {
             boxShadow: <BoxShadow>[
               BoxShadow(
                   color: Colors.black,
-                  offset: Offset(2,4),
+                  offset: Offset(2, 4),
                   blurRadius: 5,
                   spreadRadius: 2),
             ],
             color: Color(0xffbf1922),
-
           ),
-          child: Text("Ekle",
-            style: TextStyle(fontSize: 20,color: Colors.white),),
-
+          child: Text(
+            "Ekle",
+            style: TextStyle(fontSize: 20, color: Colors.white),
+          ),
         ),
-
-
       ),
     );
   }
@@ -339,13 +351,20 @@ void initState() {
       baslik: txtBaslik.text,
       aciklama: txtaciklama.text,
       sirket_id: int.parse(txtSirketId.text),
-      tarih:txtTarih.text,
+      tarih: txtTarih.text,
       calisma_zamani: int.parse(temp ?? "1"),
       //kategori: "",
-      ));
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeCompany(company: widget.company, isLoggedin: true,)));
+    ));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => HomeCompany(
+                  company: widget.company,
+                  isLoggedin: true,
+                )));
   }
 }
+
 String dateFormatterDMY(String date) {
   final inputFormat = DateFormat('yyyy-MM-dd');
   final outputFormat = DateFormat('dd-MM-yyyy');
@@ -358,6 +377,7 @@ String dateFormatterDMY(String date) {
     return '';
   }
 }
+
 String dateFormatterYMD(String date) {
   final inputFormat = DateFormat('dd-MM-yyyy');
   final outputFormat = DateFormat.yMd();
