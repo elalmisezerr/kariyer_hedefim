@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Models/Company.dart';
 import 'package:kariyer_hedefim/Models/JobAdvertisements.dart';
 import 'package:kariyer_hedefim/Models/JobApplications.dart';
@@ -23,6 +27,7 @@ class DatabaseProvider {
     return etradeDb;
   }
 
+
   //Create Table
   void createDb(Database db, int version) async {
     await db.execute('''
@@ -37,6 +42,7 @@ class DatabaseProvider {
       adres TEXT
     );
 ''');
+    await insertInitialCompanyData(db);
 
     await db.execute(
         "CREATE TABLE sirketler (id INTEGER PRIMARY KEY AUTOINCREMENT,isim TEXT,email TEXT,sifre TEXT,telefon TEXT,adres TEXT,isAdmin INTEGER DEFAULT 0);");
@@ -44,8 +50,34 @@ class DatabaseProvider {
         "CREATE TABLE basvurular (id INTEGER PRIMARY KEY AUTOINCREMENT,ilan_id TEXT,kullanici_id TEXT,basvuru_tarihi TEXT,FOREIGN KEY (ilan_id) REFERENCES ilanlar(id) ON DELETE CASCADE,FOREIGN KEY (kullanici_id) REFERENCES users(id) ON DELETE CASCADE);");
     await db.execute(
         "CREATE TABLE ilanlar (id INTEGER PRIMARY KEY AUTOINCREMENT,baslik TEXT,aciklama TEXT,sirket_id TEXT,tarih TEXT,calisma_zamani INTEGER,FOREIGN KEY (sirket_id) REFERENCES sirketler(id) ON DELETE CASCADE);");
+  }
+  Future insertInitialCompanyData(Database db) async {
+    int id=1;
+    String email = 'szrelalmis@gmail.com';
+    String password = hashPassword('Scerr4321');
+    String ad = 'Sezer';
+    String telefon = '5435659366';
+    String adres = 'Ankara';
 
 
+      Company company=Company.withoutId(
+        isim: ad,
+        email: email,
+        sifre: password,
+        telefon: telefon,
+        adres: adres,
+      );
+    await dbProvider.insertCompany(company);
+
+    await dbProvider.isAdminUser(email);
+
+  }
+
+
+  String hashPassword(String password) {
+    var bytes = utf8.encode(password);
+    var digest = sha256.convert(bytes);
+    return digest.toString();
   }
 
   //Get Methods
@@ -119,6 +151,7 @@ class DatabaseProvider {
       },
     );
   }
+
   Future<Company?> getCompanyById(int id) async {
     final db = await dbProvider.db;
     final result =
@@ -129,6 +162,7 @@ class DatabaseProvider {
       return null;
     }
   }
+
   Future<Company?> getCompanyByEmail(String mail) async {
     final db = await dbProvider.db;
     final result =
@@ -139,6 +173,7 @@ class DatabaseProvider {
       return null;
     }
   }
+
   Future<User?> getUserByEmail(String mail) async {
     final db = await dbProvider.db;
     final result =
@@ -152,8 +187,8 @@ class DatabaseProvider {
 
   Future<bool> isAdminUser(String email) async {
     final db = await dbProvider.db;
-    final result = await db!.rawQuery(
-        "SELECT isAdmin FROM sirketler WHERE email = ?", [email]);
+    final result = await db!
+        .rawQuery("SELECT isAdmin FROM sirketler WHERE email = ?", [email]);
     if (result.isNotEmpty) {
       return result.first["isAdmin"] == 1;
     } else {
@@ -175,6 +210,7 @@ class DatabaseProvider {
       throw Exception("Aynı kayıt zaten mevcut.");
     }
   }
+
   Future<int> insertCompany(Company company) async {
     Database? db = await this.db;
 
@@ -189,6 +225,7 @@ class DatabaseProvider {
       throw Exception("Aynı kayıt zaten mevcut.");
     }
   }
+
   Future<int> insertBasvuru(Basvuru basvuru) async {
     Database? db = await this.db;
     try {
@@ -202,6 +239,7 @@ class DatabaseProvider {
       throw Exception("Aynı kayıt zaten mevcut.");
     }
   }
+
   Future<int> insertIlan(Ilanlar ilanlar) async {
     Database? db = await this.db;
     try {
@@ -222,6 +260,7 @@ class DatabaseProvider {
     var result = await db!.rawDelete("delete from users where id=$id");
     return result;
   }
+
   Future<int> deleteCompany(int id) async {
     Database? db = await this.db;
     await db!.execute("DELETE FROM sirketler WHERE id = $id;");
@@ -231,6 +270,7 @@ class DatabaseProvider {
     int result = await db.rawUpdate("VACUUM"); // boş alanları temizleme
     return result;
   }
+
   Future<int> deleteIlan(int id) async {
     Database? db = await this.db;
     var result = await db!.rawDelete("delete from ilanlar where id=$id");
@@ -244,12 +284,14 @@ class DatabaseProvider {
         .update("users", user.toMap(), where: "id=?", whereArgs: [user.id]);
     return result;
   }
+
   Future<int> updateCompany(Company company) async {
     Database? db = await this.db;
     var result = await db!.update("sirketler", company.toMap(),
         where: "id=?", whereArgs: [company.id]);
     return result;
   }
+
   Future<int> updateIlan(Ilanlar ilanlar) async {
     Database? db = await this.db;
     var result = await db!.update("ilanlar", ilanlar.toMap(),
@@ -274,6 +316,7 @@ class DatabaseProvider {
       return null;
     }
   }
+
   Future<void> checkIsAdmin(String email) async {
     Database? db = await this.db;
     await db!.transaction((txn) async {
@@ -287,6 +330,7 @@ class DatabaseProvider {
       }
     });
   }
+
   Future<String?> checkIfUsernameExists(String? username) async {
     Database db = await openDatabase('database.db');
     int? count = (await db.rawQuery(
@@ -297,6 +341,7 @@ class DatabaseProvider {
       return null;
     }
   }
+
   Future<Company?> checkCompany(String email, String password) async {
     final db = await dbProvider.db;
     if (db == null) {
@@ -313,7 +358,8 @@ class DatabaseProvider {
       return null;
     }
   }
-  Future<bool> basvuruKontrolEt(String userId,String ilanId) async {
+
+  Future<bool> basvuruKontrolEt(String userId, String ilanId) async {
     Database? db = await this.db;
     if (db == null) {
       throw Exception('Veritabanı bağlantısı kurulamadı');
@@ -325,6 +371,7 @@ class DatabaseProvider {
     );
     return result.isNotEmpty;
   }
+
   Future<bool> sirketAdiKontrolEt(String kullaniciAdi) async {
     Database? db = await this.db;
     if (db == null) {
@@ -337,6 +384,7 @@ class DatabaseProvider {
     );
     return result.isNotEmpty;
   }
+
   Future<bool> kullaniciAdiKontrolEt(String kullaniciAdi) async {
     Database? db = await this.db;
     if (db == null) {

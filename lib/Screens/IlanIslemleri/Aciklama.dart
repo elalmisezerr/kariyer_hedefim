@@ -6,13 +6,44 @@ import 'package:kariyer_hedefim/Screens/IlanIslemleri/%C4%B0lanEkleme.dart';
 
 import '../../Models/Company.dart';
 
-class RichTextEditorScreen extends StatelessWidget {
-  RichTextEditorScreen({required this.text,required this.company,Key? key, required this.callback}) : super(key: key);
+class RichTextEditorScreen extends StatefulWidget {
+  RichTextEditorScreen({required this.controller,required this.text,required this.company,Key? key, required this.callback}) : super(key: key);
   Company? company;
-  QuillController _controller = QuillController.basic();
   String? text;
-   ValueChanged<String>? callback=_emtyfunction;
+  QuillController? controller;
+   ValueChanged<QuillController>? callback;
 
+  @override
+  State<RichTextEditorScreen> createState() => _RichTextEditorScreenState();
+
+}
+
+class _RichTextEditorScreenState extends State<RichTextEditorScreen> {
+   QuillController _controller = QuillController.basic();
+
+@override
+  void initState() {
+  print(widget.text);
+  _controller=widget.controller!;
+  super.initState();
+  }
+
+   void convertJson(String incomingJSONText){
+
+     var myJSON = jsonDecode(incomingJSONText);
+
+     _controller = QuillController(document: Document.fromJson(myJSON),
+         selection: TextSelection.collapsed(offset: 0));  }
+
+   QuillController convertJsonToQuillController(String jsonString) {
+     var jsonMap = jsonDecode(jsonString);
+     Document doc = Document.fromJson(jsonMap);
+     QuillController controller = QuillController(document: doc, selection:TextSelection(
+       baseOffset: 0,
+       extentOffset: doc.length,
+     ));
+     return controller;
+   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,110 +70,11 @@ class RichTextEditorScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         backgroundColor:Color(0xffbf1922) ,
         onPressed: (){
-          String? quillText = jsonEncode(_controller.document.toDelta().toJson());
-          callback!(quillText);
+          widget.callback!=_controller;
           Navigator.pop(context);
         },
         child: Icon(Icons.save),
     ),
     );
   }
-
-  static void _emtyfunction(String value) {}
 }
-
-
-
-
-
-
-// import 'package:flutter/material.dart';
-// import 'package:rich_text_editor_controller/rich_text_editor_controller.dart';
-//
-// class RichTextEditorScreen extends StatefulWidget {
-//   @override
-//   _RichTextEditorScreenState createState() => _RichTextEditorScreenState();
-// }
-//
-// class _RichTextEditorScreenState extends State<RichTextEditorScreen> {
-//   final _editorController = RichTextEditorController();
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _editorController.addListener(() {
-//       // Yazı değiştiğinde yapılacak işlemler
-//     });
-//   }
-//
-//   @override
-//   void dispose() {
-//     _editorController.dispose();
-//     super.dispose();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Zengin Metin Editörü'),
-//       ),
-//       body: SafeArea(
-//         child: Column(
-//           children: [
-//             Expanded(
-//               child: Container(
-//                 padding: const EdgeInsets.all(8),
-//                 child: RichTextField(
-//                   controller: _editorController,
-//                   decoration: InputDecoration(
-//                     border: OutlineInputBorder(),
-//                     hintText: 'Metin girin...',
-//                   ),
-//                   maxLines: null,
-//                 ),
-//               ),
-//             ),
-//             Container(
-//               height: 50,
-//               child: Row(
-//                 children: [
-//                   IconButton(
-//                     icon: Icon(Icons.format_bold),
-//                     onPressed: () {
-//                       _editorController.selection = TextSelection(
-//                           baseOffset: _editorController.selection.baseOffset,
-//                           extentOffset:
-//                           _editorController.selection.extentOffset);
-//                       _editorController.toggleBold();
-//                     },
-//                   ),
-//                   IconButton(
-//                     icon: Icon(Icons.format_italic),
-//                     onPressed: () {
-//                       _editorController.selection = TextSelection(
-//                           baseOffset: _editorController.selection.baseOffset,
-//                           extentOffset:
-//                           _editorController.selection.extentOffset);
-//                       _editorController.toggleItalic();
-//                     },
-//                   ),
-//                   IconButton(
-//                     icon: Icon(Icons.format_underline),
-//                     onPressed: () {
-//                       _editorController.selection = TextSelection(
-//                           baseOffset: _editorController.selection.baseOffset,
-//                           extentOffset:
-//                           _editorController.selection.extentOffset);
-//                       _editorController.toggleUnderline();
-//                     },
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

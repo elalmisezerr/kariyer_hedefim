@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:typed_data';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
@@ -177,7 +179,12 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
       ),
       // sign in button
       MyButton(onTap: () async {
-        await girisYap(userNameController.text, passwordController.text);
+        String hashPassword(String password) {
+          var bytes = utf8.encode(password);
+          var digest = sha256.convert(bytes);
+          return digest.toString();
+        }
+        await girisYap(userNameController.text, hashPassword(passwordController.text));
       }),
       const SizedBox(
         height: 5,

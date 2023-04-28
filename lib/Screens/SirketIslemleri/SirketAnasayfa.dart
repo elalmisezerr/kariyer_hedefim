@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Models/JobAdvertisements.dart';
@@ -27,6 +25,7 @@ class _HomeCompanyState extends State<HomeCompany>
   bool _isDrawerOpen = false;
   var dbHelper = DatabaseProvider();
   final _advancedDrawerController = AdvancedDrawerController();
+
   void _handleMenuButtonPressed() {
     // NOTICE: Manage Advanced Drawer state through the Controller.
     // _advancedDrawerController.value = AdvancedDrawerValue.visible();
@@ -35,75 +34,45 @@ class _HomeCompanyState extends State<HomeCompany>
 
   @override
   void initState() {
-    setState(() {
-    });
+    setState(() {});
     super.initState();
   }
 
-  String dateFormatterDMY(String date) {
-    final inputFormat = DateFormat('yyyy-MM-dd');
-    final outputFormat = DateFormat('dd-MM-yyyy');
-    try {
-      final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
-      final formattedDate = outputFormat.format(dateTime);
-      return formattedDate;
-    } catch (e) {
-      print('Error parsing date: $date');
-      return '';
-    }
-  } String dateFormatterYMD(String date) {
-    final inputFormat = DateFormat('dd-MM-yyyy');
-    final outputFormat = DateFormat('yyyy-MM-dd');
-    try {
-      final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
-      final formattedDate = outputFormat.format(dateTime);
-      return formattedDate;
-    } catch (e) {
-      print('Error parsing date: $date');
-      return '';
-    }
-  }
-
-
-
   void logout() {
-    setState(() async{
-      if(GoogleSignInApi!=null){
+    setState(() async {
+      if (GoogleSignInApi != null) {
         await GoogleSignInApi.logout();
       }
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => GirisEkrani()));
     });
-
   }
-
-
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-    onWillPop: () async {
-      bool exit = await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Çıkış yapmak istiyor musunuz?"),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text("HAYIR"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text("EVET"),
-              ),
-            ],
-          );
-        },
-      );
-      return exit ;
-    },
+      onWillPop: () async {
+        bool exit = await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Çıkış yapmak istiyor musunuz?"),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text("HAYIR"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text("EVET"),
+                ),
+              ],
+            );
+          },
+        );
+        return exit;
+      },
       child: AdvancedDrawer(
         backdropColor: Colors.white,
         controller: _advancedDrawerController,
@@ -117,7 +86,9 @@ class _HomeCompanyState extends State<HomeCompany>
         childDecoration: const BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(16)),
         ),
-        drawer: MyDrawerComp(company: widget.company!,),
+        drawer: MyDrawerComp(
+          company: widget.company!,
+        ),
         child: Scaffold(
           key: _scaffoldKey,
           appBar: AppBar(
@@ -138,43 +109,55 @@ class _HomeCompanyState extends State<HomeCompany>
               ),
             ),
             centerTitle: true,
-
             title: Text("Şirket Anasayfa"),
             automaticallyImplyLeading: false,
-
             actions: <Widget>[
               IconButton(
                   onPressed: () {
-                    showSearch(context: context, delegate: DataSearch(widget.company!));
+                    showSearch(
+                        context: context,
+                        delegate: DataSearch(widget.company!));
                   },
                   icon: Icon(Icons.search)),
-              IconButton(onPressed: (){
-                AlertDialog(
-                  backgroundColor: Color(0xffbf1922),
-                  title: Text("Çıkış yapmak istiyor musunuz?",style: TextStyle(
-                      fontWeight: FontWeight.bold,color: Colors.white
-                  ),),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: Text("HAYIR",style: TextStyle(
-                        color: Colors.white,
-                      ),),
-                    ),
-                    TextButton(
-                      onPressed: () =>logout,
-                      child: Text("EVET",style: TextStyle(
-                        color: Colors.white,),
+              IconButton(
+                  onPressed: () {
+                    AlertDialog(
+                      backgroundColor: Color(0xffbf1922),
+                      title: Text(
+                        "Çıkış yapmak istiyor musunuz?",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.white),
                       ),
-                    )],
-                );
-              }, icon: Icon(Icons.logout))
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: Text(
+                            "HAYIR",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => logout,
+                          child: Text(
+                            "EVET",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      ],
+                    );
+                  },
+                  icon: Icon(Icons.logout))
             ],
           ),
           body: Container(
             child: Center(
               child: FutureBuilder<List<Ilanlar>>(
-                future: dbHelper.getIlanlarWithId(widget.company!.id.toString()),
+                future:
+                    dbHelper.getIlanlarWithId(widget.company!.id.toString()),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -193,15 +176,19 @@ class _HomeCompanyState extends State<HomeCompany>
     );
   }
 
-
-
   ListView buildIlanList(final List<Ilanlar> ilanlar) {
     return ListView.builder(
       itemCount: ilanlar.length,
       itemBuilder: (BuildContext context, int position) {
         return InkWell(
-          onTap: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>IlanDuzenleme(ilanlar: ilanlar[position], company: widget.company,)));
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => IlanDuzenleme(
+                          ilanlar: ilanlar[position],
+                          company: widget.company,
+                        )));
           },
           child: Card(
             child: Padding(
@@ -239,7 +226,9 @@ class _HomeCompanyState extends State<HomeCompany>
                     children: [
                       Icon(Icons.access_time),
                       SizedBox(width: 5.0),
-                      Text(checkJobTime(ilanlar[position].calisma_zamani.toString())??""),
+                      Text(checkJobTime(
+                              ilanlar[position].calisma_zamani.toString()) ??
+                          ""),
                       SizedBox(width: 10.0),
                       Icon(Icons.date_range),
                       SizedBox(width: 5.0),
@@ -271,14 +260,14 @@ class _HomeCompanyState extends State<HomeCompany>
       return null;
     }
   }
-
 }
-
 
 class DataSearch extends SearchDelegate<String> {
   var dbHelper = DatabaseProvider();
   _HomeCompanyState? homeuser;
-  DataSearch(this.company,);
+  DataSearch(
+    this.company,
+  );
   Company company;
   Ilanlar? selectedilanlar;
 
@@ -298,7 +287,6 @@ class DataSearch extends SearchDelegate<String> {
           progress: transitionAnimation,
         ));
   }
-
 
   @override
   Widget buildResults(BuildContext context) {
@@ -323,8 +311,8 @@ class DataSearch extends SearchDelegate<String> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                      IlanDuzenleme(ilanlar: selectedilanlar, company: company),
+                    builder: (context) => IlanDuzenleme(
+                        ilanlar: selectedilanlar, company: company),
                   ),
                 );
               },
@@ -371,7 +359,8 @@ class DataSearch extends SearchDelegate<String> {
                             color: Colors.white,
                           ),
                           SizedBox(width: 5.0),
-                          Text(selectedilanlar!.tarih,
+                          Text(
+                            selectedilanlar!.tarih,
                             style: TextStyle(
                               fontSize: 14.0,
                               color: Colors.white,
@@ -410,9 +399,10 @@ class DataSearch extends SearchDelegate<String> {
           final ilanlar = snapshot.data!;
           final suggestionsList = query.isEmpty
               ? ilanlar.map((i) => i!.baslik).toList()
-              : ilanlar.where((i) => i!.baslik.startsWith(query))
-              .map((i) => i!.baslik)
-              .toList();
+              : ilanlar
+                  .where((i) => i!.baslik.startsWith(query))
+                  .map((i) => i!.baslik)
+                  .toList();
           return ListView.builder(
             itemBuilder: (context, index) => ListTile(
               leading: Icon(Icons.work_outline_sharp),
@@ -434,10 +424,10 @@ class DataSearch extends SearchDelegate<String> {
                 ),
               ),
               onTap: () {
-                selectedilanlar = ilanlar.firstWhere((i) => i!.baslik == suggestionsList[index]);
+                selectedilanlar = ilanlar
+                    .firstWhere((i) => i!.baslik == suggestionsList[index]);
                 showResults(context);
               },
-
             ),
             itemCount: suggestionsList.length,
           );
@@ -446,4 +436,3 @@ class DataSearch extends SearchDelegate<String> {
     );
   }
 }
-

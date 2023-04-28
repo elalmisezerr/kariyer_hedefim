@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:decorated_dropdownbutton/decorated_dropdownbutton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
+import 'package:flutter_quill/flutter_quill.dart' hide Text;
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
@@ -28,8 +29,10 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
   var dbHelper = DatabaseProvider();
   var txtBaslik = TextEditingController();
   var txtaciklama = TextEditingController();
+  var txtaciklama2 = TextEditingController();
   var txtSirketId = TextEditingController();
   var txtTarih = TextEditingController();
+  QuillController? _controller;
   var selectedValue = '1';
   final _advancedDrawerController = AdvancedDrawerController();
   void _handleMenuButtonPressed() {
@@ -121,27 +124,6 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
   }
 
   //Başlık Formu
-  buildBaslik2() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Başlık giriniz",
-          textAlign: TextAlign.left,
-        ),
-        SizedBox(height: 5.0),
-        TextFormField(
-          validator: validateBaslik,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.person),
-          ),
-          controller: txtBaslik,
-        )
-      ],
-    );
-  }
-
   buildBaslik() {
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
@@ -180,17 +162,19 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
               context,
               MaterialPageRoute(
                   builder: (context) => RichTextEditorScreen(
-                      text: txtaciklama.text,
+                      text: txtaciklama2.text,
                       company: widget.company,
+                      controller: _controller,
                       callback: (value) {
                         setState(() {
-                          txtaciklama.text = value;
+                          txtaciklama2.text = value.getPlainText();
+                          txtaciklama.text = jsonEncode(_controller!.document.toDelta().toJson());
+
                           //temp =txtaciklama.text;
 
                         });
                       })));
-          txtaciklama.text = jsonDecode(txtaciklama.text);
-          print(txtaciklama.text);
+
         },
         readOnly: true,
         maxLines: 3,

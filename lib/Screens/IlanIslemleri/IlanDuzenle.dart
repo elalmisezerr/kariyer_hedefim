@@ -1,13 +1,16 @@
+import 'dart:convert';
+
 import 'package:decorated_dropdownbutton/decorated_dropdownbutton.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart' hide Text;
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/BasvuruGoruntule.dart';
 import 'package:kariyer_hedefim/Screens/SirketIslemleri/SirketAnasayfa.dart';
 import 'package:kariyer_hedefim/Validation/ValidationIlan.dart';
-import 'package:kariyer_hedefim/Validation/ValidationUser.dart';
 import '../../Data/DbProvider.dart';
 import '../../Models/Company.dart';
 import '../../Models/JobAdvertisements.dart';
+import 'Aciklama.dart';
 
 class IlanDuzenleme extends StatefulWidget {
   Ilanlar? ilanlar;
@@ -32,22 +35,23 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
   var dbHelper = DatabaseProvider();
   var txtBaslik = TextEditingController();
   var txtaciklama = TextEditingController();
+  var txtaciklama2 = TextEditingController();
   var txtSirketId = TextEditingController();
   var txtTarih = TextEditingController();
   var temp;
-
-  var selectedValue="1";
+  QuillController? _controller;
+  var selectedValue = "1";
 
   _IlanDuzenlemeState(this.company, this.ilanlar);
 
   @override
   void initState() {
     txtBaslik.text = ilanlar!.baslik;
-    txtaciklama.text = ilanlar!.aciklama;
+    txtaciklama2.text = ilanlar!.aciklama;
     txtSirketId.text = ilanlar!.sirket_id.toString();
     txtTarih.text = ilanlar!.tarih;
-    temp=ilanlar!.calisma_zamani.toString();
-    selectedValue=ilanlar!.calisma_zamani.toString();
+    temp = ilanlar!.calisma_zamani.toString();
+    selectedValue = ilanlar!.calisma_zamani.toString();
     super.initState();
   }
 
@@ -88,6 +92,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
       ),
     );
   }
+
   buildBaslik() {
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
@@ -95,18 +100,16 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
         validator: validateBaslik,
         controller: txtBaslik,
         decoration: InputDecoration(
-
-            prefixIcon: Icon(Icons.person,color: Color(0xffbf1922),),
+            prefixIcon: Icon(
+              Icons.person,
+              color: Color(0xffbf1922),
+            ),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color:Color(0xffbf1922))
-            ),
+                borderSide: BorderSide(color: Color(0xffbf1922))),
             border: OutlineInputBorder(
-
               borderRadius: BorderRadius.all(Radius.circular(10)),
               borderSide: BorderSide(color: Color(0xffbf1922)),
-
-
             ),
             hintText: "Başlık Giriniz",
             labelText: "Başlık",
@@ -114,7 +117,6 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
             filled: true,
             fillColor: Colors.white),
         cursorColor: Colors.green,
-
       ),
     );
   }
@@ -123,24 +125,42 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
 
   buildAciklama() {
     return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10,bottom: 20),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
       child: TextFormField(
+        onTap: () {
+          Map<String, dynamic> quillMap;
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => RichTextEditorScreen(
+                      text: txtaciklama2.text,
+                      controller: _controller,
+                      company: widget.company,
+                      callback: (value) {
+                        setState(() {
+                          txtaciklama2.text = value.getPlainText();
+                          txtaciklama.text = jsonEncode(
+                              _controller!.document.toDelta().toJson());
+                        _controller=convertJsonToQuillController(txtaciklama.text);
+                          //temp =txtaciklama.text;
+                        });
+                      })));
+        },
         maxLines: 3,
         validator: validateAciklama,
+        readOnly: true,
         controller: txtaciklama,
         decoration: InputDecoration(
-
-            prefixIcon: Icon(Icons.person,color: Color(0xffbf1922),),
+            prefixIcon: Icon(
+              Icons.person,
+              color: Color(0xffbf1922),
+            ),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color:Color(0xffbf1922))
-            ),
+                borderSide: BorderSide(color: Color(0xffbf1922))),
             border: OutlineInputBorder(
-
               borderRadius: BorderRadius.all(Radius.circular(10)),
               borderSide: BorderSide(color: Color(0xffbf1922)),
-
-
             ),
             hintText: "Açıklama Giriniz",
             labelText: "Açıklama",
@@ -148,11 +168,18 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
             filled: true,
             fillColor: Colors.white),
         cursorColor: Colors.green,
-
       ),
     );
   }
-
+  QuillController convertJsonToQuillController(String jsonString) {
+    var jsonMap = jsonDecode(jsonString);
+    Document doc = Document.fromJson(jsonMap);
+    QuillController controller = QuillController(document: doc, selection:TextSelection(
+      baseOffset: 0,
+      extentOffset: doc.length,
+    ));
+    return controller;
+  }
   //Şirket Id Formu
   buildSirketId() {
     if (widget.company!.id != null) {
@@ -170,13 +197,15 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
         onTap: _showDatePicker,
         controller: txtTarih,
         decoration: InputDecoration(
-            prefixIcon: Icon(Icons.calendar_month,color: Color(0xffbf1922),),
+            prefixIcon: Icon(
+              Icons.calendar_month,
+              color: Color(0xffbf1922),
+            ),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color:Color(0xffbf1922))
-            ),
+                borderSide: BorderSide(color: Color(0xffbf1922))),
             border: OutlineInputBorder(
-                borderSide: BorderSide(color:Color(0xffbf1922)),
+                borderSide: BorderSide(color: Color(0xffbf1922)),
                 borderRadius: BorderRadius.all(Radius.circular(10))),
             hintText: "Tarih Seçiniz",
             labelText: "Tarih",
@@ -184,10 +213,10 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
             filled: true,
             fillColor: Colors.white),
         cursorColor: Colors.red,
-
       ),
     );
   }
+
   DropdownButon1() {
     return DecoratedDropdownButton(
       value: selectedValue,
@@ -217,7 +246,6 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
   //Tarih seçici
   Future<void> _showDatePicker() async {
     final DateTime? selectedDate = await showDatePicker(
-
         context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime(1900),
@@ -228,10 +256,13 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
       });
     }
   }
+
   String dateFormatter(DateTime date) {
     String formattedDate;
-    return formattedDate= "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
+    return formattedDate =
+        "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
   }
+
   //Kaydetme butonu
   buildUpdateButton() {
     return TextButton(
@@ -243,7 +274,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
             id: ilanlar!.id,
             baslik: txtBaslik.text,
             aciklama: txtaciklama.text,
-            tarih:txtTarih.text,
+            tarih: txtTarih.text,
             sirket_id: company!.id,
             calisma_zamani: int.parse(temp!),
             //kategori: "",
@@ -305,11 +336,10 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
           ],
           color: Color(0xffbf1922),
         ),
-
-          child: Text(
-            "Başvuranları Görüntüle",
-            style: TextStyle(fontSize: 20, color: Colors.white),
-          ),
+        child: Text(
+          "Başvuranları Görüntüle",
+          style: TextStyle(fontSize: 20, color: Colors.white),
+        ),
       ),
     );
   }
@@ -318,7 +348,13 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
     switch (options) {
       case Options.delete:
         await dbHelper.deleteIlan(ilanlar!.id!);
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeCompany(company: widget.company, isLoggedin: true,)));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomeCompany(
+                      company: widget.company,
+                      isLoggedin: true,
+                    )));
         break;
       default:
     }
