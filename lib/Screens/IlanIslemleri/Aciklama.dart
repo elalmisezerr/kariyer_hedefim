@@ -11,7 +11,7 @@ class RichTextEditorScreen extends StatefulWidget {
   Company? company;
   String? text;
   QuillController? controller;
-   ValueChanged<QuillController>? callback;
+   ValueChanged<QuillController> callback;
 
   @override
   State<RichTextEditorScreen> createState() => _RichTextEditorScreenState();
@@ -21,12 +21,16 @@ class RichTextEditorScreen extends StatefulWidget {
 class _RichTextEditorScreenState extends State<RichTextEditorScreen> {
    QuillController _controller = QuillController.basic();
 
-@override
-  void initState() {
-  print(widget.text);
-  _controller=widget.controller!;
-  super.initState();
-  }
+   @override
+   void initState() {
+     super.initState();
+     _controller = widget.controller ?? QuillController.basic();
+     if (widget.text != null && widget.text!.isNotEmpty) {
+       final delta = Delta.fromJson(jsonDecode(widget.text!));
+       _controller.document = Document.fromDelta(delta);
+     }
+   }
+
 
    void convertJson(String incomingJSONText){
 
@@ -55,14 +59,12 @@ class _RichTextEditorScreenState extends State<RichTextEditorScreen> {
       body: Column(
         children: [
           QuillToolbar.basic(controller: _controller,multiRowsDisplay: false,),
-          Center(
-            child: Expanded(
-              flex: 1,
-              child: QuillEditor.basic(
-                controller: _controller,
-                readOnly: false, // true for view only mode
+          Expanded(
+            flex: 1,
+            child: QuillEditor.basic(
+              controller: _controller,
+              readOnly: false, // true for view only mode
 
-              ),
             ),
           ),
         ],
@@ -70,9 +72,9 @@ class _RichTextEditorScreenState extends State<RichTextEditorScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor:Color(0xffbf1922) ,
         onPressed: (){
-          widget.callback!=_controller;
-          Navigator.pop(context);
-        },
+          widget.callback(_controller);
+        Navigator.pop(context);
+      },
         child: Icon(Icons.save),
     ),
     );

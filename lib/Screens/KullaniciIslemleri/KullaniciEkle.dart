@@ -358,13 +358,12 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
     return digest.toString();
   }
   void addUsers() async {
-    txtpassWord.text=hashPassword(txtpassWord.text);
     var result = await dbHelper.insertUser(User.withOutId(
       ad: txtName.text,
       soyad: txtSurname.text,
       dogumtarihi:txtBirthDate.text,
       email: txtuserName.text,
-      password: txtpassWord.text,
+      password: hashPassword(txtpassWord.text),
       telefon: txtTelefon.text,
       adres: txtAdres.text,
     ));

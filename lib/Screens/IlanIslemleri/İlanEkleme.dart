@@ -17,8 +17,10 @@ import 'Aciklama.dart';
 
 class IlanEkle extends StatefulWidget {
   Company? company;
+  QuillController? ccontroller;
 
-  IlanEkle({Key? key, required this.company}) : super(key: key);
+  IlanEkle({Key? key, required this.company, this.ccontroller})
+      : super(key: key);
 
   @override
   State<IlanEkle> createState() => _IlanEkleState();
@@ -27,12 +29,11 @@ class IlanEkle extends StatefulWidget {
 class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
   var formKey = GlobalKey<FormState>();
   var dbHelper = DatabaseProvider();
-  var txtBaslik = TextEditingController();
-  var txtaciklama = TextEditingController();
-  var txtaciklama2 = TextEditingController();
-  var txtSirketId = TextEditingController();
-  var txtTarih = TextEditingController();
-  QuillController? _controller;
+  TextEditingController? txtBaslik = TextEditingController();
+  TextEditingController? txtaciklama = TextEditingController();
+  TextEditingController? txtaciklama2 = TextEditingController();
+  TextEditingController? txtSirketId = TextEditingController();
+  TextEditingController? txtTarih = TextEditingController();
   var selectedValue = '1';
   final _advancedDrawerController = AdvancedDrawerController();
   void _handleMenuButtonPressed() {
@@ -47,6 +48,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
   void initState() {
     setState(() {
       buildSirketId();
+      txtaciklama2 = TextEditingController();
     });
   }
 
@@ -158,28 +160,26 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
       child: TextFormField(
         onTap: () {
           Map<String, dynamic> quillMap;
-          Navigator.push(
-              context,
-              MaterialPageRoute(
+          Navigator.push(context, MaterialPageRoute(
                   builder: (context) => RichTextEditorScreen(
-                      text: txtaciklama2.text,
-                      company: widget.company,
-                      controller: _controller,
-                      callback: (value) {
-                        setState(() {
-                          txtaciklama2.text = value.getPlainText();
-                          txtaciklama.text = jsonEncode(_controller!.document.toDelta().toJson());
-
+                        text: txtaciklama!.text,
+                        company: widget.company,
+                        controller: widget.ccontroller,
+                        callback: (QuillController value) { setState(() {
+                          print(value.document.toPlainText());
+                          txtaciklama2!.text = value.document.toPlainText();
+                          txtaciklama!.text =
+                              jsonEncode(value.document.toDelta().toJson());
                           //temp =txtaciklama.text;
 
-                        });
-                      })));
+                        });},
+                      )));
 
         },
         readOnly: true,
         maxLines: 3,
         validator: validateAciklama,
-        controller: txtaciklama,
+        controller: txtaciklama2,
         decoration: InputDecoration(
             prefixIcon: Icon(
               Icons.person,
@@ -205,7 +205,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
   //Şirket Id Formu
   buildSirketId() {
     if (widget.company!.id != null) {
-      return txtSirketId.text = widget.company!.id.toString();
+      return txtSirketId!.text = widget.company!.id.toString();
     } else {
       return null;
     }
@@ -217,6 +217,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
       child: TextField(
         onTap: _showDatePicker,
         controller: txtTarih,
+        readOnly: true,
         decoration: InputDecoration(
             prefixIcon: Icon(
               Icons.calendar_month,
@@ -251,7 +252,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
     if (selectedDate != null) {
       setState(() {
         // Use DateFormat to format the selected date
-        txtTarih.text = DateFormat('dd-MM-yyyy').format(selectedDate);
+        txtTarih!.text = DateFormat('dd-MM-yyyy').format(selectedDate);
       });
     }
   }
@@ -332,10 +333,10 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
   //Kaydetme işlemini sağlayan fonksiyon
   void addIlan() async {
     var result = await dbHelper.insertIlan(Ilanlar.withOutId(
-      baslik: txtBaslik.text,
-      aciklama: txtaciklama.text,
-      sirket_id: int.parse(txtSirketId.text),
-      tarih: txtTarih.text,
+      baslik: txtBaslik!.text,
+      aciklama: txtaciklama!.text,
+      sirket_id: int.parse(txtSirketId!.text),
+      tarih: txtTarih!.text,
       calisma_zamani: int.parse(temp ?? "1"),
       //kategori: "",
     ));

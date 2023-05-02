@@ -22,7 +22,7 @@ class DatabaseProvider {
 
   //Create a new database
   Future<Database> initializeDb() async {
-    String dbPath = join(await getDatabasesPath(), "etrade.db");
+    String dbPath = join(await getDatabasesPath(), "kariyer.db");
     var etradeDb = openDatabase(dbPath, version: 1, onCreate: createDb);
     return etradeDb;
   }
@@ -42,7 +42,6 @@ class DatabaseProvider {
       adres TEXT
     );
 ''');
-    await insertInitialCompanyData(db);
 
     await db.execute(
         "CREATE TABLE sirketler (id INTEGER PRIMARY KEY AUTOINCREMENT,isim TEXT,email TEXT,sifre TEXT,telefon TEXT,adres TEXT,isAdmin INTEGER DEFAULT 0);");
@@ -51,27 +50,26 @@ class DatabaseProvider {
     await db.execute(
         "CREATE TABLE ilanlar (id INTEGER PRIMARY KEY AUTOINCREMENT,baslik TEXT,aciklama TEXT,sirket_id TEXT,tarih TEXT,calisma_zamani INTEGER,FOREIGN KEY (sirket_id) REFERENCES sirketler(id) ON DELETE CASCADE);");
   }
-  Future insertInitialCompanyData(Database db) async {
-    int id=1;
-    String email = 'szrelalmis@gmail.com';
-    String password = hashPassword('Scerr4321');
-    String ad = 'Sezer';
-    String telefon = '5435659366';
-    String adres = 'Ankara';
-
-
-      Company company=Company.withoutId(
-        isim: ad,
-        email: email,
-        sifre: password,
-        telefon: telefon,
-        adres: adres,
-      );
-    await dbProvider.insertCompany(company);
-
-    await dbProvider.isAdminUser(email);
-
-  }
+  // Future insertInitialCompanyData(Database db) async {
+  //   String email = 'szrelalmis@gmail.com';
+  //   String password = hashPassword('Scerr4321');
+  //   String ad = 'Sezer';
+  //   String telefon = '5435659366';
+  //   String adres = 'Ankara';
+  //
+  //
+  //     Company company1=Company.withoutId(
+  //       isim: ad,
+  //       email: email,
+  //       sifre: password,
+  //       telefon: telefon,
+  //       adres: adres,
+  //     );
+  //   await dbProvider.insertCompany(company1);
+  //
+  //   await dbProvider.isAdminUser(email);
+  //
+  // }
 
 
   String hashPassword(String password) {

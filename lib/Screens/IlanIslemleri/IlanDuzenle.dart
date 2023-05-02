@@ -15,9 +15,11 @@ import 'Aciklama.dart';
 class IlanDuzenleme extends StatefulWidget {
   Ilanlar? ilanlar;
   Company? company;
+  QuillController? ccontroller;
   IlanDuzenleme({
     required this.ilanlar,
     required this.company,
+    this.ccontroller,
     Key? key,
   }) : super(key: key);
 
@@ -46,6 +48,9 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
 
   @override
   void initState() {
+    print(widget.ccontroller?.document.toPlainText());
+    print(_controller!.document.toPlainText());
+    print(ilanlar!.aciklama);
     txtBaslik.text = ilanlar!.baslik;
     txtaciklama2.text = ilanlar!.aciklama;
     txtSirketId.text = ilanlar!.sirket_id.toString();
@@ -128,28 +133,26 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
       padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
       child: TextFormField(
         onTap: () {
-          Map<String, dynamic> quillMap;
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => RichTextEditorScreen(
-                      text: txtaciklama2.text,
-                      controller: _controller,
-                      company: widget.company,
-                      callback: (value) {
-                        setState(() {
-                          txtaciklama2.text = value.getPlainText();
-                          txtaciklama.text = jsonEncode(
-                              _controller!.document.toDelta().toJson());
-                        _controller=convertJsonToQuillController(txtaciklama.text);
-                          //temp =txtaciklama.text;
-                        });
-                      })));
+          Navigator.push(context, MaterialPageRoute(
+              builder: (context) => RichTextEditorScreen(
+                text: txtaciklama.text,
+                company: widget.company,
+                controller: widget.ccontroller,
+                callback: (QuillController value) { setState(() {
+                  print(value.document.toPlainText());
+                  txtaciklama2.text = value.document.toPlainText();
+                  txtaciklama.text =
+                      jsonEncode(value.document.toDelta().toJson());
+                  print(txtaciklama.text);
+                  //temp =txtaciklama.text;
+
+                });},
+              )));
         },
         maxLines: 3,
         validator: validateAciklama,
         readOnly: true,
-        controller: txtaciklama,
+        controller: txtaciklama2,
         decoration: InputDecoration(
             prefixIcon: Icon(
               Icons.person,
@@ -255,12 +258,6 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
         txtTarih.text = DateFormat('dd-MM-yyyy').format(selectedDate);
       });
     }
-  }
-
-  String dateFormatter(DateTime date) {
-    String formattedDate;
-    return formattedDate =
-        "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
   }
 
   //Kaydetme butonu

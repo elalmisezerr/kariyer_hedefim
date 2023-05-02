@@ -348,20 +348,19 @@ class _CompanyAddState extends State<CompanyAdd>
     return digest.toString();
   }
   void addCompanies() async {
-    txtpassWord.text=hashPassword(txtpassWord.text);
     var result = await dbHelper.insertCompany(Company.withoutId(
       isim: txtName.text,
       email: txtuserName.text,
-      sifre: txtpassWord.text,
+      sifre: hashPassword(txtpassWord.text),
       telefon: txtTelefon.text,
       adres: txtAdres.text,
     ));
 
-    // if (result == 1) {
-    //   Navigator.pop(context, true);
-    // } else {
-    //   _showResendDialog();
-    // }
+    if (result == 1) {
+      Navigator.pop(context, true);
+    } else {
+      _showResendDialog();
+    }
   }
 
   void _showResendDialog() {
