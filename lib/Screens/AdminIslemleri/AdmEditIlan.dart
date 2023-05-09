@@ -7,7 +7,7 @@ import 'package:kariyer_hedefim/Screens/IlanIslemleri/IlanDuzenle.dart';
 
 import '../../Data/DbProvider.dart';
 import '../../Data/GoogleSignin.dart';
-import '../../Models/JobAdvertisements.dart';
+import '../../Models/Ilan.dart';
 import '../GirisEkranı.dart';
 import '../IlanIslemleri/IlanDetay.dart';
 

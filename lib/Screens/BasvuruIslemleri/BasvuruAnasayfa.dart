@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
-import 'package:kariyer_hedefim/Models/JobApplications.dart';
+import 'package:kariyer_hedefim/Models/Basvuru.dart';
 
-import '../../Models/JobAdvertisements.dart';
-import '../../Models/User.dart';
+import '../../Models/Ilan.dart';
+import '../../Models/Kullanici.dart';
 
 class BasvuruSayfasi extends StatefulWidget {
   User user;

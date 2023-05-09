@@ -2,13 +2,13 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';
-import 'package:kariyer_hedefim/Models/Company.dart';
-import 'package:kariyer_hedefim/Models/JobAdvertisements.dart';
-import 'package:kariyer_hedefim/Models/JobApplications.dart';
+import 'package:kariyer_hedefim/Models/Kurum.dart';
+import 'package:kariyer_hedefim/Models/Ilan.dart';
+import 'package:kariyer_hedefim/Models/Basvuru.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:async';
-import '../Models/User.dart';
+import '../Models/Kullanici.dart';
 
 class DatabaseProvider {
   static final DatabaseProvider dbProvider = DatabaseProvider();
@@ -39,12 +39,13 @@ class DatabaseProvider {
       email TEXT,
       password TEXT,
       telefon TEXT,
-      adres TEXT
+      adres TEXT,
+      isLoggedIn INTEGER
     );
 ''');
 
     await db.execute(
-        "CREATE TABLE sirketler (id INTEGER PRIMARY KEY AUTOINCREMENT,isim TEXT,email TEXT,sifre TEXT,telefon TEXT,adres TEXT,isAdmin INTEGER DEFAULT 0);");
+        "CREATE TABLE sirketler (id INTEGER PRIMARY KEY AUTOINCREMENT,isim TEXT,email TEXT,sifre TEXT,telefon TEXT,adres TEXT,isLoggedIn INTEGER,isAdmin INTEGER DEFAULT 0);");
     await db.execute(
         "CREATE TABLE basvurular (id INTEGER PRIMARY KEY AUTOINCREMENT,ilan_id TEXT,kullanici_id TEXT,basvuru_tarihi TEXT,FOREIGN KEY (ilan_id) REFERENCES ilanlar(id) ON DELETE CASCADE,FOREIGN KEY (kullanici_id) REFERENCES users(id) ON DELETE CASCADE);");
     await db.execute(
@@ -328,6 +329,18 @@ class DatabaseProvider {
       }
     });
   }
+  Future<bool> isAdmin(String email) async {
+    Database? db = await this.db;
+    var res = await db!.query('sirketler',
+        columns: ['isAdmin'],
+        where: 'email = ?',
+        whereArgs: [email]);
+    if (res.isNotEmpty) {
+      return res.first['isAdmin'] == 1;
+    }
+    return false;
+  }
+
 
   Future<String?> checkIfUsernameExists(String? username) async {
     Database db = await openDatabase('database.db');
@@ -355,6 +368,69 @@ class DatabaseProvider {
     } else {
       return null;
     }
+  }
+  Future<void> updateUserLoggedInStatus(String email, bool isLoggedIn) async {
+    Database? db = await this.db;
+    await db!.update(
+      'users',
+      {'isLoggedIn': isLoggedIn ? 1 : 0},
+      where: 'email = ?',
+      whereArgs: [email],
+    );
+  }
+
+  Future<void> updateSirketLoggedInStatus(String email, bool isLoggedIn) async {
+    Database? db = await this.db;
+    await db!.update(
+      'sirketler',
+      {'isLoggedIn': isLoggedIn ? 1 : 0},
+      where: 'email = ?',
+      whereArgs: [email],
+    );
+  }
+
+  Future<User?> autoLoginUser() async {
+    Database? db = await this.db;
+
+    // Check if there is a user with isLoggedIn = 1
+    var userRes = await db!.query('users',
+        where: 'isLoggedIn = ?',
+        whereArgs: [1],
+        limit: 1);
+
+    if (userRes.isNotEmpty) {
+      // Found a user, set isLoggedIn to true and return user object
+      var user = User.fromObject(userRes.first);
+      user.isLoggedIn = true;
+      await db.update('users', user.toMap(),
+          where: 'id = ?', whereArgs: [user.id]);
+      return user;
+    }
+
+    // No user found with isLoggedIn = 1
+    return null;
+  }
+
+  Future<Company?> autoLoginCompany() async {
+    Database? db = await this.db;
+
+    // Check if there is a user with isLoggedIn = 1
+    var compRes = await db!.query('sirketler',
+        where: 'isLoggedIn = ?',
+        whereArgs: [1],
+        limit: 1);
+
+    if (compRes.isNotEmpty) {
+      // Found a user, set isLoggedIn to true and return user object
+      var company = Company.fromObject(compRes.first);
+      company.isLoggedIn = true;
+      await db.update('sirketler', company.toMap(),
+          where: 'id = ?', whereArgs: [company.id]);
+      return company;
+    }
+
+    // No user found with isLoggedIn = 1
+    return null;
   }
 
   Future<bool> basvuruKontrolEt(String userId, String ilanId) async {

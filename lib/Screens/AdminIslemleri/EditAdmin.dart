@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:kariyer_hedefim/Components/MyDrawer.dart';
-import 'package:kariyer_hedefim/Models/Company.dart';
+import 'package:kariyer_hedefim/Models/Kurum.dart';
 import 'package:kariyer_hedefim/Screens/AdminIslemleri/HomeAdmin.dart';
 
 import '../../Data/DbProvider.dart';

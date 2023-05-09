@@ -5,7 +5,7 @@ import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 
 import '../../Data/DbProvider.dart';
 import '../../Data/GoogleSignin.dart';
-import '../../Models/User.dart';
+import '../../Models/Kullanici.dart';
 import '../GirisEkranı.dart';
 
 class AdmEditUsers extends StatefulWidget {

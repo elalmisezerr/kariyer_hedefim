@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
-import 'package:kariyer_hedefim/Models/JobAdvertisements.dart';
+import 'package:kariyer_hedefim/Models/Ilan.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciAnasayfa.dart';
 
 import '../../Data/DbProvider.dart';
-import '../../Models/Company.dart';
-import '../../Models/JobApplications.dart';
-import '../../Models/User.dart';
+import '../../Models/Kurum.dart';
+import '../../Models/Basvuru.dart';
+import '../../Models/Kullanici.dart';
 
 class IlanDetay extends StatefulWidget {
   Ilanlar? ilanlar;

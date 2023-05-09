@@ -3,7 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../Data/DbProvider.dart';
 import '../../Data/GoogleSignin.dart';
-import '../../Models/Company.dart';
+import '../../Models/Kurum.dart';
 import 'GirisSirket.dart';
 
 class LoginGooleCompany extends StatefulWidget {

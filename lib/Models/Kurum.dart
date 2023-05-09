@@ -5,7 +5,14 @@ class Company{
   String sifre;
   String telefon;
   String adres;
-  var isAdmin;
+  bool? isLoggedIn=false;
+  bool _isAdmin = false;
+
+  bool get isAdmin => _isAdmin;
+
+  set isAdmin(bool value) {
+    _isAdmin = value;
+  }
 
 
   Company({this.id,required this.isim,required this.email,required this.sifre, required this.telefon, required this.adres});
@@ -18,7 +25,10 @@ class Company{
       sifre: map['sifre'] as String,
       telefon: map['telefon'] as String,
       adres: map['adres'] as String,
-    );
+    )
+      ..isLoggedIn = map['isLoggedIn'] == 1
+      ..isAdmin = map['isAdmin'] == 1;
+
   }
 
   Map<String, dynamic> toMap() {
@@ -29,6 +39,8 @@ class Company{
       "sifre": sifre,
       "telefon":telefon,
       "adres":adres,
+      "isLoggedIn": isLoggedIn! ? 1 : 0,
+      "isAdmin": isAdmin ? 1 : 0,
     };
   }
 }

@@ -1,11 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
+import 'package:flutter_quill/flutter_quill.dart' hide Text;
 import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
-import 'package:kariyer_hedefim/Models/JobAdvertisements.dart';
+import 'package:kariyer_hedefim/Models/Ilan.dart';
 import 'package:kariyer_hedefim/Screens/IlanIslemleri/IlanDuzenle.dart';
 import '../../Data/GoogleSignin.dart';
-import '../../Models/Company.dart';
+import '../../Models/Kurum.dart';
 import '../GirisEkranı.dart';
 
 class HomeCompany extends StatefulWidget {
@@ -25,7 +28,7 @@ class _HomeCompanyState extends State<HomeCompany>
   bool _isDrawerOpen = false;
   var dbHelper = DatabaseProvider();
   final _advancedDrawerController = AdvancedDrawerController();
-
+  QuillController? dene;
   void _handleMenuButtonPressed() {
     // NOTICE: Manage Advanced Drawer state through the Controller.
     // _advancedDrawerController.value = AdvancedDrawerValue.visible();
@@ -36,16 +39,6 @@ class _HomeCompanyState extends State<HomeCompany>
   void initState() {
     setState(() {});
     super.initState();
-  }
-
-  void logout() {
-    setState(() async {
-      if (GoogleSignInApi != null) {
-        await GoogleSignInApi.logout();
-      }
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => GirisEkrani()));
-    });
   }
 
   @override
@@ -120,37 +113,45 @@ class _HomeCompanyState extends State<HomeCompany>
                   },
                   icon: Icon(Icons.search)),
               IconButton(
-                  onPressed: () {
-                    AlertDialog(
-                      backgroundColor: Color(0xffbf1922),
-                      title: Text(
-                        "Çıkış yapmak istiyor musunuz?",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: Text(
-                            "HAYIR",
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        backgroundColor: Color(0xffbf1922),
+                        title: Text(
+                          "Çıkış yapmak istiyor musunuz?",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                        TextButton(
-                          onPressed: () => logout,
-                          child: Text(
-                            "EVET",
-                            style: TextStyle(
-                              color: Colors.white,
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: Text(
+                              "HAYIR",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
                             ),
                           ),
-                        )
-                      ],
-                    );
-                  },
-                  icon: Icon(Icons.logout))
+                          TextButton(
+                            onPressed: () => logout(),
+                            child: Text(
+                              "EVET",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                icon: Icon(Icons.logout),
+              )
             ],
           ),
           body: Container(
@@ -206,18 +207,17 @@ class _HomeCompanyState extends State<HomeCompany>
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Icon(
-                        Icons.bookmark_border,
-                        size: 30.0,
-                      ),
                     ],
                   ),
                   SizedBox(height: 8.0),
                   Container(
                     height: 30.0,
                     child: Text(
-                      ilanlar[position].aciklama,
+                      convertJsonToQuillController(ilanlar[position].aciklama)
+                          .document
+                          .toPlainText(),
                       style: TextStyle(fontSize: 16.0),
+                      maxLines: 3,
                     ),
                   ),
                   SizedBox(height: 8.0),
@@ -245,6 +245,22 @@ class _HomeCompanyState extends State<HomeCompany>
     );
   }
 
+  void logout() {
+
+    setState(() async {
+    await dbHelper.updateSirketLoggedInStatus(widget.company!.email, false);
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => GirisEkrani()));
+    });
+    logoutgoogle();
+  }
+
+  void logoutgoogle() {
+    if (GoogleSignInApi != null) {
+      GoogleSignInApi.logout();
+    }
+  }
+
   String? checkJobTime(String? value) {
     if (value != null && value.isNotEmpty) {
       if (value == '1') {
@@ -260,6 +276,24 @@ class _HomeCompanyState extends State<HomeCompany>
       return null;
     }
   }
+}
+
+QuillController convertJsonToQuillController(String jsonString) {
+  if (jsonString.isEmpty) {
+    // Handle the empty JSON string case
+    return QuillController
+        .basic(); // Or throw an exception, depending on your requirements
+  }
+
+  var jsonMap = jsonDecode(jsonString);
+  Document doc = Document.fromJson(jsonMap);
+  QuillController controller = QuillController(
+      document: doc,
+      selection: TextSelection(
+        baseOffset: 0,
+        extentOffset: doc.length,
+      ));
+  return controller;
 }
 
 class DataSearch extends SearchDelegate<String> {
@@ -290,6 +324,9 @@ class DataSearch extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
+    if (selectedilanlar == null) {
+      return Container(); // Return an empty container if selectedilanlar is null
+    }
     return Container(
       margin: EdgeInsets.only(top: 10),
       color: Colors.white,
@@ -371,7 +408,9 @@ class DataSearch extends SearchDelegate<String> {
                     ],
                   ),
                   subtitle: Text(
-                    selectedilanlar!.aciklama,
+                    convertJsonToQuillController(selectedilanlar!.aciklama)
+                        .document
+                        .toPlainText(),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

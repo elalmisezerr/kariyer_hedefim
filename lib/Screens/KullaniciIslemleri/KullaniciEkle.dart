@@ -7,7 +7,7 @@ import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/GirisKullanici.dart';
 import 'package:kariyer_hedefim/Validation/ValidationUser.dart';
 import 'package:intl/intl.dart';
 
-import '../../Models/User.dart';
+import '../../Models/Kullanici.dart';
 
 class UsersAdd extends StatefulWidget {
   const UsersAdd({Key? key}) : super(key: key);

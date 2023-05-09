@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 
-import '../../Models/JobAdvertisements.dart';
-import '../../Models/User.dart';
+import '../../Models/Ilan.dart';
+import '../../Models/Kullanici.dart';
 import '../GirisEkranı.dart';
 
 class Basvurularim extends StatefulWidget {

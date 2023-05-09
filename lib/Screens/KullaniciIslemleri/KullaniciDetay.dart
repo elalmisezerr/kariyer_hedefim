@@ -7,7 +7,7 @@ import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciAnasayfa.dar
 import 'package:kariyer_hedefim/Validation/ValidationUser.dart';
 
 import '../../Data/DbProvider.dart';
-import '../../Models/User.dart';
+import '../../Models/Kullanici.dart';
 
 class UserDetail extends StatefulWidget {
   User user;

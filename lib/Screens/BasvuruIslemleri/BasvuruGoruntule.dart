@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
-import 'package:kariyer_hedefim/Models/JobApplications.dart';
+import 'package:kariyer_hedefim/Models/Basvuru.dart';
+import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/Detay/BasvuranDetay.dart';
 
-import '../../Models/JobAdvertisements.dart';
-import '../../Models/User.dart';
+import '../../Models/Ilan.dart';
+import '../../Models/Kullanici.dart';
 
 class BasvuruGoruntule extends StatefulWidget {
   Ilanlar? ilanlar;
 
-  BasvuruGoruntule({Key? key,required this.ilanlar}) : super(key: key);
+  BasvuruGoruntule({Key? key, required this.ilanlar}) : super(key: key);
 
   @override
   State<BasvuruGoruntule> createState() => _BasvuruGoruntuleState();
@@ -20,25 +21,39 @@ class _BasvuruGoruntuleState extends State<BasvuruGoruntule> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage("assect/images/arkabir.png"),
-          fit: BoxFit.cover,
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xffbf1922),
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        title: Text("Başvuranlar"),
       ),
-      child:FutureBuilder<List<User>>(
-        future: dbHelper.getKullanicilarByIlanlarId(widget.ilanlar!.id.toString()),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Hata: ${snapshot.error}',style: TextStyle(fontSize: 10),),);
-          } else {
-            final users = snapshot.data ?? [];
-            return buildUserList(users);
-          }
-        },
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assect/images/arkabir.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: FutureBuilder<List<User>>(
+          future: dbHelper
+              .getKullanicilarByIlanlarId(widget.ilanlar!.id.toString()),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Hata: ${snapshot.error}',
+                  style: TextStyle(fontSize: 10),
+                ),
+              );
+            } else {
+              final users = snapshot.data ?? [];
+              return buildUserList(users);
+            }
+          },
+        ),
       ),
     );
   }
@@ -129,7 +144,12 @@ class _BasvuruGoruntuleState extends State<BasvuruGoruntule> {
                   ),
                 ],
               ),
-              trailing: Icon(Icons.arrow_forward_ios),
+              trailing: InkWell(
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>BasvuranDetay()));
+                  },
+                  child: Icon(Icons.file_open_outlined,size: 45,
+                  color: Color(0xffbf1922),)),
               onTap: () {},
             ),
           ),
@@ -137,5 +157,4 @@ class _BasvuruGoruntuleState extends State<BasvuruGoruntule> {
       },
     );
   }
-
 }

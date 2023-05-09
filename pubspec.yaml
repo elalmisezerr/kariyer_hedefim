@@ -44,7 +44,6 @@ dependencies:
   firebase_auth: ^4.4.2
   crypto:
   flutter_quill:
-  rich_text_editor_controller:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

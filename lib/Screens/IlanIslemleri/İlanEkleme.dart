@@ -7,11 +7,11 @@ import 'package:flutter_quill/flutter_quill.dart' hide Text;
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
-import 'package:kariyer_hedefim/Models/Company.dart';
-import 'package:kariyer_hedefim/Models/JobAdvertisements.dart';
+import 'package:kariyer_hedefim/Models/Kurum.dart';
 import 'package:kariyer_hedefim/Screens/SirketIslemleri/SirketAnasayfa.dart';
 import 'package:kariyer_hedefim/Validation/ValidationIlan.dart';
 
+import '../../Models/Ilan.dart';
 import '../GirisEkranı.dart';
 import 'Aciklama.dart';
 
@@ -34,16 +34,13 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
   TextEditingController? txtaciklama2 = TextEditingController();
   TextEditingController? txtSirketId = TextEditingController();
   TextEditingController? txtTarih = TextEditingController();
-  var selectedValue = '1';
+  String? selectedValue="1";
   final _advancedDrawerController = AdvancedDrawerController();
   void _handleMenuButtonPressed() {
     // NOTICE: Manage Advanced Drawer state through the Controller.
     // _advancedDrawerController.value = AdvancedDrawerValue.visible();
     _advancedDrawerController.showDrawer();
   }
-
-  String? temp;
-
   @override
   void initState() {
     setState(() {
@@ -153,7 +150,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
       ),
     );
   }
-
+  //Açıklama Formu
   buildAciklama() {
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
@@ -170,6 +167,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
                           txtaciklama2!.text = value.document.toPlainText();
                           txtaciklama!.text =
                               jsonEncode(value.document.toDelta().toJson());
+                          print(txtaciklama!.text);
                           //temp =txtaciklama.text;
 
                         });},
@@ -202,7 +200,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
     );
   }
 
-  //Şirket Id Formu
+  //Şirket Id Ekleme Kısmı
   buildSirketId() {
     if (widget.company!.id != null) {
       return txtSirketId!.text = widget.company!.id.toString();
@@ -211,6 +209,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
     }
   }
 
+  //Tarih Formu
   Widget buildTarih() {
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
@@ -240,7 +239,6 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
   }
 
   //Tarih seçici
-
   Future<void> _showDatePicker() async {
     final DateTime? selectedDate = await showDatePicker(
         context: context,
@@ -257,6 +255,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
     }
   }
 
+  //Çıkış Fonsiyonu
   void logout() {
     setState(() {
       Navigator.push(
@@ -268,7 +267,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
       child: DecoratedDropdownButton(
-        value: selectedValue,
+        value: selectedValue!,
         items: [
           DropdownMenuItem(child: Text("Tam Zamanlı"), value: "1"),
           DropdownMenuItem(child: Text("Yarı Zamanlı"), value: "2"),
@@ -277,7 +276,6 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
         onChanged: (value) {
           setState(() {
             selectedValue = value.toString();
-            temp = value.toString();
           });
         },
 
@@ -337,7 +335,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
       aciklama: txtaciklama!.text,
       sirket_id: int.parse(txtSirketId!.text),
       tarih: txtTarih!.text,
-      calisma_zamani: int.parse(temp ?? "1"),
+      calisma_zamani: int.parse(selectedValue ?? "1"),
       //kategori: "",
     ));
     Navigator.push(
@@ -347,31 +345,5 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
                   company: widget.company,
                   isLoggedin: true,
                 )));
-  }
-}
-
-String dateFormatterDMY(String date) {
-  final inputFormat = DateFormat('yyyy-MM-dd');
-  final outputFormat = DateFormat('dd-MM-yyyy');
-  try {
-    final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
-    final formattedDate = outputFormat.format(dateTime);
-    return formattedDate;
-  } catch (e) {
-    print('Error parsing date: $date');
-    return '';
-  }
-}
-
-String dateFormatterYMD(String date) {
-  final inputFormat = DateFormat('dd-MM-yyyy');
-  final outputFormat = DateFormat.yMd();
-  try {
-    final dateTime = inputFormat.parse(date.replaceAll('/', '-'));
-    final formattedDate = outputFormat.format(dateTime);
-    return formattedDate;
-  } catch (e) {
-    print('Error parsing date: $date');
-    return '';
   }
 }

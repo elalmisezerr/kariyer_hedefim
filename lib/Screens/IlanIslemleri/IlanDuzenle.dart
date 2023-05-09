@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:decorated_dropdownbutton/decorated_dropdownbutton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
@@ -8,8 +7,8 @@ import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/BasvuruGoruntule.dart';
 import 'package:kariyer_hedefim/Screens/SirketIslemleri/SirketAnasayfa.dart';
 import 'package:kariyer_hedefim/Validation/ValidationIlan.dart';
 import '../../Data/DbProvider.dart';
-import '../../Models/Company.dart';
-import '../../Models/JobAdvertisements.dart';
+import '../../Models/Ilan.dart';
+import '../../Models/Kurum.dart';
 import 'Aciklama.dart';
 
 class IlanDuzenleme extends StatefulWidget {
@@ -41,22 +40,20 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
   var txtSirketId = TextEditingController();
   var txtTarih = TextEditingController();
   var temp;
-  QuillController? _controller;
   var selectedValue = "1";
-
   _IlanDuzenlemeState(this.company, this.ilanlar);
 
   @override
   void initState() {
-    print(widget.ccontroller?.document.toPlainText());
-    print(_controller!.document.toPlainText());
-    print(ilanlar!.aciklama);
-    txtBaslik.text = ilanlar!.baslik;
-    txtaciklama2.text = ilanlar!.aciklama;
-    txtSirketId.text = ilanlar!.sirket_id.toString();
-    txtTarih.text = ilanlar!.tarih;
-    temp = ilanlar!.calisma_zamani.toString();
-    selectedValue = ilanlar!.calisma_zamani.toString();
+    widget.ccontroller = convertJsonToQuillController(ilanlar!.aciklama);
+    txtBaslik.text = ilanlar?.baslik ?? '';
+    txtaciklama.text=ilanlar!.aciklama;
+    txtaciklama2.text =
+        convertJsonToQuillController(ilanlar!.aciklama).document.toPlainText();
+    txtSirketId.text = ilanlar?.sirket_id?.toString() ?? '';
+    txtTarih.text = ilanlar?.tarih ?? '';
+    temp = ilanlar?.calisma_zamani.toString() ?? '';
+    selectedValue = ilanlar?.calisma_zamani.toString() ?? '';
     super.initState();
   }
 
@@ -89,6 +86,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
               buildAciklama(),
               buildTarih(),
               DropdownButon1(),
+              SizedBox(height: 10,),
               buildUpdateButton(),
               buildBasvuranlarButton(),
             ],
@@ -96,6 +94,23 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
         ),
       ),
     );
+  }
+
+  QuillController convertJsonToQuillController(String jsonString) {
+    if (jsonString.isEmpty) {
+      // Handle the empty JSON string case
+      return QuillController.basic(); // Or throw an exception, depending on your requirements
+    }
+
+    var jsonMap = jsonDecode(jsonString);
+    Document doc = Document.fromJson(jsonMap);
+    QuillController controller = QuillController(
+        document: doc,
+        selection: TextSelection(
+          baseOffset: 0,
+          extentOffset: doc.length,
+        ));
+    return controller;
   }
 
   buildBaslik() {
@@ -133,21 +148,24 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
       padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
       child: TextFormField(
         onTap: () {
-          Navigator.push(context, MaterialPageRoute(
-              builder: (context) => RichTextEditorScreen(
-                text: txtaciklama.text,
-                company: widget.company,
-                controller: widget.ccontroller,
-                callback: (QuillController value) { setState(() {
-                  print(value.document.toPlainText());
-                  txtaciklama2.text = value.document.toPlainText();
-                  txtaciklama.text =
-                      jsonEncode(value.document.toDelta().toJson());
-                  print(txtaciklama.text);
-                  //temp =txtaciklama.text;
-
-                });},
-              )));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => RichTextEditorScreen(
+                        text: txtaciklama.text,
+                        company: widget.company,
+                        controller: widget.ccontroller,
+                        callback: (QuillController value) {
+                          setState(() {
+                            print(value.document.toPlainText());
+                            txtaciklama2.text = value.document.toPlainText();
+                            txtaciklama.text =
+                                jsonEncode(value.document.toDelta().toJson());
+                            print(txtaciklama.text);
+                            //temp =txtaciklama.text;
+                          });
+                        },
+                      )));
         },
         maxLines: 3,
         validator: validateAciklama,
@@ -174,15 +192,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
       ),
     );
   }
-  QuillController convertJsonToQuillController(String jsonString) {
-    var jsonMap = jsonDecode(jsonString);
-    Document doc = Document.fromJson(jsonMap);
-    QuillController controller = QuillController(document: doc, selection:TextSelection(
-      baseOffset: 0,
-      extentOffset: doc.length,
-    ));
-    return controller;
-  }
+
   //Şirket Id Formu
   buildSirketId() {
     if (widget.company!.id != null) {
@@ -262,50 +272,99 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
 
   //Kaydetme butonu
   buildUpdateButton() {
-    return TextButton(
-      onPressed: () async {
-        if (formKey.currentState!.validate()) {
-          formKey.currentState!.save();
-          print(ilanlar!.baslik);
-          await dbHelper.updateIlan(Ilanlar(
-            id: ilanlar!.id,
-            baslik: txtBaslik.text,
-            aciklama: txtaciklama.text,
-            tarih: txtTarih.text,
-            sirket_id: company!.id,
-            calisma_zamani: int.parse(temp!),
-            //kategori: "",
-          ));
-        }
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => HomeCompany(
-                      company: company,
-                      isLoggedin: false,
-                    )));
-      },
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        margin: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-        padding: EdgeInsets.symmetric(vertical: 15),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(50)),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-                color: Colors.black,
-                offset: Offset(2, 4),
-                blurRadius: 5,
-                spreadRadius: 2),
-          ],
-          color: Color(0xffbf1922),
+    return Row(
+      children:[
+        Expanded(
+          flex: 2,
+          child: TextButton(
+            onPressed: () async {
+              Ilanlar updatedIlan;
+              if (formKey.currentState!.validate()) {
+                formKey.currentState!.save();
+                if (ilanlar!.baslik != txtBaslik.text || ilanlar!.aciklama != txtaciklama.text || ilanlar!.tarih != txtTarih.text || company!.id != ilanlar!.sirket_id || int.parse(temp!) != ilanlar!.calisma_zamani) {
+                  updatedIlan = Ilanlar(
+                    id: ilanlar!.id,
+                    baslik: txtBaslik.text,
+                    aciklama: txtaciklama.text,
+                    tarih: txtTarih.text,
+                    sirket_id: company!.id,
+                    calisma_zamani: int.parse(temp!),
+                  );
+                } else {
+                  updatedIlan = ilanlar!;
+                }
+                await dbHelper.updateIlan(updatedIlan);
+              }
+
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => HomeCompany(
+                        company: company,
+                        isLoggedin: false,
+                      )));
+            },
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              //margin: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+               padding: EdgeInsets.symmetric(vertical: 15),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(50)),
+                boxShadow: <BoxShadow>[
+                  BoxShadow(
+                      color: Colors.black,
+                      offset: Offset(2, 4),
+                      blurRadius: 5,
+                      spreadRadius: 2),
+                ],
+                color: Color(0xffbf1922),
+              ),
+              child: Text(
+                "Güncelle",
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ),
+            ),
+          ),
         ),
-        child: Text(
-          "Güncelle",
-          style: TextStyle(fontSize: 20, color: Colors.white),
+        Expanded(
+          flex: 1,
+          child: TextButton(
+            onPressed: () async {
+              await dbHelper.deleteIlan(ilanlar!.id!);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => HomeCompany(
+                        company: company,
+                        isLoggedin: false,
+                      )));
+            },
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              //margin: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+              padding: EdgeInsets.symmetric(vertical: 15),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(50)),
+                boxShadow: <BoxShadow>[
+                  BoxShadow(
+                      color: Colors.black,
+                      offset: Offset(2, 4),
+                      blurRadius: 5,
+                      spreadRadius: 2),
+                ],
+                color: Color(0xffbf1922),
+              ),
+              child: Text(
+                "Sil",
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ),
+            ),
+          ),
         ),
-      ),
+
+      ],
     );
   }
 

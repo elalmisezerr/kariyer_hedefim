@@ -1,14 +1,16 @@
+import 'dart:convert';
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
+import 'package:flutter_quill/flutter_quill.dart' hide Text;
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
-import 'package:kariyer_hedefim/Models/JobAdvertisements.dart';
+import 'package:kariyer_hedefim/Models/Ilan.dart';
 import 'package:kariyer_hedefim/Screens/GirisEkran%C4%B1.dart';
 import 'package:kariyer_hedefim/Screens/IlanIslemleri/IlanDetay.dart';
-import 'package:kariyer_hedefim/Models/User.dart';
+import 'package:kariyer_hedefim/Models/Kullanici.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/GirisKullanici.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciDetay.dart';
 import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/Basvurularim.dart';
@@ -34,6 +36,8 @@ class _HomeState extends State<HomeUser> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _advancedDrawerController = AdvancedDrawerController();
   User? _user;
+  QuillController? ccontroller;
+
   @override
   void initState() {
     _user = widget.Myuser;
@@ -197,10 +201,13 @@ class _HomeState extends State<HomeUser> {
       if (GoogleSignInApi != null) {
         await GoogleSignInApi.logout();
       }
+      await dbHelper.updateUserLoggedInStatus(widget.Myuser!.email, false);
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => GirisEkrani()));
     });
   }
+
+
 
   ListView buildIlanList(final List<Ilanlar> ilanlar) {
     return ListView.builder(
@@ -280,7 +287,7 @@ class _HomeState extends State<HomeUser> {
                     Icon(Icons.description, size: 16.0, color: Colors.white),
                     SizedBox(width: 5.0),
                     Text(
-                      ilanlar[position].aciklama,
+                      convertJsonToQuillController(ilanlar[position].aciklama).document.toPlainText(),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -296,6 +303,20 @@ class _HomeState extends State<HomeUser> {
       },
     );
   }
+}
+QuillController convertJsonToQuillController(String jsonString) {
+  if (jsonString.isEmpty) {
+    // Handle the empty JSON string case
+    return QuillController.basic(); // Or throw an exception, depending on your requirements
+  }
+
+  var jsonMap = jsonDecode(jsonString);
+  Document doc = Document.fromJson(jsonMap);
+  QuillController controller = QuillController(document: doc, selection: TextSelection(
+    baseOffset: 0,
+    extentOffset: doc.length,
+  ));
+  return controller;
 }
 
 class DataSearch extends SearchDelegate<String> {
@@ -410,7 +431,7 @@ class DataSearch extends SearchDelegate<String> {
                     ],
                   ),
                   subtitle: Text(
-                    selectedilanlar!.aciklama,
+                   convertJsonToQuillController(selectedilanlar!.aciklama).document.toPlainText(),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

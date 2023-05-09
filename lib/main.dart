@@ -6,7 +6,12 @@ import 'package:kariyer_hedefim/Screens/GirisEkranı.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 
+import 'Data/DbProvider.dart';
+import 'Models/Kullanici.dart';
+import 'Models/Kurum.dart';
 import 'Screens/IlanIslemleri/Aciklama.dart';
+import 'Screens/KullaniciIslemleri/KullaniciAnasayfa.dart';
+import 'Screens/SirketIslemleri/SirketAnasayfa.dart';
 
 void main() {
   HttpOverrides.global = MyHttpOverrides();
@@ -14,8 +19,32 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp({Key? key}) : super(key: key);
+  var dbHelper = DatabaseProvider();
 
+  Widget kontrolet(BuildContext context) {
+    return FutureBuilder(
+      future: Future.wait([
+        dbHelper.autoLoginCompany(),
+        dbHelper.autoLoginUser(),
+      ]),
+      builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        }
+        if (snapshot.hasData) {
+          final sirket = snapshot.data![0] as Company?;
+          final user = snapshot.data![1] as User?;
+          if (sirket != null) {
+            return HomeCompany(company: sirket, isLoggedin: true);
+          } else if (user != null) {
+            return HomeUser(Myuser: user);
+          }
+        }
+        return GirisEkrani();
+      },
+    );
+  }
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -31,7 +60,7 @@ class MyApp extends StatelessWidget {
       ],
       title: "LOGİN",
       debugShowCheckedModeBanner: false,
-      home:GirisEkrani(),
+      home:kontrolet(context),
     );
   }
 }

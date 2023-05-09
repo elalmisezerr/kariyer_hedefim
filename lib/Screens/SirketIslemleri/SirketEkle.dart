@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
-import 'package:kariyer_hedefim/Models/Company.dart';
+import 'package:kariyer_hedefim/Models/Kurum.dart';
 import 'package:kariyer_hedefim/Screens/SirketIslemleri/GirisSirket.dart';
 import '../../Validation/ValidationCompanyAddMixin.dart';
 

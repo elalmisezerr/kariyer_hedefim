@@ -39,35 +39,45 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-
         bool exit = await showDialog(
           context: context,
           barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
               backgroundColor: Color(0xffbf1922),
-              title: Text("Önceki sayfaya dönmek istiyor musunuz?",style: TextStyle(
-                  fontWeight: FontWeight.bold,color: Colors.white),
+              title: Text(
+                "Önceki sayfaya dönmek istiyor musunuz?",
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               ),
               actions: <Widget>[
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text("HAYIR",style: TextStyle(
-            fontWeight: FontWeight.bold,color: Colors.white),
-                ),),
+                  child: Text(
+                    "HAYIR",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
                 TextButton(
                   onPressed: () {
-                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>GirisEkrani()), (route) => false);
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => GirisEkrani()),
+                        (route) => false);
                     GoogleSignInApi.logout();
-          },
-                  child: Text("EVET",style: TextStyle(
-            fontWeight: FontWeight.bold,color: Colors.white),
-            ),),
+                  },
+                  child: Text(
+                    "EVET",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
               ],
             );
           },
         );
-        return exit ;
+        return exit;
       },
       child: Scaffold(
         backgroundColor: Colors.grey[300],
@@ -133,7 +143,7 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
               borderRadius: BorderRadius.circular(20),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey.shade400),
+              borderSide: BorderSide(color: Color(0xffbf1922)),
               borderRadius: BorderRadius.circular(20),
             ),
             fillColor: Colors.grey.shade200,
@@ -157,8 +167,9 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
 
       // forgot password?
       InkWell(
-        onTap: (){
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>ResetPasswordPage()));
+        onTap: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => ResetPasswordPage()));
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25.0),
@@ -178,7 +189,8 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
       ),
       // sign in button
       MyButton(onTap: () async {
-        await girisYap(userNameController.text, hashPassword(passwordController.text));
+        await girisYap(
+            userNameController.text, hashPassword(passwordController.text));
       }),
       const SizedBox(
         height: 10,
@@ -236,7 +248,7 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
           TextButton(
             onPressed: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const GirisEkrani()));
+                  MaterialPageRoute(builder: (context) =>  GirisEkrani()));
             },
             child: Text(
               "Anasayfa'ya Git",
@@ -248,35 +260,55 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
       ),
     ];
   }
+
   String hashPassword(String password) {
     var bytes = utf8.encode(password);
     var digest = sha256.convert(bytes);
     return digest.toString();
   }
+
   Future<void> girisYap(String x, String y) async {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
       var result = await dbHelper.checkCompany(x, y);
       if (result != null) {
         if (await dbHelper.isAdminUser(result.email.toString())) {
-          Navigator.push(context,MaterialPageRoute(builder: (context) => HomeAdmin(Mycompany:result)),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomeAdmin(Mycompany: result)),
           );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Giriş Başarılı!"),
+            backgroundColor: Color(0xffbf1922),
+          ));
         } else {
-          Navigator.push(context,MaterialPageRoute(builder: (context) => HomeCompany( company: result, isLoggedin: true,)),
+          await dbHelper.updateSirketLoggedInStatus(result.email, true);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomeCompany(
+                      company: result,
+                      isLoggedin: true,
+                    )),
           );
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Center(child: Text("Giriş Başarılı!"))));
         }
       } else {
         print("Hatalı Giriş");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Color(0xffbf1922),
-            content: Text('Giriş Bilgileri Hatalı!!!',style: TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-            )),
-            duration: Duration(seconds: 2,),
+            content: Text('Giriş Bilgileri Hatalı!!!',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                )),
+            duration: Duration(
+              seconds: 2,
+            ),
           ),
-
         );
       }
     }
@@ -287,15 +319,21 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
         email: userNameController.text.trim(),
         password: passwordController.text.trim());
   }
-   Future signIn() async {
+
+  Future signIn() async {
     final user = await GoogleSignInApi.login();
     if (user == null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Sign In Failed!")));
     } else {
-      if(user.email.toString()=="szrelalmis@gmail.com") {
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeAdmin(Mycompany: user)));
-      }else{
+      if (user.email.toString() == "szrelalmis@gmail.com") {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomeAdmin(Mycompany: user)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Sign In Successful!")));
+      } else {
         if (user.email.isNotEmpty) {
           bool kullaniciVarMi =
               await dbHelper.kullaniciAdiKontrolEt(user.email.toString()) ||
@@ -303,32 +341,43 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
           if (kullaniciVarMi == false) {
             Navigator.of(context).pushReplacement(MaterialPageRoute(
                 builder: (context) => LoginGooleCompany(user: user)));
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text("Sign In Successful!")));
             String email = 'szrelalmis@gmail.com';
             await dbHelper.checkIsAdmin(email);
           } else {
             var temp = await dbHelper.getCompanyByEmail(user.email.toString());
             if (temp != null) {
+              await dbHelper.updateSirketLoggedInStatus(temp.email, true);
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => HomeCompany(company: temp, isLoggedin: true,)),
+                MaterialPageRoute(
+                    builder: (context) => HomeCompany(
+                          company: temp,
+                          isLoggedin: true,
+                        )),
               );
-            }else{
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text("Sign In Successful!")));
+            } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   backgroundColor: Color(0xffbf1922),
-                  content: Text('Bu email, kullanıcı olarak kaydedilmiş.Lütfen kullanıcı girişi yapın!!!',style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                  )),
-                  duration: Duration(seconds: 2,),
+                  content: Text(
+                      'Bu email, kullanıcı olarak kaydedilmiş.Lütfen kullanıcı girişi yapın!!!',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                      )),
+                  duration: Duration(
+                    seconds: 2,
+                  ),
                 ),
-
               );
             }
           }
         }
       }
-      }
+    }
   }
-
 }

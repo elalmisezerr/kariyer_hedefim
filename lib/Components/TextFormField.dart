@@ -5,7 +5,7 @@ class MyTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
   final validator;
-  MyTextField({
+  const MyTextField({
     super.key,
     required this.validator,
     required this.controller,
@@ -24,11 +24,11 @@ class MyTextField extends StatelessWidget {
         obscureText: obscureText,
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
+            borderSide: const BorderSide(color: Colors.white),
             borderRadius: BorderRadius.circular(20),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey.shade400),
+            borderSide: BorderSide(color:  Color(0xffbf1922)),
             borderRadius: BorderRadius.circular(20),
           ),
           fillColor: Colors.grey.shade200,

@@ -9,9 +9,11 @@ class User {
   String password;
   String telefon;
   String adres;
+  late bool isLoggedIn=false;
 
-  User({this.id,required this.ad,required this.soyad,required this.dogumtarihi, required this.email, required this.password, required this.telefon, required this.adres});
-  User.withOutId({required this.ad,required this.soyad,required this.dogumtarihi,required this.email, required this.password, required this.telefon, required this.adres});
+
+  User({this.id,required this.ad,required this.soyad,required this.dogumtarihi, required this.email, required this.password, required this.telefon, required this.adres,});
+  User.withOutId({required this.ad,required this.soyad,required this.dogumtarihi,required this.email, required this.password, required this.telefon, required this.adres,});
 
   factory User.fromObject(Map<String, dynamic> map) {
     return User(
@@ -23,10 +25,10 @@ class User {
       password: map['password'] as String,
       telefon: map['telefon'] as String,
       adres: map['adres'] as String,
-     );
-  }
+     )
+    ..isLoggedIn = map['isLoggedIn'] == 1;
 
-  get isAdmin => null;
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -38,6 +40,7 @@ class User {
       "password": password,
       "telefon":telefon,
       "adres":adres,
+      "isLoggedIn": isLoggedIn ? 1 : 0,
     };
   }
 }

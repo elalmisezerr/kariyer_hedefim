@@ -7,7 +7,7 @@ import 'package:kariyer_hedefim/Validation/ValidationUser.dart';
 
 import '../../Data/DbProvider.dart';
 import '../../Data/GoogleSignin.dart';
-import '../../Models/User.dart';
+import '../../Models/Kullanici.dart';
 
 class LoginGoogleUsers extends StatefulWidget {
   final GoogleSignInAccount userr;

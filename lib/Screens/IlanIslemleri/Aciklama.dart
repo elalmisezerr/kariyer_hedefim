@@ -2,9 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
-import 'package:kariyer_hedefim/Screens/IlanIslemleri/%C4%B0lanEkleme.dart';
-
-import '../../Models/Company.dart';
+import '../../Models/Kurum.dart';
 
 class RichTextEditorScreen extends StatefulWidget {
   RichTextEditorScreen({required this.controller,required this.text,required this.company,Key? key, required this.callback}) : super(key: key);
@@ -28,6 +26,17 @@ class _RichTextEditorScreenState extends State<RichTextEditorScreen> {
      if (widget.text != null && widget.text!.isNotEmpty) {
        final delta = Delta.fromJson(jsonDecode(widget.text!));
        _controller.document = Document.fromDelta(delta);
+       // _controller.addListener(() {
+       //   setState(() {
+       //     // Reset selection when content changes
+       //     _controller.updateSelection(
+       //       TextSelection.collapsed(offset: _controller.document.length),
+       //       ChangeSource.LOCAL,
+       //     );
+       //   });
+       // });
+
+
      }
    }
 

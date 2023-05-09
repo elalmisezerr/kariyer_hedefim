@@ -2,12 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kariyer_hedefim/Data/GoogleSignin.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/GirisKullanici.dart';
+import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciAnasayfa.dart';
+import 'package:kariyer_hedefim/Screens/SirketIslemleri/SirketAnasayfa.dart';
 import 'package:path/path.dart';
 
+import '../Data/DbProvider.dart';
+import '../Models/Kullanici.dart';
+import '../Models/Kurum.dart';
 import 'SirketIslemleri/GirisSirket.dart';
 
 class GirisEkrani extends StatelessWidget {
-  const GirisEkrani({Key? key}) : super(key: key);
+   GirisEkrani({Key? key}) : super(key: key);
+  var dbHelper = DatabaseProvider();
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +113,6 @@ class GirisEkrani extends StatelessWidget {
     return Builder(builder: (context) {
       return ElevatedButton(
         onPressed: () {
-          GoogleSignInApi.logout();
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => LoginCompany()));
         },
