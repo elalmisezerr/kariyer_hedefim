@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:flutter_quill/flutter_quill.dart' hide Text;
 import 'package:kariyer_hedefim/Models/Ilan.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciAnasayfa.dart';
 
@@ -22,31 +24,20 @@ class IlanDetay extends StatefulWidget {
 }
 
 class _IlanDetayState extends State<IlanDetay> {
-  var dbHelper = DatabaseProvider();
-  Future<Company?>? _companyFuture;
-  var email=TextEditingController();
-  var body=TextEditingController();
-  var subject=TextEditingController();
-  sendEmail (String subject, String body, String recipientemail) async {
-    final Email email = Email(
-      body: body,
-      subject: subject,
-      recipients: [recipientemail],
-// cc: ['cc@example.com'],
-// bcc: ['bcc@example.com'],
-// attachmentPaths: ['/path/to/attachment.zip'],
-      isHTML: false,
-    );
-    await FlutterEmailSender.send(email);
-  }
-
+  QuillController _controller = QuillController.basic();
+  bool showFullDescription = false;
   final _key = GlobalKey<FormState>();
+  var dbHelper = DatabaseProvider();
+  var email = TextEditingController();
+  var body = TextEditingController();
+  var subject = TextEditingController();
 
-  String dateFormatter(DateTime date) {
-    String formattedDate;
-    return formattedDate= "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
+  @override
+  void initState() {
+    _controller = convertJsonToQuillController(widget.ilanlar!.aciklama);
+    // TODO: implement initState
+    super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -54,8 +45,12 @@ class _IlanDetayState extends State<IlanDetay> {
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: (){
-            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>HomeUser(Myuser: widget.user)), (route) => false);
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HomeUser(Myuser: widget.user)),
+                (route) => false);
           },
         ),
         title: Text("Başvuru Sayfası"),
@@ -70,16 +65,71 @@ class _IlanDetayState extends State<IlanDetay> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                buildSubject(),
-                buildBody(),
-                buildRecipients(),
+                // buildSubject(),
+                // buildBody(),
+                // buildRecipients(),
+
+                Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Text(
+                          widget.ilanlar!.baslik.toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 20,
+                           fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16.0),
+                      if (!showFullDescription)
+                        Column(
+                          children: [
+                            Text(
+                              _controller.document.toPlainText(),
+                              maxLines: 3,
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  showFullDescription = true;
+                                });
+                              },
+                              child: Text('Daha Fazla Gör',textAlign: TextAlign.right,),
+                            ),
+                          ],
+                        ),
+                      if (showFullDescription)
+                        Column(
+                          children: [
+                            QuillEditor.basic(
+                              controller: _controller,
+                              readOnly: true,
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  showFullDescription = false;
+                                });
+                              },
+                              child: Text('Küçült'),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+
                 ElevatedButton(
                   onPressed: () async {
                     bool basvuruVarmi = await dbHelper.basvuruKontrolEt(
-                        widget.user!.id.toString(), widget.ilanlar!.id.toString());
+                        widget.user!.id.toString(),
+                        widget.ilanlar!.id.toString());
                     _key.currentState!.save();
-                    sendEmail(subject.text, body.text, email.text);
                     if (basvuruVarmi == false) {
+                      sendEmail(subject.text, body.text, email.text);
                       dbHelper.insertBasvuru(Basvuru.withoutId(
                         basvuruTarihi: DateTime.now().toString(),
                         ilanId: widget.ilanlar!.id.toString(),
@@ -88,7 +138,8 @@ class _IlanDetayState extends State<IlanDetay> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => HomeUser(Myuser: widget.user)));
+                              builder: (context) =>
+                                  HomeUser(Myuser: widget.user)));
                     } else {
                       _showResendDialog();
                     }
@@ -125,9 +176,9 @@ class _IlanDetayState extends State<IlanDetay> {
     );
   }
 
-  buildBody(){
+  buildBody() {
     return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 50,top: 30),
+      padding: const EdgeInsets.only(left: 50, right: 50, top: 30),
       child: TextField(
         maxLines: 3,
         controller: body,
@@ -142,9 +193,11 @@ class _IlanDetayState extends State<IlanDetay> {
         cursorColor: Colors.yellow,
       ),
     );
-  } buildSubject(){
+  }
+
+  buildSubject() {
     return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 50,top: 30),
+      padding: const EdgeInsets.only(left: 50, right: 50, top: 30),
       child: TextField(
         controller: subject,
         decoration: InputDecoration(
@@ -158,9 +211,11 @@ class _IlanDetayState extends State<IlanDetay> {
         cursorColor: Colors.yellow,
       ),
     );
-  }buildRecipients(){
+  }
+
+  buildRecipients() {
     return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 50,top: 30,bottom: 20),
+      padding: const EdgeInsets.only(left: 50, right: 50, top: 30, bottom: 20),
       child: TextField(
         controller: email,
         decoration: InputDecoration(
@@ -175,5 +230,36 @@ class _IlanDetayState extends State<IlanDetay> {
         cursorColor: Colors.yellow,
       ),
     );
+  }
+
+  String dateFormatter(DateTime date) {
+    String formattedDate;
+    return formattedDate =
+        "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
+  }
+
+  QuillController convertJsonToQuillController(String jsonString) {
+    var jsonMap = jsonDecode(jsonString);
+    Document doc = Document.fromJson(jsonMap);
+    QuillController controller = QuillController(
+        document: doc,
+        selection: TextSelection(
+          baseOffset: 0,
+          extentOffset: doc.length,
+        ));
+    return controller;
+  }
+
+  sendEmail(String subject, String body, String recipientemail) async {
+    final Email email = Email(
+      body: body,
+      subject: subject,
+      recipients: [recipientemail],
+// cc: ['cc@example.com'],
+// bcc: ['bcc@example.com'],
+// attachmentPaths: ['/path/to/attachment.zip'],
+      isHTML: false,
+    );
+    await FlutterEmailSender.send(email);
   }
 }

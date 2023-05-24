@@ -286,12 +286,14 @@ class _HomeState extends State<HomeUser> {
                   children: [
                     Icon(Icons.description, size: 16.0, color: Colors.white),
                     SizedBox(width: 5.0),
-                    Text(
-                      convertJsonToQuillController(ilanlar[position].aciklama).document.toPlainText(),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white,
+                    Expanded(
+                      child: Text(
+                        convertJsonToQuillController(ilanlar[position].aciklama).document.toPlainText(),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ],
