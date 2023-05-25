@@ -23,57 +23,43 @@ class GirisEkrani extends StatelessWidget {
     var en = MediaQuery.of(context).size.width;
     return WillPopScope(
       onWillPop: () async {
-        bool exit = await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: BorderSide(
-                  color: Colors.black,
-                  width: 3,
-                ),
-              ),
-              backgroundColor: Color(0xffbf1922),
+        bool exit = await
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor:Color(0xffbf1922),
               title: Text(
                 "Uygulamadan çıkmak istiyor musunuz?",
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white),
               ),
               actions: <Widget>[
                 TextButton(
-                  style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.white),
-                  ),
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text(
+                  child: const Text(
                     "HAYIR",
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Color(0xffbf1922)),
+                      color: Colors.white,
+                    ),
                   ),
                 ),
                 TextButton(
-                  style: ButtonStyle(
-                    backgroundColor:
-                    MaterialStateProperty.all<Color>(Colors.white),
-                  ),
                   onPressed: () {
                     Navigator.of(context).pop(true);
                     GoogleSignInApi.logout();
                     SystemNavigator.pop();
                   },
-                  child: Text(
+                  child: const Text(
                     "EVET",
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Color(0xffbf1922)),
+                      color: Colors.white,
+                    ),
                   ),
-                ),
+                )
               ],
-            );
-          },
-        );
+            ));
         return exit;
       },
       child: Scaffold(

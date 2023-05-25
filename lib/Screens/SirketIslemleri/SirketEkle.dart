@@ -44,10 +44,6 @@ class _CompanyAddState extends State<CompanyAdd>
             return AlertDialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
-                side: BorderSide(
-                  color: Colors.black,
-                  width: 3,
-                ),
               ),
               backgroundColor: Color(0xffbf1922),
               title: Text(
@@ -124,7 +120,7 @@ class _CompanyAddState extends State<CompanyAdd>
                 ),
                 buildAdres(),
                 SizedBox(
-                  height: 5.0,
+                  height: 20,
                 ),
                 buildSaveButton()
               ],
@@ -277,68 +273,59 @@ class _CompanyAddState extends State<CompanyAdd>
   }
 
   buildSaveButton() {
-    return TextButton(
-      onPressed: () async {
-        if(txtpassWord.text==txtpassWord2.text){
-          if (formKey.currentState!.validate()) {
-            formKey.currentState!.save();
-            bool kullaniciVarMi =
-            await dbHelper.kullaniciAdiKontrolEt(txtuserName.text);
-            bool sirketVarmi =
-            await dbHelper.sirketAdiKontrolEt(txtuserName.text);
-            bool kayitVarmi = sirketVarmi || kullaniciVarMi;
-            if (kayitVarmi == false) {
-              addCompanies();
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => LoginCompany()));
-              String email = 'szrelalmis@gmail.com';
-              await dbHelper.checkIsAdmin(email);
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+
+      child: ElevatedButton(
+        onPressed: () async {
+          if(txtpassWord.text==txtpassWord2.text){
+            if (formKey.currentState!.validate()) {
+              formKey.currentState!.save();
+              bool kullaniciVarMi =
+              await dbHelper.kullaniciAdiKontrolEt(txtuserName.text);
+              bool sirketVarmi =
+              await dbHelper.sirketAdiKontrolEt(txtuserName.text);
+              bool kayitVarmi = sirketVarmi || kullaniciVarMi;
+              if (kayitVarmi == false) {
+                addCompanies();
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => LoginCompany()));
+                String email = 'szrelalmis@gmail.com';
+                await dbHelper.checkIsAdmin(email);
+              } else {
+                if (sirketVarmi == true && kullaniciVarMi == false) {
+                  _showResendDialog();
+                }
+                if (sirketVarmi == false && kullaniciVarMi == true) {
+                  _showResendDialog2();
+                }
+              }
             } else {
-              if (sirketVarmi == true && kullaniciVarMi == false) {
-                _showResendDialog();
-              }
-              if (sirketVarmi == false && kullaniciVarMi == true) {
-                _showResendDialog2();
-              }
+              print("Eksik bilgi!!");
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Invalid login credentials.'),
+                ),
+              );
             }
-          } else {
-            print("Eksik bilgi!!");
+
+          }else{
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Invalid login credentials.'),
-              ),
-            );
+                SnackBar(
+                  backgroundColor: Color(0xffbf1922),
+                  content: Text('Şifreler uyuşmuyor!!!.',textAlign: TextAlign.center,),
+
+                ));
           }
-
-        }else{
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: Color(0xffbf1922),
-                content: Text('Şifreler uyuşmuyor!!!.',textAlign: TextAlign.center,),
-
-              ));
-        }
-      },
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        margin: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-        padding: EdgeInsets.symmetric(vertical: 15),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(50)),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-                color: Colors.black,
-                offset: Offset(2, 4),
-                blurRadius: 5,
-                spreadRadius: 2),
-          ],
-          color: Color(0xffbf1922),
-        ),
+        },
         child: Text(
           "Ekle",
           style: TextStyle(fontSize: 20, color: Colors.white),
-        ),
+        ),style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10)),
+          primary: Color(0xffbf1922)),
       ),
     );
   }

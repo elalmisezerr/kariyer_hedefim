@@ -38,32 +38,26 @@ class _ResetPasswordPageStateUser extends State<ResetPasswordPageUser> {
           key: _formKey,
           child: Column(
             children: <Widget>[
-              TextFormField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  labelText: 'E-posta Adresi',
-                  hintText: 'example@example.com',
-                ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'E-posta adresi zorunlu';
-                  }
-                  return null;
-                },
-              ),
+              SizedBox(height: 16.0),
+              buildEmail(),
               SizedBox(height: 16.0),
               ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>( Color(0xffbf1922)),
+                child: Text(
+                  "Gönder",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
-                child: Text('Şifre Sıfırlama Bağlantısı Gönder'),
+                style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    shape:
+                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    primary: Color(0xffbf1922)),
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                   var temp= await dbHelper.sirketAdiKontrolEt(emailController.text);
+                    var temp= await dbHelper.kullaniciAdiKontrolEt(emailController.text);
                     if(temp){
                       sendEmail();
                     }else{
-                     _showResendDialog();
+                      _showResendDialog();
                     }
                   }
                 },
@@ -74,6 +68,31 @@ class _ResetPasswordPageStateUser extends State<ResetPasswordPageUser> {
       ),
     );
   }
+  buildEmail() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 30, right: 30, bottom: 20),
+      child: TextFormField(
+        validator: (value) {
+          if (value!.isEmpty) {
+            return 'E-posta adresi zorunlu';
+          }
+          return null;
+        },
+        controller: emailController,
+        keyboardType: TextInputType.emailAddress,
+        decoration: InputDecoration(
+            prefixIcon: Icon(Icons.email),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            hintText: "example@example.com",
+            labelText: "E-posta Adresi",
+            filled: true,
+            fillColor: Colors.white),
+        cursorColor: Colors.yellow,
+      ),
+    );
+  }
+
   void _showResendDialog() {
     AlertDialog alert = AlertDialog(
       title: Text("Uyarı"),
@@ -115,56 +134,125 @@ class _ResetPasswordPageStateUser extends State<ResetPasswordPageUser> {
       final sendReport = await send(message, smtpServer);
       print('E-posta gönderildi: ' + sendReport.toString());
       showDialog(
-        context: context,
-        builder: (context) =>
-            AlertDialog(
-              title: Text('Başarılı'),
-              content: Text('Şifre sıfırlama bağlantısı gönderildi'),
-              actions: <Widget>[
-                ElevatedButton(
-                  child: Text('Tamam'),
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ResetPasswordVerificationPageUser(email: emailController.text,kod: resetCode,)));
-                  },
-                ),
-              ],
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: Color(0xffbf1922),
+            title: Text(
+              "Başarılı",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white),
             ),
-      );
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text(
+                    "Şifre sıfırlama bağlantısı gönderildi",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResetPasswordVerificationPageUser(email: emailController.text,kod: resetCode,)));
+                },
+                child: const Text(
+                  "Tamam",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+
+            ],
+          ));
     } on MailerException catch (e) {
       print('Hata: $e');
       showDialog(
-        context: context,
-        builder: (context) =>
-            AlertDialog(
-              title: Text('Hata'),
-              content: Text('E-posta gönderilemedi'),
-              actions: <Widget>[
-                ElevatedButton(
-                  child: Text('Tamam'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: Color(0xffbf1922),
+            title: Text(
+              "Hata",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white),
             ),
-      );
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text(
+                    "E-posta gönderilemedi",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  "Tamam",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+
+            ],
+          ));
     } catch (e) {
       print('Hata: $e');
       showDialog(
-        context: context,
-        builder: (context) =>
-            AlertDialog(
-              title: Text('Hata'),
-              content: Text('Beklenmeyen bir hata oluştu'),
-              actions: <Widget>[
-                ElevatedButton(
-                  child: Text('Tamam'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: Color(0xffbf1922),
+            title: Text(
+              "Hata",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white),
             ),
-      );
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text(
+                    "Beklenmeyen bir hata oluştu",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  "Tamam",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+
+            ],
+          ));
     }
   }}

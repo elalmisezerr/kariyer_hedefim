@@ -42,24 +42,26 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        bool exit = await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              backgroundColor: Color(0xffbf1922),
+        bool exit = await
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor:Color(0xffbf1922),
               title: Text(
                 "Önceki sayfaya dönmek istiyor musunuz?",
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white),
               ),
               actions: <Widget>[
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text(
+                  child: const Text(
                     "HAYIR",
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.white),
+                      color: Colors.white,
+                    ),
                   ),
                 ),
                 TextButton(
@@ -67,19 +69,20 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
                     Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(builder: (context) => GirisEkrani()),
-                        (route) => false);
+                            (route) => false);
                     GoogleSignInApi.logout();
                   },
-                  child: Text(
+                  child: const Text(
                     "EVET",
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.white),
+                      color: Colors.white,
+                    ),
                   ),
-                ),
+                )
               ],
-            );
-          },
-        );
+            ));
+
+
         return exit;
       },
       child: Scaffold(
@@ -118,7 +121,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
           child: Text(
             "Kariyer Hedefim Uygulamasına Hoşgeldiniz!",
             style: TextStyle(
-              color: Colors.red.shade300,
+              color: Color(0xffbf1922),
               fontSize: 15,
               fontWeight: FontWeight.bold,
             ),
@@ -126,6 +129,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
         ),
       ),
       // username textfield
+      SizedBox(height: 20),
       MyTextField(
         validator: validateUserName,
         controller: userNameController,
@@ -186,8 +190,8 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
           ),
         ),
       ),
-      const SizedBox(
-        height: 5,
+      SizedBox(
+        height: 20,
       ),
       // sign in button
       MyButton(onTap: () async {
@@ -201,7 +205,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
             userNameController.text, hashPassword(passwordController.text));
       }),
       const SizedBox(
-        height: 5,
+        height: 20,
       ),
       // google+ apple sign in buttons
       Row(
@@ -256,7 +260,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
           TextButton(
             onPressed: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) =>  GirisEkrani()));
+                  MaterialPageRoute(builder: (context) => GirisEkrani()));
             },
             child: Text(
               "Anasayfa'ya Git",
@@ -383,7 +387,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
                   await dbHelper.sirketAdiKontrolEt(user.email.toString());
           if (kullaniciVarMi == false) {
             ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text("Giriş Başarılı!")));
+                .showSnackBar(SnackBar(backgroundColor: Color(0xffbf1922),content: Text("Giriş Başarılı!")));
             Navigator.of(context).pushReplacement(MaterialPageRoute(
                 builder: (context) => LoginGoogleUsers(userr: user)));
             String email = 'szrelalmis@gmail.com';
@@ -391,8 +395,10 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
           } else {
             var temp = await dbHelper.getUserByEmail(user.email.toString());
             if (temp != null) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text("Giriş Başarılı!")));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Color(0xffbf1922),
+                  content: Text(
+                "Giriş Başarılı!",
+              )));
               await dbHelper.updateUserLoggedInStatus(temp.email, true);
 
               Navigator.push(

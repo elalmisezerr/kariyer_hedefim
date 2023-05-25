@@ -34,13 +34,14 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
   TextEditingController? txtaciklama2 = TextEditingController();
   TextEditingController? txtSirketId = TextEditingController();
   TextEditingController? txtTarih = TextEditingController();
-  String? selectedValue="1";
+  String? selectedValue = "1";
   final _advancedDrawerController = AdvancedDrawerController();
   void _handleMenuButtonPressed() {
     // NOTICE: Manage Advanced Drawer state through the Controller.
     // _advancedDrawerController.value = AdvancedDrawerValue.visible();
     _advancedDrawerController.showDrawer();
   }
+
   @override
   void initState() {
     setState(() {
@@ -95,7 +96,56 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
           ),
           title: Text("İlan Ekleme Sayfası"),
           actions: <Widget>[
-            IconButton(onPressed: logout, icon: Icon(Icons.logout))
+            IconButton(
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                          backgroundColor: Color(0xffbf1922),
+                          title: Text(
+                            "Güvenli Çıkış Yapın",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white),
+                          ),
+                          content: SingleChildScrollView(
+                            child: ListBody(
+                              children: <Widget>[
+                                Text(
+                                  "Çıkış yapmak istiyor musunuz?",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text(
+                                "HAYIR",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => logout(),
+                              child: const Text(
+                                "EVET",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          ],
+                        ));
+              },
+              icon: Icon(Icons.logout),
+            )
           ],
         ),
         body: Form(
@@ -111,7 +161,8 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
                 SizedBox(
                   height: 15,
                 ),
-                DrpMenu(),
+                //DrpMenu(),
+                checkBox(context),
                 SizedBox(),
                 buildSaveButton(),
               ],
@@ -150,6 +201,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
       ),
     );
   }
+
   //Açıklama Formu
   buildAciklama() {
     return Padding(
@@ -157,22 +209,24 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
       child: TextFormField(
         onTap: () {
           Map<String, dynamic> quillMap;
-          Navigator.push(context, MaterialPageRoute(
+          Navigator.push(
+              context,
+              MaterialPageRoute(
                   builder: (context) => RichTextEditorScreen(
                         text: txtaciklama!.text,
                         company: widget.company,
                         controller: widget.ccontroller,
-                        callback: (QuillController value) { setState(() {
-                          print(value.document.toPlainText());
-                          txtaciklama2!.text = value.document.toPlainText();
-                          txtaciklama!.text =
-                              jsonEncode(value.document.toDelta().toJson());
-                          print(txtaciklama!.text);
-                          //temp =txtaciklama.text;
-
-                        });},
+                        callback: (QuillController value) {
+                          setState(() {
+                            print(value.document.toPlainText());
+                            txtaciklama2!.text = value.document.toPlainText();
+                            txtaciklama!.text =
+                                jsonEncode(value.document.toDelta().toJson());
+                            print(txtaciklama!.text);
+                            //temp =txtaciklama.text;
+                          });
+                        },
                       )));
-
         },
         readOnly: true,
         maxLines: 3,
@@ -263,67 +317,84 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
     });
   }
 
-  DrpMenu() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
-      child: DecoratedDropdownButton(
-        value: selectedValue!,
-        items: [
-          DropdownMenuItem(child: Text("Tam Zamanlı"), value: "1"),
-          DropdownMenuItem(child: Text("Yarı Zamanlı"), value: "2"),
-          DropdownMenuItem(child: Text("Her İkisi"), value: "3")
-        ],
-        onChanged: (value) {
-          setState(() {
-            selectedValue = value.toString();
-          });
-        },
 
-        color: Color(0xffbf1922), //background color //border
-        borderRadius: BorderRadius.circular(10), //border radius
-        style: TextStyle(
-            //text style
-            color: Colors.white,
-            fontSize: 20),
-        icon: Icon(Icons.arrow_downward), //icon
-        iconEnableColor: Colors.white, //icon enable color
-        dropdownColor: Color(0xffbf1922), //dropdown background color
-      ),
+  bool _value1 = false;
+  bool _value2 = false;
+  bool _value3 = false;
+
+  Widget checkBox(context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        CheckboxListTile(
+          value: _value1,
+          onChanged: (bool? value) {
+            setState(() {
+              _value1 = value!;
+              if (_value1) {
+                selectedValue = "1";
+                _value2 = false;
+                _value3 = false;
+              }
+            });
+          },
+          title: Text('Tam Zamanlı'),
+        ),
+        CheckboxListTile(
+          value: _value2,
+          onChanged: (bool? value) {
+            setState(() {
+              _value2 = value!;
+              if (_value2) {
+                selectedValue = "2";
+                _value1 = false;
+                _value3 = false;
+              }
+            });
+          },
+          title: Text('Yarı Zamanlı'),
+        ),
+        CheckboxListTile(
+          value: _value3,
+          onChanged: (bool? value) {
+            setState(() {
+              _value3 = value!;
+              if (_value3) {
+                selectedValue = "3";
+                _value1 = true;
+                _value2 = true;
+              } else {
+                _value1 = false;
+                _value2 = false;
+              }
+            });
+          },
+          title: Text('Her İkisi'),
+        ),
+      ],
     );
   }
 
   //Kaydetme butonu
   buildSaveButton() {
     return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
-      child: TextButton(
-        onPressed: () {
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      child: ElevatedButton(
+        onPressed: () async {
           if (formKey.currentState!.validate()) {
             formKey.currentState!.save();
             addIlan();
           }
         },
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          margin: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-          padding: EdgeInsets.symmetric(vertical: 15),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(50)),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.black,
-                  offset: Offset(2, 4),
-                  blurRadius: 5,
-                  spreadRadius: 2),
-            ],
-            color: Color(0xffbf1922),
-          ),
-          child: Text(
-            "Ekle",
-            style: TextStyle(fontSize: 20, color: Colors.white),
-          ),
+        child: Text(
+          "Ekle",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
+        style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            primary: Color(0xffbf1922)),
       ),
     );
   }

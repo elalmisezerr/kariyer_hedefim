@@ -24,17 +24,10 @@ class _BasvuruGoruntuleState extends State<BasvuruGoruntule> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xffbf1922),
-        automaticallyImplyLeading: false,
-        centerTitle: true,
         title: Text("Başvuranlar"),
       ),
       body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assect/images/arkabir.png"),
-            fit: BoxFit.cover,
-          ),
-        ),
+
         child: FutureBuilder<List<User>>(
           future: dbHelper
               .getKullanicilarByIlanlarId(widget.ilanlar!.id.toString()),

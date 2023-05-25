@@ -30,94 +30,202 @@ class _ResetPasswordVerificationPageState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xffbf1922),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => ResetPasswordPage()));
-          },
-        ),
-        title: Text('Şifre Sıfırlama'),
-        automaticallyImplyLeading: false,
+    return WillPopScope(
+      onWillPop: () async {
+        bool exit = await
 
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: <Widget>[
-              Text(
-                'Şifre sıfırlama kodu e-posta adresinize gönderildi.',
-                style: TextStyle(fontSize: 16),
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor:Color(0xffbf1922),
+              title: Text(
+                "Güvenli Çıkış Yapın",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white),
               ),
-              SizedBox(height: 16.0),
-              Text(
-                'Lütfen aşağıya kodu girin:',
-                style: TextStyle(fontSize: 16),
-              ),
-              SizedBox(height: 16.0),
-              TextFormField(
-                controller: codeController,
-                keyboardType: TextInputType.number,
-                maxLength: 6,
-                decoration: InputDecoration(
-                  labelText: 'Şifre Sıfırlama Kodu',
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text(
+                      "Çıkış yapmak istiyor musunuz?",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: Colors.white),
+                    ),
+                  ],
                 ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Kod zorunlu';
-                  } else if (value.length != 6) {
-                    return 'Kod 6 haneli olmalı';
-                  }
-                  return null;
-                },
               ),
-              SizedBox(height: 16.0),
-              ElevatedButton(
-                child: _isLoading ? CircularProgressIndicator() : Text('Devam'),
-                onPressed: _isLoading
-                    ? null
-                    : () {
-                        if (_formKey.currentState!.validate()) {
-                          if (widget.kod == codeController.text) {
-                            showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                      title: Text('Hata'),
-                                      content: Text('Kodunuz Doğrulandı Şifre Sıfırlayabilirsiniz!!:)'),
-                                      actions: <Widget>[
-                                        ElevatedButton(
-                                          child: Text('Tamam'),
-                                          onPressed: () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        PasswordRecover(email: widget.email,)));
-                                          },
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text(
+                    "HAYIR",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginCompany()),
+                  ),
+                  child: const Text(
+                    "EVET",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                )
+              ],
+            ));
+        return exit;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Color(0xffbf1922),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ResetPasswordPage()));
+            },
+          ),
+          title: Text('Şifre Sıfırlama'),
+          automaticallyImplyLeading: false,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: <Widget>[
+                SizedBox(height: 16.0),
+                Text(
+                  'Lütfen aşağıya 6 haneli kodu girin',
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 40.0),
+                buildPassword2(),
+                SizedBox(height: 16.0),
+                ElevatedButton(
+                  child: _isLoading
+                      ? CircularProgressIndicator()
+                      : Text(
+                          'Devam',
+                          style: TextStyle(fontSize: 20, color: Colors.white),
+                        ),
+                  style: ElevatedButton.styleFrom(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      primary: Color(0xffbf1922)),
+                  onPressed: _isLoading
+                      ? null
+                      : () {
+                          if (_formKey.currentState!.validate()) {
+                            if (widget.kod == codeController.text) {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    backgroundColor:Color(0xffbf1922),
+                                    title: Text(
+                                      "Başarılı",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white),
+                                    ),
+                                    content: SingleChildScrollView(
+                                      child: ListBody(
+                                        children: <Widget>[
+                                          Text(
+                                            "Kodunuz Doğrulandı Şifre Sıfırlayabilirsiniz.",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.normal,
+                                                color: Colors.white),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      PasswordRecover(
+                                                        email: widget.email,
+                                                      )));
+                                        },
+                                        child: const Text(
+                                          "Tamam",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
                                         ),
-                                      ],
-                                    ));
+                                      ),
+                                    ],
+                                  ));
+
+                            }
                           }
-                        }
-                      },
-              ),
-              SizedBox(height: 16.0),
-              TextButton(
-                child: Text('Şifre Sıfırlama E-postasını Tekrar Gönder'),
-                onPressed: _isLoading
-                    ? null
-                    : () {
-                        sendEmail();
-                      },
-              ),
-            ],
+                        },
+                ),
+                SizedBox(height: 16.0),
+                TextButton(
+                  child: Text(
+                    ' Şifre Sıfırlama E-postasını Tekrar Gönder',
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Color(0xffbf1922),
+                        fontWeight: FontWeight.normal),
+                  ),
+                  onPressed: _isLoading
+                      ? null
+                      : () {
+                          sendEmail();
+                        },
+                ),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  buildPassword2() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 30, right: 30, bottom: 20),
+      child: TextFormField(
+        maxLength: 6,
+        validator: (value) {
+          if (value!.isEmpty) {
+            return 'Kod zorunlu';
+          } else if (value.length != 6) {
+            return 'Kod 6 haneli olmalı';
+          }
+          return null;
+        },
+        controller: codeController,
+        obscureText: true,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+            prefixIcon: Icon(Icons.lock),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            hintText: "12345",
+            labelText: "Şifrenizi girin",
+            filled: true,
+            fillColor: Colors.white),
+        cursorColor: Colors.yellow,
       ),
     );
   }
@@ -146,173 +254,332 @@ class _ResetPasswordVerificationPageState
       final sendReport = await send(message, smtpServer);
       print('E-posta gönderildi: ' + sendReport.toString());
       showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Başarılı'),
-          content: Text('Şifre sıfırlama bağlantısı gönderildi'),
-          actions: <Widget>[
-            ElevatedButton(
-              child: Text('Tamam'),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ResetPasswordVerificationPage(
-                              email: widget.email,
-                              kod: resetCode,
-                            )));
-              },
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor:Color(0xffbf1922),
+            title: Text(
+              "Başarılı",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white),
             ),
-          ],
-        ),
-      );
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text(
+                    "Şifre sıfırlama bağlantısı gönderildi",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ResetPasswordVerificationPage(
+                            email: widget.email,
+                            kod: resetCode,
+                          )));
+                },
+                child: const Text(
+                  "Tamam",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ));
+
     } on MailerException catch (e) {
       print('Hata: $e');
       showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Hata'),
-          content: Text('E-posta gönderilemedi'),
-          actions: <Widget>[
-            ElevatedButton(
-              child: Text('Tamam'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: Color(0xffbf1922),
+            title: Text(
+              "Hata",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white),
             ),
-          ],
-        ),
-      );
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text(
+                    "E-posta gönderilemedi",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  "Tamam",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+
+            ],
+          ));
     } catch (e) {
       print('Hata: $e');
       showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Hata'),
-          content: Text('Beklenmeyen bir hata oluştu'),
-          actions: <Widget>[
-            ElevatedButton(
-              child: Text('Tamam'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: Color(0xffbf1922),
+            title: Text(
+              "Hata",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white),
             ),
-          ],
-        ),
-      );
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text(
+                    "Beklenmeyen bir hata oluştu",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  "Tamam",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+
+            ],
+          ));
     }
   }
 }
 
 class PasswordRecover extends StatefulWidget {
   final String email;
-    PasswordRecover({Key? key, required this.email}) : super(key: key);
+  PasswordRecover({Key? key, required this.email}) : super(key: key);
 
   @override
   State<PasswordRecover> createState() => _PasswordRecoverState();
 }
 
-class _PasswordRecoverState extends State<PasswordRecover> with ValidationCompanyAddMixin {
+class _PasswordRecoverState extends State<PasswordRecover>
+    with ValidationCompanyAddMixin {
   var txtpassWord = TextEditingController();
   var txtpassWord2 = TextEditingController();
   var formKey = GlobalKey<FormState>();
   var dbHelper = DatabaseProvider();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Şifrenizi Değiştirin"),
-      ),
-      body: Form(
-        key: formKey,
-        child: Center(
-            child: ListView(
-              children: [
-                buildPassword(),
-                buildPassword2(),
-                buildSaveButton()
+    return WillPopScope(
+      onWillPop: () async {
+        bool exit = await
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor:Color(0xffbf1922),
+              title: Text(
+                "Güvenli Çıkış Yapın",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white),
+              ),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text(
+                      "Çıkış yapmak istiyor musunuz?",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text(
+                    "HAYIR",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginCompany()),
+                  ),
+                  child: const Text(
+                    "EVET",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                )
               ],
+            ));
+        return exit;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Color(0xffbf1922),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => LoginCompany()));
+            },
+          ),
+          title: Text('Şifrenizi Sıfırlamayın'),
+          automaticallyImplyLeading: false,
+        ),
+        body: Form(
+          key: formKey,
+          child: Center(
+            child: ListView(
+              children: [SizedBox(height: 40,),buildPassword3(), buildPassword4(), SizedBox(height: 20,),buildSaveButton()],
             ),
+          ),
         ),
       ),
     );
   }
-  buildPassword() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Şifrenizi girin",
-          textAlign: TextAlign.left,
-        ),
-        SizedBox(height: 5.0),
-        TextFormField(
-          validator: validatePassword,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
+  buildPassword3() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 30, right: 30, bottom: 20),
+      child: TextFormField(
+        validator: (value) {
+          if (value!.isEmpty) {
+            return 'Kod zorunlu';
+          } else if (value.length != 6) {
+            return 'Kod 6 haneli olmalı';
+          }
+          return null;
+        },
+        controller: txtpassWord,
+        obscureText: true,
+        keyboardType: TextInputType.visiblePassword,
+        decoration: InputDecoration(
             prefixIcon: Icon(Icons.lock),
-          ),
-          controller: txtpassWord,
-          obscureText: true,
-          keyboardType: TextInputType.visiblePassword,
-        )
-      ],
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            hintText: "12345",
+            labelText: "Şifrenizi girin",
+            filled: true,
+            fillColor: Colors.white),
+        cursorColor: Colors.yellow,
+      ),
     );
   }
-  buildPassword2() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Şifrenizi girin",
-          textAlign: TextAlign.left,
-        ),
-        SizedBox(height: 5.0),
-        TextFormField(
-          validator: validatePassword,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
+  buildPassword4() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 30, right: 30, bottom: 20),
+      child: TextFormField(
+        validator: (value) {
+          if (value!.isEmpty) {
+            return 'Kod zorunlu';
+          } else if (value.length != 6) {
+            return 'Kod 6 haneli olmalı';
+          }
+          return null;
+        },
+        controller: txtpassWord2,
+        obscureText: true,
+        keyboardType: TextInputType.visiblePassword,
+        decoration: InputDecoration(
             prefixIcon: Icon(Icons.lock),
-          ),
-          controller: txtpassWord2,
-          obscureText: true,
-          keyboardType: TextInputType.visiblePassword,
-        )
-      ],
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            hintText: "12345",
+            labelText: "Şifrenizi girin",
+            filled: true,
+            fillColor: Colors.white),
+        cursorColor: Colors.yellow,
+      ),
     );
   }
+
   String hashPassword(String password) {
     var bytes = utf8.encode(password);
     var digest = sha256.convert(bytes);
     return digest.toString();
   }
-  buildSaveButton(){
-    return TextButton(onPressed: () async {
-      if (formKey.currentState!.validate()){
-        formKey.currentState!.save();
-        var temp=await dbHelper.getCompanyByEmail(widget.email);
-        if(txtpassWord.text==txtpassWord2.text){
-          temp!.sifre=hashPassword(txtpassWord2.text);
-          print(temp.sifre);
-          await dbHelper.updateCompany(temp);
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginCompany()));
-        }else{
-          print("Hatalı Giriş");
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Color(0xffbf1922),
-              content: Text('Giriş Bilgileri Hatalı!!!',style: TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-              )),
-              duration: Duration(seconds: 2,),
-            ),
-
-          );
-        }
-
-      }
-    }, child: Text("Şifreyi güncelle"));
+  buildSaveButton() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      child: ElevatedButton(
+        onPressed: () async {
+          if (formKey.currentState!.validate()) {
+            formKey.currentState!.save();
+            var temp = await dbHelper.getCompanyByEmail(widget.email);
+            if (txtpassWord.text == txtpassWord2.text) {
+              temp!.sifre = hashPassword(txtpassWord2.text);
+              print(temp.sifre);
+              await dbHelper.updateCompany(temp);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => LoginCompany()));
+            } else {
+              print("Hatalı Giriş");
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: Color(0xffbf1922),
+                  content: Text('Giriş Bilgileri Hatalı!!!',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                      )),
+                  duration: Duration(
+                    seconds: 2,
+                  ),
+                ),
+              );
+            }
+          }
+        },
+        child: Text(
+          "Şifreyi Güncelle",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            primary: Color(0xffbf1922)),
+      ),
+    );
   }
 
 }

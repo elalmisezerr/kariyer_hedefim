@@ -47,13 +47,24 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
   void initState() {
     widget.ccontroller = convertJsonToQuillController(ilanlar!.aciklama);
     txtBaslik.text = ilanlar?.baslik ?? '';
-    txtaciklama.text=ilanlar!.aciklama;
+    txtaciklama.text = ilanlar!.aciklama;
     txtaciklama2.text =
         convertJsonToQuillController(ilanlar!.aciklama).document.toPlainText();
     txtSirketId.text = ilanlar?.sirket_id?.toString() ?? '';
     txtTarih.text = ilanlar?.tarih ?? '';
     temp = ilanlar?.calisma_zamani.toString() ?? '';
     selectedValue = ilanlar?.calisma_zamani.toString() ?? '';
+
+    if (temp == '1') {
+      _value1 = true;
+    } else if (temp == '2') {
+      _value2 = true;
+    } else if (temp == '3') {
+      _value1 = true;
+      _value2 = true;
+      _value3 = true;
+    }
+
     super.initState();
   }
 
@@ -64,16 +75,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
         centerTitle: true,
         backgroundColor: Color(0xffbf1922),
         title: Text("${widget.ilanlar!.baslik}".toUpperCase()),
-        actions: <Widget>[
-          PopupMenuButton<Options>(
-              onSelected: selectProcess,
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<Options>>[
-                    const PopupMenuItem<Options>(
-                      value: Options.delete,
-                      child: Text("Sil"),
-                    ),
-                  ])
-        ],
+
       ),
       body: Form(
         key: formKey,
@@ -85,8 +87,10 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
               SizedBox(),
               buildAciklama(),
               buildTarih(),
-              DropdownButon1(),
-              SizedBox(height: 10,),
+              checkBox(context),
+              SizedBox(
+                height: 10,
+              ),
               buildUpdateButton(),
               buildBasvuranlarButton(),
             ],
@@ -99,7 +103,8 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
   QuillController convertJsonToQuillController(String jsonString) {
     if (jsonString.isEmpty) {
       // Handle the empty JSON string case
-      return QuillController.basic(); // Or throw an exception, depending on your requirements
+      return QuillController
+          .basic(); // Or throw an exception, depending on your requirements
     }
 
     var jsonMap = jsonDecode(jsonString);
@@ -230,29 +235,60 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
     );
   }
 
-  DropdownButon1() {
-    return DecoratedDropdownButton(
-      value: selectedValue,
-      items: [
-        DropdownMenuItem(child: Text("Tam Zamanlı"), value: "1"),
-        DropdownMenuItem(child: Text("Yarı Zamanlı"), value: "2"),
-        DropdownMenuItem(child: Text("Her İkisi"), value: "3")
+  bool _value1 = false;
+  bool _value2 = false;
+  bool _value3 = false;
+
+  Widget checkBox(context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        CheckboxListTile(
+          value: _value1,
+          onChanged: (bool? value) {
+            setState(() {
+              _value1 = value!;
+              if (_value1) {
+                temp = "1";
+                _value2 = false;
+                _value3 = false;
+              }
+            });
+          },
+          title: Text('Tam Zamanlı'),
+        ),
+        CheckboxListTile(
+          value: _value2,
+          onChanged: (bool? value) {
+            setState(() {
+              _value2 = value!;
+              if (_value2) {
+                temp = "2";
+                _value1 = false;
+                _value3 = false;
+              }
+            });
+          },
+          title: Text('Yarı Zamanlı'),
+        ),
+        CheckboxListTile(
+          value: _value3,
+          onChanged: (bool? value) {
+            setState(() {
+              _value3 = value!;
+              if (_value3) {
+                temp = "3";
+                _value1 = true;
+                _value2 = true;
+              } else {
+                _value1 = false;
+                _value2 = false;
+              }
+            });
+          },
+          title: Text('Her İkisi'),
+        ),
       ],
-      onChanged: (value) {
-        setState(() {
-          selectedValue = value.toString();
-          temp = value.toString();
-        });
-      },
-      color: Color(0xffbf1922), //background colorer
-      borderRadius: BorderRadius.circular(20), //border radius
-      style: TextStyle(
-          //text style
-          color: Colors.white,
-          fontSize: 20),
-      icon: Icon(Icons.arrow_downward), //icon
-      iconEnableColor: Colors.white, //icon enable color
-      dropdownColor: Color(0xffbf1922), //dropdown background color
     );
   }
 
@@ -273,129 +309,189 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
   //Kaydetme butonu
   buildUpdateButton() {
     return Row(
-      children:[
+      children: [
         Expanded(
           flex: 2,
-          child: TextButton(
+          child: ElevatedButton(
             onPressed: () async {
-              Ilanlar updatedIlan;
-              if (formKey.currentState!.validate()) {
-                formKey.currentState!.save();
-                if (ilanlar!.baslik != txtBaslik.text || ilanlar!.aciklama != txtaciklama.text || ilanlar!.tarih != txtTarih.text || company!.id != ilanlar!.sirket_id || int.parse(temp!) != ilanlar!.calisma_zamani) {
-                  updatedIlan = Ilanlar(
-                    id: ilanlar!.id,
-                    baslik: txtBaslik.text,
-                    aciklama: txtaciklama.text,
-                    tarih: txtTarih.text,
-                    sirket_id: company!.id,
-                    calisma_zamani: int.parse(temp!),
-                  );
-                } else {
-                  updatedIlan = ilanlar!;
-                }
-                await dbHelper.updateIlan(updatedIlan);
-              }
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    backgroundColor:Color(0xffbf1922),
+                    title: Text('Kaydı Güncelle',textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white),),
+                    content: SingleChildScrollView(
+                      child: ListBody(
+                        children: <Widget>[
+                          Text(
+                            "Kaydı güncellemek istediğinize emin misiniz?",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        child: Text('HAYIR',style: TextStyle(
+                          color: Colors.white,
+                        ),),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      TextButton(
+                        child: Text('EVET',style: TextStyle(
+                          color: Colors.white,
+                        ),),
+                        onPressed: () async {
+                          Ilanlar updatedIlan;
+                          if (formKey.currentState!.validate()) {
+                            formKey.currentState!.save();
+                            if (ilanlar!.baslik != txtBaslik.text ||
+                                ilanlar!.aciklama != txtaciklama.text ||
+                                ilanlar!.tarih != txtTarih.text ||
+                                company!.id != ilanlar!.sirket_id ||
+                                int.parse(temp!) != ilanlar!.calisma_zamani) {
+                              updatedIlan = Ilanlar(
+                                id: ilanlar!.id,
+                                baslik: txtBaslik.text,
+                                aciklama: txtaciklama.text,
+                                tarih: txtTarih.text,
+                                sirket_id: company!.id,
+                                calisma_zamani: int.parse(temp!),
+                              );
+                            } else {
+                              updatedIlan = ilanlar!;
+                            }
+                            await dbHelper.updateIlan(updatedIlan);
+                          }
 
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => HomeCompany(
-                        company: company,
-                        isLoggedin: false,
-                      )));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => HomeCompany(
+                                    company: company,
+                                    isLoggedin: false,
+                                  )));
+                          setState(() {}); // Liste güncelle
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+
             },
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              //margin: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-               padding: EdgeInsets.symmetric(vertical: 15),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(50)),
-                boxShadow: <BoxShadow>[
-                  BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(2, 4),
-                      blurRadius: 5,
-                      spreadRadius: 2),
-                ],
-                color: Color(0xffbf1922),
-              ),
-              child: Text(
-                "Güncelle",
-                style: TextStyle(fontSize: 20, color: Colors.white),
-              ),
+            child: Text(
+              "Güncelle",
+              style: TextStyle(fontSize: 20, color: Colors.white),
             ),
+            style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                primary: Color(0xffbf1922)),
           ),
         ),
+        SizedBox(width: 10),
         Expanded(
           flex: 1,
-          child: TextButton(
+          child: ElevatedButton(
             onPressed: () async {
-              await dbHelper.deleteIlan(ilanlar!.id!);
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => HomeCompany(
-                        company: company,
-                        isLoggedin: false,
-                      )));
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    backgroundColor:Color(0xffbf1922),
+                    title: Text('Kaydı Sil',textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white),),
+                    content: SingleChildScrollView(
+                      child: ListBody(
+                        children: <Widget>[
+                          Text(
+                            "Kaydı silmek istediğinize emin misiniz?",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        child: Text('HAYIR',style: TextStyle(
+                          color: Colors.white,
+                        ),),
+
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      TextButton(
+                        child: Text('EVET',style: TextStyle(
+                  color: Colors.white,
+                  ),),
+                        onPressed: () async {
+                          await dbHelper.deleteIlan(ilanlar!.id!);
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => HomeCompany(
+                                    company: widget.company,
+                                    isLoggedin: true,
+                                  )));
+                          setState(() {}); // Liste güncelle
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+
             },
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              //margin: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-              padding: EdgeInsets.symmetric(vertical: 15),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(50)),
-                boxShadow: <BoxShadow>[
-                  BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(2, 4),
-                      blurRadius: 5,
-                      spreadRadius: 2),
-                ],
-                color: Color(0xffbf1922),
-              ),
-              child: Text(
-                "Sil",
-                style: TextStyle(fontSize: 20, color: Colors.white),
-              ),
+            child: Text(
+              "Sil",
+              style: TextStyle(fontSize: 20, color: Colors.white),
             ),
+            style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                primary: Color(0xffbf1922)),
           ),
         ),
-
       ],
     );
   }
 
   buildBasvuranlarButton() {
-    return TextButton(
-      onPressed: () async {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => BasvuruGoruntule(ilanlar: ilanlar)));
-      },
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        margin: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-        padding: EdgeInsets.symmetric(vertical: 15),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(50)),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-                color: Colors.black,
-                offset: Offset(2, 4),
-                blurRadius: 5,
-                spreadRadius: 2),
-          ],
-          color: Color(0xffbf1922),
-        ),
+    return Padding(
+      padding: EdgeInsets.only(top: 20),
+      child: ElevatedButton(
+        onPressed: () async {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => BasvuruGoruntule(ilanlar: ilanlar)));
+        },
         child: Text(
           "Başvuranları Görüntüle",
           style: TextStyle(fontSize: 20, color: Colors.white),
         ),
+        style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            primary: Color(0xffbf1922)),
       ),
     );
   }

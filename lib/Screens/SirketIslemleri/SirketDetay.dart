@@ -92,7 +92,57 @@ class _CompanyDetailState extends State<CompanyDetail>
           title: Text("Şirket Profilini Düzenle"),
           automaticallyImplyLeading: false,
           actions: <Widget>[
-            IconButton(onPressed: logout, icon: Icon(Icons.logout))
+            IconButton(
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor:Color(0xffbf1922),
+                      title: Text(
+                        "Güvenli Çıkış Yapın",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white),
+                      ),
+                      content: SingleChildScrollView(
+                        child: ListBody(
+                          children: <Widget>[
+                            Text(
+                              "Çıkış yapmak istiyor musunuz?",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text(
+                            "HAYIR",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => logout(),
+                          child: const Text(
+                            "EVET",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      ],
+                    ));
+
+              },
+              icon: Icon(Icons.logout),
+            )
           ],
         ),
         body: Form(
@@ -115,10 +165,6 @@ class _CompanyDetailState extends State<CompanyDetail>
             height: 5.0,
           ),
           buildEmail(),
-          SizedBox(
-            height: 5.0,
-          ),
-          buildPassword(),
           SizedBox(
             height: 5.0,
           ),
@@ -251,15 +297,15 @@ class _CompanyDetailState extends State<CompanyDetail>
 
   buildSaveButton() {
     return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      padding:  EdgeInsets.only(left: 50, right: 50, bottom: 20),
       child: ElevatedButton(
         onPressed: () async {
-          if (widget.company!=null) {
-            widget.company.isim=txtName.text;
-            widget.company.email=txtuserName.text;
-            widget.company.sifre=txtpassWord.text;
-            widget.company.telefon=txtTelefon.text;
-            widget.company.adres=txtAdres.text;
+          if (widget.company != null) {
+            widget.company.isim = txtName.text;
+            widget.company.email = txtuserName.text;
+            widget.company.sifre = txtpassWord.text;
+            widget.company.telefon = txtTelefon.text;
+            widget.company.adres = txtAdres.text;
             _showConfirmUpdateDialog(context, widget.company);
           }
         },
@@ -277,74 +323,141 @@ class _CompanyDetailState extends State<CompanyDetail>
   }
 
   buildDeleteButton() {
-    return ElevatedButton(
-        onPressed: () async {
-          if (widget.company!=null) {
-_showConfirmDeleteDialog(context, widget.company);
-            Navigator.pushAndRemoveUntil(context,
-                MaterialPageRoute(builder: (context) => LoginCompany()),
-                (Route<dynamic> route) => false,);
-          }
-        },
-        child: Text("Sil"));
+    return Padding(
+        padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+        child: ElevatedButton(
+          onPressed: () async {
+            if (widget.company != null) {
+              _showConfirmDeleteDialog(context, widget.company);
+
+            }
+          },
+          child: Text(
+            "    Sil    ",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              primary: Color(0xffbf1922)),
+        ));
   }
+
   void _showConfirmDeleteDialog(BuildContext context, Company company) {
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Kaydı Sil'),
-          content: Text('Kaydı silmek istediğinize emin misiniz?'),
-          actions: [
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Color(0xffbf1922),
+          title: Text(
+            "Kaydı Sil",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: Colors.white),
+          ),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                  "Kaydı güncellemek istediğinize emin misiniz?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontWeight: FontWeight.normal,
+                      color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
             TextButton(
-              child: Text('Hayır'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text(
+                "HAYIR",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
             TextButton(
-              child: Text('Evet'),
               onPressed: () {
                 dbHelper.deleteCompany(company.id!); // Şirketi sil
-                Navigator.of(context).pop();
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginCompany()),
+                      (Route<dynamic> route) => false,
+                );
                 setState(() {}); // Liste güncelle
               },
-            ),
+              child: const Text(
+                "EVET",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            )
           ],
-        );
-      },
-    );
+        ));
+
   }
+
   void _showConfirmUpdateDialog(BuildContext context, Company company) {
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Kaydı Sil'),
-          content: Text('Kaydı güncellemek istediğinize emin misiniz?'),
-          actions: [
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Color(0xffbf1922),
+          title: Text(
+            "Kaydı Güncelle",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: Colors.white),
+          ),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                  "Kaydı güncellemek istediğinize emin misiniz?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontWeight: FontWeight.normal,
+                      color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
             TextButton(
-              child: Text('Hayır'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text(
+                "HAYIR",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
             TextButton(
-              child: Text('Evet'),
               onPressed: () async {
                 await dbHelper.updateCompany(widget.company).then((value) {
                   if (value != null) {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeCompany(company: widget.company, isLoggedin: true)));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => HomeCompany(
+                                company: widget.company, isLoggedin: true)));
                   }
                 }); // Şirketi sil
-                Navigator.of(context).pop();
                 setState(() {}); // Liste güncelle
               },
-            ),
+              child: const Text(
+                "EVET",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            )
           ],
-        );
-      },
-    );
-  }
+        ));
 
+  }
 }

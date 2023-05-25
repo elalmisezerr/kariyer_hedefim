@@ -7,6 +7,7 @@ import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Models/Ilan.dart';
 import 'package:kariyer_hedefim/Screens/IlanIslemleri/IlanDuzenle.dart';
+import 'package:kariyer_hedefim/Screens/SirketIslemleri/GirisSirket.dart';
 import '../../Data/GoogleSignin.dart';
 import '../../Models/Kurum.dart';
 import '../GirisEkranı.dart';
@@ -45,25 +46,59 @@ class _HomeCompanyState extends State<HomeCompany>
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        bool exit = await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text("Çıkış yapmak istiyor musunuz?"),
+        bool exit = await
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor:Color(0xffbf1922),
+              title: Text(
+                "Güvenli Çıkış Yapın",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white),
+              ),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text(
+                      "Çıkış yapmak istiyor musunuz?",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
               actions: <Widget>[
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text("HAYIR"),
+                  onPressed: () => Navigator.of(context).pop(true),
+
+                  child: const Text(
+                    "HAYIR",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: Text("EVET"),
-                ),
+                  onPressed: () async {
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => LoginCompany()),
+                            (route) => false);
+                  },
+                  child: const Text(
+                    "EVET",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                )
               ],
-            );
-          },
-        );
+            ));
         return exit;
       },
       child: AdvancedDrawer(
@@ -115,21 +150,33 @@ class _HomeCompanyState extends State<HomeCompany>
               IconButton(
                 onPressed: () {
                   showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        backgroundColor: Color(0xffbf1922),
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        backgroundColor:Color(0xffbf1922),
                         title: Text(
-                          "Çıkış yapmak istiyor musunuz?",
+                          "Güvenli Çıkış Yapın",
+                          textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white),
+                        ),
+                        content: SingleChildScrollView(
+                          child: ListBody(
+                            children: <Widget>[
+                              Text(
+                                "Çıkış yapmak istiyor musunuz?",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    color: Colors.white),
+                              ),
+                            ],
                           ),
                         ),
                         actions: <Widget>[
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(false),
-                            child: Text(
+                            child: const Text(
                               "HAYIR",
                               style: TextStyle(
                                 color: Colors.white,
@@ -138,17 +185,16 @@ class _HomeCompanyState extends State<HomeCompany>
                           ),
                           TextButton(
                             onPressed: () => logout(),
-                            child: Text(
+                            child: const Text(
                               "EVET",
                               style: TextStyle(
                                 color: Colors.white,
                               ),
                             ),
-                          ),
+                          )
                         ],
-                      );
-                    },
-                  );
+                      ));
+
                 },
                 icon: Icon(Icons.logout),
               )

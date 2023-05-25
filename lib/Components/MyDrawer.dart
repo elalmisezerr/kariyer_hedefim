@@ -19,8 +19,7 @@ import '../Screens/KullaniciIslemleri/KullaniciDetay.dart';
 
 class MyDrawer extends StatelessWidget {
   MyDrawer({Key? key, required this.user}) : super(key: key);
-
-
+  var dbhelper = DatabaseProvider();
   User user;
   @override
   Widget build(BuildContext context) {
@@ -61,57 +60,77 @@ class MyDrawer extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => UserDetail(user: user)));
-              },
-              leading: const Icon(Icons.account_circle_rounded),
-              title: const Text('Profili Düzenle'),
-            ),ListTile(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => UserDetail(user: user)));
-              },
-              leading: const Icon(Icons.favorite),
-              title: const Text('Favorilerim'),
-            ),
-            ListTile(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
                         builder: (context) => Basvurularim(user: user)));
               },
               leading: const Icon(Icons.description),
               title: const Text('Başvurularım'),
             ),
             ListTile(
-              onTap: () {},
-              leading: const Icon(Icons.settings),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => UserDetail(user: user)));
+              },
+              leading: const Icon(Icons.account_circle_rounded),
               title: const Text('Ayarlar'),
             ),
             ListTile(
               onTap: () {
-                showDialog(context: context, builder: (context)=>AlertDialog(
-                  backgroundColor: const Color(0xffbf1922),
-                  title: const Text("Çıkış yapmak istiyor musunuz?",style:  TextStyle(
-                      fontWeight: FontWeight.bold,color: Colors.white
-                  ),),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text("HAYIR",style: TextStyle(
-                        color: Colors.white,
-                      ),),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> GirisEkrani()), (route) => false),
-                      child: const Text("EVET",style: TextStyle(
-                        color: Colors.white,),
+                showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                          backgroundColor:Color(0xffbf1922),
+                          title: Text(
+                            "Güvenli Çıkış Yapın",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white),
+                          ),
+                      content: SingleChildScrollView(
+                        child: ListBody(
+                          children: <Widget>[
+                            Text(
+                              "Çıkış yapmak istiyor musunuz?",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ),
                       ),
-                    )],
-                ));
+                          actions: <Widget>[
 
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text(
+                                "HAYIR",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => GirisEkrani()),
+                                    (route) => false);
+                                await dbhelper.updateUserLoggedInStatus(
+                                    user.email, false);
+                              },
+                              child: const Text(
+                                "EVET",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          ],
+                        ));
               },
               leading: const Icon(Icons.logout_outlined),
               title: const Text('Çıkış Yap'),
@@ -139,6 +158,7 @@ class MyDrawer extends StatelessWidget {
 class MyDrawerComp extends StatelessWidget {
   MyDrawerComp({Key? key, required this.company}) : super(key: key);
   Company company;
+  var dbhelper = DatabaseProvider();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -181,50 +201,78 @@ class MyDrawerComp extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => CompanyDetail(
-                              company: company,
-                            )));
-              },
-              leading: const Icon(Icons.account_circle_rounded),
-              title: const Text('Profili Düzenle'),
-            ),
-            ListTile(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
                         builder: (context) => IlanEkle(company: company)));
               },
               leading: const Icon(Icons.description),
               title: const Text('İlan Ekle'),
             ),
             ListTile(
-              onTap: () {},
-              leading: const Icon(Icons.settings),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CompanyDetail(
+                              company: company,
+                            )));
+              },
+              leading: const Icon(Icons.account_circle_rounded),
               title: const Text('Ayarlar'),
             ),
             ListTile(
               onTap: () {
-                showDialog(context: context, builder: (context)=>AlertDialog(
-                  backgroundColor: const Color(0xffbf1922),
-                  title: const Text("Çıkış yapmak istiyor musunuz?",style: TextStyle(
-                      fontWeight: FontWeight.bold,color: Colors.white
-                  ),),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text("HAYIR",style: TextStyle(
-                        color: Colors.white,
-                      ),),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> GirisEkrani()), (route) => false),
-                      child: const Text("EVET",style: TextStyle(
-                        color: Colors.white,),
+                showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor:Color(0xffbf1922),
+                      title: Text(
+                        "Güvenli Çıkış Yapın",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white),
                       ),
-                    )],
-                ));
-
+                      content: SingleChildScrollView(
+                        child: ListBody(
+                          children: <Widget>[
+                            Text(
+                              "Çıkış yapmak istiyor musunuz?",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text(
+                                "HAYIR",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => GirisEkrani()),
+                                    (route) => false);
+                                await dbhelper.updateSirketLoggedInStatus(
+                                    company!.email, false);
+                              },
+                              child: const Text(
+                                "EVET",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          ],
+                        ));
               },
               leading: const Icon(Icons.logout),
               title: const Text('Çıkış Yap'),
@@ -261,8 +309,7 @@ class MyDrawerAdmin extends StatefulWidget {
 class _MyDrawerAdminState extends State<MyDrawerAdmin> {
   var dbHelper = DatabaseProvider();
 
-
-   Company? company;
+  Company? company;
 
   @override
   Widget build(BuildContext context) {
@@ -294,13 +341,16 @@ class _MyDrawerAdminState extends State<MyDrawerAdmin> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => HomeAdmin(Mycompany: company,)));
+                          builder: (context) => HomeAdmin(
+                                Mycompany: company,
+                              )));
                 },
                 leading: const Icon(Icons.home),
-                title: const Text('Anasayfa',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold)),
+                title: const Text('Anasayfa',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
             ),
-
             const SizedBox(
               height: 10,
             ),
@@ -313,7 +363,8 @@ class _MyDrawerAdminState extends State<MyDrawerAdmin> {
                           builder: (context) => const AdmEditCompany()));
                 },
                 leading: const Icon(Icons.description),
-                title: const Text('Şirket İşlemleri',style: TextStyle(fontSize: 18)),
+                title: const Text('Şirket İşlemleri',
+                    style: TextStyle(fontSize: 18)),
               ),
             ),
             const SizedBox(
@@ -328,7 +379,8 @@ class _MyDrawerAdminState extends State<MyDrawerAdmin> {
                           builder: (context) => const AdmEditIlan()));
                 },
                 leading: const Icon(Icons.description),
-                title: const Text('İlan İşlemleri',style: TextStyle(fontSize: 18)),
+                title: const Text('İlan İşlemleri',
+                    style: TextStyle(fontSize: 18)),
               ),
             ),
             const SizedBox(
@@ -343,38 +395,59 @@ class _MyDrawerAdminState extends State<MyDrawerAdmin> {
                           builder: (context) => const AdmEditUsers()));
                 },
                 leading: const Icon(Icons.description),
-                title: const Text('Kullanıcı İşlemleri',style: TextStyle(fontSize: 18)),
+                title: const Text('Kullanıcı İşlemleri',
+                    style: TextStyle(fontSize: 18)),
               ),
             ),
-
-            const SizedBox(height: 10,),
+            const SizedBox(
+              height: 10,
+            ),
             Expanded(
               child: ListTile(
                 onTap: () {
-                  showDialog(context: context, builder: (context)=>AlertDialog(
-                    backgroundColor: const Color(0xffbf1922),
-                    title: const Text("Çıkış yapmak istiyor musunuz?",style: TextStyle(
-                        fontWeight: FontWeight.bold,color: Colors.white
-                    ),),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text("HAYIR",style: TextStyle(
-                          color: Colors.white,
-                        ),),
-                      ),
-                      TextButton(
-                        onPressed: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=> GirisEkrani()));
-                        },  child: const Text("EVET",style: TextStyle(
-                          color: Colors.white,),
-                        ),
-                      )],
-                  ));
-
+                  showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                            backgroundColor: const Color(0xffbf1922),
+                            title: const Text(
+                              "Çıkış yapmak istiyor musunuz?",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: const Text(
+                                  "HAYIR",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => GirisEkrani()));
+                                },
+                                child: const Text(
+                                  "EVET",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ));
                 },
                 leading: const Icon(Icons.logout),
-                title: const Text('Çıkış Yap',style: TextStyle(fontSize: 18),),
+                title: const Text(
+                  'Çıkış Yap',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
             ),
             const Spacer(),

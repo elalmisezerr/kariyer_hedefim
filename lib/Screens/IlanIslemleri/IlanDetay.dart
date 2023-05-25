@@ -65,10 +65,6 @@ class _IlanDetayState extends State<IlanDetay> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                // buildSubject(),
-                // buildBody(),
-                // buildRecipients(),
-
                 Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Column(
@@ -79,7 +75,7 @@ class _IlanDetayState extends State<IlanDetay> {
                           widget.ilanlar!.baslik.toUpperCase(),
                           style: TextStyle(
                             fontSize: 20,
-                           fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
@@ -97,26 +93,41 @@ class _IlanDetayState extends State<IlanDetay> {
                                   showFullDescription = true;
                                 });
                               },
-                              child: Text('Daha Fazla Gör',textAlign: TextAlign.right,),
+                              child: Text(
+                                'Daha Fazla Gör',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    color: Color(0xffbf1922)),
+                              ),
                             ),
                           ],
                         ),
                       if (showFullDescription)
-                        Column(
-                          children: [
-                            QuillEditor.basic(
-                              controller: _controller,
-                              readOnly: true,
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  showFullDescription = false;
-                                });
-                              },
-                              child: Text('Küçült'),
-                            ),
-                          ],
+                        Container(
+                          // height: MediaQuery.of(context).size.height*(0.7),
+                          child: Column(
+                            children: [
+                              QuillEditor.basic(
+                                controller: _controller,
+                                readOnly: true,
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    showFullDescription = false;
+                                  });
+                                },
+                                child: Text(
+                                  'Küçült',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                      color: Color(0xffbf1922)),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                     ],
                   ),
@@ -144,7 +155,16 @@ class _IlanDetayState extends State<IlanDetay> {
                       _showResendDialog();
                     }
                   },
-                  child: Text("Başvur"),
+                  child: Text(
+                    "Başvur",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      primary: Color(0xffbf1922)),
                 ),
               ],
             ),

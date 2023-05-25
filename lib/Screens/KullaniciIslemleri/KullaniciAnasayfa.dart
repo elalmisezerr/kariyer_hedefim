@@ -48,21 +48,35 @@ class _HomeState extends State<HomeUser> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        bool exit = await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              backgroundColor: Color(0xffbf1922),
+        bool exit = await
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor:Color(0xffbf1922),
               title: Text(
-                "Çıkış yapmak istiyor musunuz?",
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                "Güvenli Çıkış Yapın",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white),
+              ),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text(
+                      "Çıkış yapmak istiyor musunuz?",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: Colors.white),
+                    ),
+                  ],
+                ),
               ),
               actions: <Widget>[
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text(
+                  child: const Text(
                     "HAYIR",
                     style: TextStyle(
                       color: Colors.white,
@@ -73,8 +87,8 @@ class _HomeState extends State<HomeUser> {
                   onPressed: () => Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (context) => LoginUser()),
-                      (route) => false),
-                  child: Text(
+                          (route) => false),
+                  child: const Text(
                     "EVET",
                     style: TextStyle(
                       color: Colors.white,
@@ -82,9 +96,7 @@ class _HomeState extends State<HomeUser> {
                   ),
                 )
               ],
-            );
-          },
-        );
+            ));
         return exit;
       },
       child: AdvancedDrawer(
@@ -138,34 +150,51 @@ class _HomeState extends State<HomeUser> {
                   icon: Icon(Icons.search)),
               IconButton(
                   onPressed: () {
-                    AlertDialog(
-                      backgroundColor: Color(0xffbf1922),
-                      title: Text(
-                        "Çıkış yapmak istiyor musunuz?",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: Text(
-                            "HAYIR",
+                    showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          backgroundColor:Color(0xffbf1922),
+                          title: Text(
+                            "Güvenli Çıkış Yapın",
+                            textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white),
+                          ),
+                          content: SingleChildScrollView(
+                            child: ListBody(
+                              children: <Widget>[
+                                Text(
+                                  "Çıkış yapmak istiyor musunuz?",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.white),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                        TextButton(
-                          onPressed: () => logout,
-                          child: Text(
-                            "EVET",
-                            style: TextStyle(
-                              color: Colors.white,
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text(
+                                "HAYIR",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
-                          ),
-                        )
-                      ],
-                    );
+                            TextButton(
+                              onPressed: () => logout(),
+                              child: const Text(
+                                "EVET",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          ],
+                        ));
                   },
                   icon: Icon(Icons.logout))
             ],
@@ -206,8 +235,6 @@ class _HomeState extends State<HomeUser> {
           context, MaterialPageRoute(builder: (context) => GirisEkrani()));
     });
   }
-
-
 
   ListView buildIlanList(final List<Ilanlar> ilanlar) {
     return ListView.builder(
@@ -253,6 +280,9 @@ class _HomeState extends State<HomeUser> {
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(
+                      height: 5,
+                    ),
                     Text(
                       ilanlar[position].baslik,
                       style: TextStyle(
@@ -282,20 +312,32 @@ class _HomeState extends State<HomeUser> {
                     SizedBox(height: 5.0),
                   ],
                 ),
-                subtitle: Row(
+                subtitle: Column(
                   children: [
-                    Icon(Icons.description, size: 16.0, color: Colors.white),
-                    SizedBox(width: 5.0),
-                    Expanded(
-                      child: Text(
-                        convertJsonToQuillController(ilanlar[position].aciklama).document.toPlainText(),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.white,
+                    Row(
+                      children: [
+                        Icon(Icons.description,
+                            size: 16.0, color: Colors.white),
+                        SizedBox(width: 5.0),
+                        SizedBox(height: 5.0),
+                        Expanded(
+                          child: Text(
+                            convertJsonToQuillController(
+                                    ilanlar[position].aciklama)
+                                .document
+                                .toPlainText(),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
+                    SizedBox(
+                      height: 5,
+                    )
                   ],
                 ),
               ),
@@ -306,18 +348,22 @@ class _HomeState extends State<HomeUser> {
     );
   }
 }
+
 QuillController convertJsonToQuillController(String jsonString) {
   if (jsonString.isEmpty) {
     // Handle the empty JSON string case
-    return QuillController.basic(); // Or throw an exception, depending on your requirements
+    return QuillController
+        .basic(); // Or throw an exception, depending on your requirements
   }
 
   var jsonMap = jsonDecode(jsonString);
   Document doc = Document.fromJson(jsonMap);
-  QuillController controller = QuillController(document: doc, selection: TextSelection(
-    baseOffset: 0,
-    extentOffset: doc.length,
-  ));
+  QuillController controller = QuillController(
+      document: doc,
+      selection: TextSelection(
+        baseOffset: 0,
+        extentOffset: doc.length,
+      ));
   return controller;
 }
 
@@ -433,7 +479,9 @@ class DataSearch extends SearchDelegate<String> {
                     ],
                   ),
                   subtitle: Text(
-                   convertJsonToQuillController(selectedilanlar!.aciklama).document.toPlainText(),
+                    convertJsonToQuillController(selectedilanlar!.aciklama)
+                        .document
+                        .toPlainText(),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

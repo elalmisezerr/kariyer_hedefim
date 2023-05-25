@@ -32,7 +32,7 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.grey[700],
+        backgroundColor: Color(0xffbf1922),
         title: Text("Kullanıcı ekleme sayfası"),
       ),
       body: Form(
@@ -67,7 +67,7 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
               ),
               buildAdres(),
               SizedBox(
-                height: 5.0,
+                height: 20.0,
               ),
               buildSaveButton()
             ],
@@ -244,47 +244,37 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
 
 
   buildSaveButton() {
-    return TextButton(
-      onPressed: () async {
-        if (formKey.currentState!.validate()) {
-          formKey.currentState!.save();
-          bool kullaniciVarMi = await dbHelper.kullaniciAdiKontrolEt(txtuserName.text) ;
-          bool sirketVarmi= await dbHelper.sirketAdiKontrolEt(txtuserName.text);
-          bool kayitVarmi= sirketVarmi || kullaniciVarMi;
-          if (kayitVarmi == false) {
-            addUsers();
-            String email = 'szrelalmis@gmail.com';
-            await dbHelper.checkIsAdmin(email);
-            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginUser()), (route) => false);
-          } else { if(sirketVarmi==true &&kullaniciVarMi==false){
-            _showResendDialog();
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      child: ElevatedButton(
+        onPressed: () async {
+          if (formKey.currentState!.validate()) {
+            formKey.currentState!.save();
+            bool kullaniciVarMi = await dbHelper.kullaniciAdiKontrolEt(txtuserName.text) ;
+            bool sirketVarmi= await dbHelper.sirketAdiKontrolEt(txtuserName.text);
+            bool kayitVarmi= sirketVarmi || kullaniciVarMi;
+            if (kayitVarmi == false) {
+              addUsers();
+              String email = 'szrelalmis@gmail.com';
+              await dbHelper.checkIsAdmin(email);
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginUser()), (route) => false);
+            } else { if(sirketVarmi==true &&kullaniciVarMi==false){
+              _showResendDialog();
+            }
+            if(sirketVarmi==false &&kullaniciVarMi==true){
+              _showResendDialog2();
+            }
+            }
           }
-          if(sirketVarmi==false &&kullaniciVarMi==true){
-            _showResendDialog2();
-          }
-          }
-        }
-      },
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        margin: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-        padding: EdgeInsets.symmetric(vertical: 15),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(50)),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-                color: Colors.black,
-                offset: Offset(2, 4),
-                blurRadius: 5,
-                spreadRadius: 2),
-          ],
-          color: Colors.grey.shade700,
-        ),
+        },
         child: Text(
           "Ekle",
           style: TextStyle(fontSize: 20, color: Colors.white),
-        ),
+        ),style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10)),
+          primary: Color(0xffbf1922)),
       ),
     );
   }

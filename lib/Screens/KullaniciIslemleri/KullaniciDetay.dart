@@ -7,7 +7,9 @@ import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciAnasayfa.dar
 import 'package:kariyer_hedefim/Validation/ValidationUser.dart';
 
 import '../../Data/DbProvider.dart';
+import '../../Data/GoogleSignin.dart';
 import '../../Models/Kullanici.dart';
+import '../GirisEkranı.dart';
 
 class UserDetail extends StatefulWidget {
   User user;
@@ -37,18 +39,21 @@ class _UserDetailState extends State<UserDetail> {
   void initState() {
     txtName.text = user?.ad ?? '';
     txtSurname.text = user?.soyad ?? '';
-    txtBirthDate.text =user!.dogumtarihi;
-      //  DateFormat('dd-MM-yyyy').format(user?.dogumtarihi ?? DateTime.now());
+    txtBirthDate.text = user!.dogumtarihi;
+    //  DateFormat('dd-MM-yyyy').format(user?.dogumtarihi ?? DateTime.now());
     txtuserName.text = user?.email ?? '';
     txtpassWord.text = user?.password ?? '';
     txtTelefon.text = user?.telefon ?? '';
     txtAdres.text = user?.adres ?? '';
     super.initState();
   }
+
   String dateFormatter(DateTime date) {
     String formattedDate;
-    return formattedDate= "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
+    return formattedDate =
+        "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year.toString()}";
   }
+
   bool _isObscured = true; // şifrenin gizli olup olmadığını takip eder
 
   @override
@@ -63,62 +68,100 @@ class _UserDetailState extends State<UserDetail> {
       // openScale: 1.0,
       disabledGestures: false,
       childDecoration: const BoxDecoration(
-        // NOTICE: Uncomment if you want to add shadow behind the page.
-        // Keep in mind that it may cause animation jerks.
-        // boxShadow: <BoxShadow>[
-        //   BoxShadow(
-        //     color: Colors.black12,
-        //     blurRadius: 0.0,
-        //   ),
-        // ],
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
       drawer: MyDrawer(user: widget.user),
       child: Scaffold(
         appBar: AppBar(
-        backgroundColor: Color(0xffbf1922),
-        leading: IconButton(
-          onPressed: _handleMenuButtonPressed,
-          icon: ValueListenableBuilder<AdvancedDrawerValue>(
-            valueListenable: _advancedDrawerController,
-            builder: (_, value, __) {
-              return AnimatedSwitcher(
-                duration: Duration(milliseconds: 250),
-                child: Icon(
-                  value.visible ? Icons.clear : Icons.menu,
-                  key: ValueKey<bool>(value.visible),
-                ),
-              );
-            },
+          backgroundColor: Color(0xffbf1922),
+          leading: IconButton(
+            onPressed: _handleMenuButtonPressed,
+            icon: ValueListenableBuilder<AdvancedDrawerValue>(
+              valueListenable: _advancedDrawerController,
+              builder: (_, value, __) {
+                return AnimatedSwitcher(
+                  duration: Duration(milliseconds: 250),
+                  child: Icon(
+                    value.visible ? Icons.clear : Icons.menu,
+                    key: ValueKey<bool>(value.visible),
+                  ),
+                );
+              },
+            ),
+          ),
+          actions: <Widget>[
+            IconButton(
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                            backgroundColor: Color(0xffbf1922),
+                            title: Text(
+                              "Güvenli Çıkış Yapın",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white),
+                            ),
+                            content: SingleChildScrollView(
+                              child: ListBody(
+                                children: <Widget>[
+                                  Text(
+                                    "Çıkış yapmak istiyor musunuz?",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.normal,
+                                        color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: const Text(
+                                  "HAYIR",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => logout(),
+                                child: const Text(
+                                  "EVET",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ));
+                },
+                icon: Icon(Icons.logout))
+          ],
+          title: Text(
+            "Hoşgeldin ${user!.ad} ",
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-        title: Text(
-          "Hoşgeldin ${user!.ad} ",
-          overflow: TextOverflow.ellipsis,
-        ),
-        actions: <Widget>[
-          PopupMenuButton<Options>(
-            onSelected: selectProcess,
-            itemBuilder: (BuildContext context) =>
-            <PopupMenuEntry<Options>>[
-              PopupMenuItem<Options>(
-                value: Options.delete,
-                child: Text("Sil"),
-              ),
-              PopupMenuItem<Options>(
-                value: Options.update,
-                child: Text("Güncelle"),
-              ),
-            ],
-          )
-        ],
-      ),
-
-          body: Form(
+        body: Form(
           child: buildGovde(),
         ),
       ),
     );
+  }
+
+  void logout() {
+    setState(() async {
+      if (GoogleSignInApi != null) {
+        await GoogleSignInApi.logout();
+      }
+      await dbHelper.updateUserLoggedInStatus(widget.user.email, false);
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => GirisEkrani()));
+    });
   }
 
   buildGovde() {
@@ -128,7 +171,7 @@ class _UserDetailState extends State<UserDetail> {
         child: Column(
           children: [
             SizedBox(
-              height: 15,
+              height: 20,
             ),
             // buildExample(),
             buildName(),
@@ -147,10 +190,6 @@ class _UserDetailState extends State<UserDetail> {
             SizedBox(
               height: 5.0,
             ),
-            buildPassword(),
-            SizedBox(
-              height: 5.0,
-            ),
             buildTelefon(),
             SizedBox(
               height: 5.0,
@@ -159,26 +198,12 @@ class _UserDetailState extends State<UserDetail> {
             SizedBox(
               height: 5.0,
             ),
-            Row(
-              children: [
-                Flexible(
-                  flex: 1,
-                  child: buildUpdateButton(),
-                ),
-                SizedBox(width: 10),
-                Flexible(
-                  flex: 1,
-                  child: buildDeleteButton(),
-                ),
-              ],
-            ),
+            buildUpdateButton(),
           ],
         ),
       ),
     );
   }
-
-
 
   buildName() {
     return Padding(
@@ -215,6 +240,7 @@ class _UserDetailState extends State<UserDetail> {
       ),
     );
   }
+
   Widget buildBirthDate() {
     return Padding(
       padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
@@ -230,10 +256,10 @@ class _UserDetailState extends State<UserDetail> {
             filled: true,
             fillColor: Colors.white),
         cursorColor: Colors.yellow,
-
       ),
     );
   }
+
   buildEmail() {
     return Padding(
       padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
@@ -252,6 +278,7 @@ class _UserDetailState extends State<UserDetail> {
       ),
     );
   }
+
   buildPassword() {
     return Padding(
       padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
@@ -283,6 +310,7 @@ class _UserDetailState extends State<UserDetail> {
       ),
     );
   }
+
   buildTelefon() {
     return Padding(
       padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
@@ -301,6 +329,7 @@ class _UserDetailState extends State<UserDetail> {
       ),
     );
   }
+
   buildAdres() {
     return Padding(
       padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
@@ -321,6 +350,7 @@ class _UserDetailState extends State<UserDetail> {
       ),
     );
   }
+
   Future<void> _showDatePicker() async {
     final DateTime? selectedDate = await showDatePicker(
         context: context,
@@ -328,14 +358,15 @@ class _UserDetailState extends State<UserDetail> {
         firstDate: DateTime(1900),
         lastDate: DateTime(2025),
         locale: const Locale('tr', 'TR') // Türkçe dil desteği ekledik
-    );
+        );
     if (selectedDate != null) {
       setState(() {
         // Use DateFormat to format the selected date
-        txtBirthDate.text =  DateFormat('dd-MM-yyyy').format(selectedDate);
+        txtBirthDate.text = DateFormat('dd-MM-yyyy').format(selectedDate);
       });
     }
   }
+
   void selectProcess(Options options) async {
     switch (options) {
       case Options.delete:
@@ -347,7 +378,7 @@ class _UserDetailState extends State<UserDetail> {
         {
           user!.ad = txtName.text;
           user!.soyad = txtSurname.text;
-          user!.dogumtarihi =  txtBirthDate.text;
+          user!.dogumtarihi = txtBirthDate.text;
           user!.email = txtuserName.text;
           user!.password = txtpassWord.text;
           user!.telefon = txtTelefon.text;
@@ -362,49 +393,7 @@ class _UserDetailState extends State<UserDetail> {
       default:
     }
   }
-  buildUpdateButton() {
-    return TextButton(
-      onPressed: () async {
-        if (formKey.currentState!.validate()) {
-          formKey.currentState!.save();
-          user!.ad = txtName.text;
-          user!.soyad = txtSurname.text;
-          user!.dogumtarihi = txtBirthDate.text;
-          user!.email = txtuserName.text;
-          user!.password = txtpassWord.text;
-          user!.telefon = txtTelefon.text;
-          user!.adres = txtAdres.text;
-          await dbHelper.updateUser(user!);
-          _showResendDialogupdate();
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => HomeUser(Myuser: widget.user)));
-        }
-      },
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        margin: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-        padding: EdgeInsets.symmetric(vertical: 15),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(50)),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-                color: Colors.black,
-                offset: Offset(2, 4),
-                blurRadius: 5,
-                spreadRadius: 2),
-          ],
-          color:  Color(0xffbf1922),
-        ),
-        child: Text(
-          "Güncelle",
-          style: TextStyle(fontSize: 20, color: Colors.white),
-        ),
-      ),
-    );
-  }
+
   void _showResendDialogupdate() {
     AlertDialog alert = AlertDialog(
       title: Text("Uyarı"),
@@ -426,6 +415,7 @@ class _UserDetailState extends State<UserDetail> {
       },
     );
   }
+
   void _showResendDialogdelete() {
     AlertDialog alert = AlertDialog(
       title: Text("Uyarı"),
@@ -447,39 +437,170 @@ class _UserDetailState extends State<UserDetail> {
       },
     );
   }
-  buildDeleteButton() {
-    return TextButton(
-      onPressed: () async {
-        if (formKey.currentState!.validate()) {
-          formKey.currentState!.save();
-          _showConfirmDeleteDialog(context, user!);
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => LoginUser()));
-        }
-      },
-      child: Container(
-        // width: MediaQuery.of(context).size.width,
-        margin: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-        padding: EdgeInsets.symmetric(vertical: 15),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(50)),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-                color: Colors.black,
-                offset: Offset(2, 4),
-                blurRadius: 5,
-                spreadRadius: 2),
-          ],
-          color:  Color(0xffbf1922),
-        ),
-        child: Text(
-          "Ekle",
-          style: TextStyle(fontSize: 20, color: Colors.white),
-        ),
+
+  buildUpdateButton() {
+    return Container(
+      margin: EdgeInsets.only(left: 20, right: 20),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: ElevatedButton(
+              onPressed: () async {
+                showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                          backgroundColor: Color(0xffbf1922),
+                          title: Text(
+                            "Kaydı Güncelle",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white),
+                          ),
+                          content: SingleChildScrollView(
+                            child: ListBody(
+                              children: <Widget>[
+                                Text(
+                                  "Kaydı güncellemek istediğinize emin misiniz?",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text(
+                                "HAYIR",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                if (formKey.currentState!.validate()) {
+                                  formKey.currentState!.save();
+                                  user!.ad = txtName.text;
+                                  user!.soyad = txtSurname.text;
+                                  user!.dogumtarihi = txtBirthDate.text;
+                                  user!.email = txtuserName.text;
+                                  user!.password = txtpassWord.text;
+                                  user!.telefon = txtTelefon.text;
+                                  user!.adres = txtAdres.text;
+                                  await dbHelper.updateUser(user!);
+                                  _showResendDialogupdate();
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              HomeUser(Myuser: widget.user)));
+                                }
+                                setState(() {}); // Liste güncelle
+                              },
+                              child: const Text(
+                                "EVET",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          ],
+                        ));
+              },
+              child: Text(
+                "Güncelle",
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  primary: Color(0xffbf1922)),
+            ),
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            flex: 1,
+            child: ElevatedButton(
+              onPressed: () async {
+                showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor: Color(0xffbf1922),
+                      title: Text(
+                        "Kaydı Güncelle",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white),
+                      ),
+                      content: SingleChildScrollView(
+                        child: ListBody(
+                          children: <Widget>[
+                            Text(
+                              "Kaydı güncellemek istediğinize emin misiniz?",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text(
+                            "HAYIR",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            await dbHelper.deleteUser(user!.id!);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginUser()));
+                            setState(() {}); // Liste güncelle
+                          },
+                          child: const Text(
+                            "EVET",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      ],
+                    ));
+              },
+              child: Text(
+                "Sil",
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  primary: Color(0xffbf1922)),
+            ),
+          ),
+        ],
       ),
     );
   }
+
   void _showConfirmDeleteDialog(BuildContext context, User user) {
     showDialog(
       context: context,
@@ -507,33 +628,7 @@ class _UserDetailState extends State<UserDetail> {
       },
     );
   }
-  void _showConfirmUpdateDialog(BuildContext context, User user) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Kaydı Sil'),
-          content: Text('Kaydı güncellemek istediğinize emin misiniz?'),
-          actions: [
-            TextButton(
-              child: Text('Hayır'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text('Evet'),
-              onPressed: () {
-                dbHelper.deleteUser(user.id!); // Şirketi sil
-                Navigator.of(context).pop();
-                setState(() {}); // Liste güncelle
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+
   void _handleMenuButtonPressed() {
     // NOTICE: Manage Advanced Drawer state through the Controller.
     // _advancedDrawerController.value = AdvancedDrawerValue.visible();

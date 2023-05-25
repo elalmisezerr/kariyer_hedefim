@@ -1,9 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
+import 'package:flutter_quill/flutter_quill.dart' hide Text;
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 
+import '../../Data/GoogleSignin.dart';
+import '../../Models/Basvuru.dart';
 import '../../Models/Ilan.dart';
 import '../../Models/Kullanici.dart';
 import '../GirisEkranı.dart';
@@ -64,7 +69,57 @@ class _BasvurularimState extends State<Basvurularim> {
                 );
               },
             ),
-          ),
+          ),actions: <Widget>[
+          IconButton(
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor:Color(0xffbf1922),
+                      title: Text(
+                        "Güvenli Çıkış Yapın",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white),
+                      ),
+                      content: SingleChildScrollView(
+                        child: ListBody(
+                          children: <Widget>[
+                            Text(
+                              "Çıkış yapmak istiyor musunuz?",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text(
+                            "HAYIR",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => logout(),
+                          child: const Text(
+                            "EVET",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      ],
+                    ));
+              },
+              icon: Icon(Icons.logout))
+        ],
           title: Text("Başvurularım"),
         ),
         body: Container(
@@ -88,7 +143,23 @@ class _BasvurularimState extends State<Basvurularim> {
                 );
               } else {
                 final ilan = snapshot.data ?? [];
-                return buildIlanList(ilan);
+                if (ilan.isEmpty) {
+                  return Center(
+                    child: Column(
+                      children: [
+                        SizedBox(height: MediaQuery.of(context).size.height*(0.3),),
+                        Icon(Icons.folder_off_outlined,size: 40,color: Colors.red,),
+                        Text('Başvuru bulunamadı!!',style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.red,
+                        ),),
+                      ],
+                    ),
+                  );
+                } else {
+                  return buildIlanList(ilan);
+                }
               }
             },
           ),
@@ -96,7 +167,16 @@ class _BasvurularimState extends State<Basvurularim> {
       ),
     );
   }
-
+  void logout() {
+    setState(() async {
+      if (GoogleSignInApi != null) {
+        await GoogleSignInApi.logout();
+      }
+      await dbHelper.updateUserLoggedInStatus(widget.user!.email, false);
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => GirisEkrani()));
+    });
+  }
   ListView buildIlanList(final List<Ilanlar> ilanlar) {
     return ListView.builder(
       itemCount: ilanlar.length,
@@ -117,6 +197,7 @@ class _BasvurularimState extends State<Basvurularim> {
                         ),
                       ),
                     ),
+
                   ],
                 ),
                 SizedBox(height: 16.0),
@@ -124,7 +205,36 @@ class _BasvurularimState extends State<Basvurularim> {
                   children: [
                     Icon(Icons.explore),
                     SizedBox(width: 8.0),
-                    Expanded(child: Text(ilanlar[position].aciklama)),
+                    Expanded(child: Text(convertJsonToQuillController(ilanlar[position].aciklama).document.toPlainText(),maxLines: 4,)),
+                    IconButton(onPressed: () async {
+                      var temp;
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Başvuruyu Sil'),
+                            content: Text('Başvuruyu silmek istediğinize emin misiniz?'),
+                            actions: [
+                              TextButton(
+                                child: Text('Hayır'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              TextButton(
+                                child: Text('Evet'),
+                                onPressed: () async {
+                                  temp=await dbHelper.getBasvuruIdByIlanAndKullanici(ilanlar[position].id.toString(),widget.user!.id.toString() );
+                                  await dbHelper.deleteBasvuru(temp);
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>Basvurularim(user: widget.user)));
+                                  setState(() {}); // Liste güncelle
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }, icon: Icon(Icons.delete,size: 30,color: Colors.red,))
                   ],
                 ),
                 SizedBox(height: 8.0),
@@ -179,6 +289,20 @@ class _BasvurularimState extends State<Basvurularim> {
     // NOTICE: Manage Advanced Drawer state through the Controller.
     // _advancedDrawerController.value = AdvancedDrawerValue.visible();
     _advancedDrawerController.showDrawer();
+  }
+  QuillController convertJsonToQuillController(String jsonString) {
+    if (jsonString.isEmpty) {
+      // Handle the empty JSON string case
+      return QuillController.basic(); // Or throw an exception, depending on your requirements
+    }
+
+    var jsonMap = jsonDecode(jsonString);
+    Document doc = Document.fromJson(jsonMap);
+    QuillController controller = QuillController(document: doc, selection: TextSelection(
+      baseOffset: 0,
+      extentOffset: doc.length,
+    ));
+    return controller;
   }
 
 
