@@ -182,6 +182,19 @@ class DatabaseProvider {
     } else {
       return null;
     }
+  }Future<int?> getBasvuruIdByIlanAndKullanici(String ilan,String kullanici) async {
+    final db = await dbProvider.db;
+    final result =
+        await db!.query( 'basvurular',
+          columns: ['id'],
+          where: 'ilan_id = ? AND kullanici_id = ?',
+          whereArgs: [ilan, kullanici],
+          limit: 1,);
+    if (result.isNotEmpty) {
+      return result[0]['id'] as int;
+    } else {
+      return null;
+    }
   }
 
   Future<bool> isAdminUser(String email) async {
@@ -273,6 +286,12 @@ class DatabaseProvider {
   Future<int> deleteIlan(int id) async {
     Database? db = await this.db;
     var result = await db!.rawDelete("delete from ilanlar where id=$id");
+    return result;
+  }
+
+  Future<int> deleteBasvuru(int id) async {
+    Database? db = await this.db;
+    var result = await db!.rawDelete("delete from basvurular where id=$id");
     return result;
   }
 

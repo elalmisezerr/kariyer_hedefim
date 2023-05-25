@@ -97,26 +97,31 @@ class _IlanDetayState extends State<IlanDetay> {
                                   showFullDescription = true;
                                 });
                               },
-                              child: Text('Daha Fazla Gör',textAlign: TextAlign.right,),
+
+                              child: Text('Daha Fazla Gör',textAlign: TextAlign.left,),
+
                             ),
                           ],
                         ),
                       if (showFullDescription)
-                        Column(
-                          children: [
-                            QuillEditor.basic(
-                              controller: _controller,
-                              readOnly: true,
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  showFullDescription = false;
-                                });
-                              },
-                              child: Text('Küçült'),
-                            ),
-                          ],
+                        Container(
+                         // height: MediaQuery.of(context).size.height*(0.7),
+                          child: Column(
+                            children: [
+                              QuillEditor.basic(
+                                controller: _controller,
+                                readOnly: true,
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    showFullDescription = false;
+                                  });
+                                },
+                                child: Text('Küçült'),
+                              ),
+                            ],
+                          ),
                         ),
                     ],
                   ),

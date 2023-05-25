@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
+import 'package:flutter_quill/flutter_quill.dart' hide Text;
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 
+import '../../Models/Basvuru.dart';
 import '../../Models/Ilan.dart';
 import '../../Models/Kullanici.dart';
 import '../GirisEkranı.dart';
@@ -88,7 +92,23 @@ class _BasvurularimState extends State<Basvurularim> {
                 );
               } else {
                 final ilan = snapshot.data ?? [];
-                return buildIlanList(ilan);
+                if (ilan.isEmpty) {
+                  return Center(
+                    child: Column(
+                      children: [
+                        SizedBox(height: MediaQuery.of(context).size.height*(0.3),),
+                        Icon(Icons.folder_off_outlined,size: 40,color: Colors.red,),
+                        Text('Başvuru bulunamadı!!',style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.red,
+                        ),),
+                      ],
+                    ),
+                  );
+                } else {
+                  return buildIlanList(ilan);
+                }
               }
             },
           ),
@@ -117,6 +137,7 @@ class _BasvurularimState extends State<Basvurularim> {
                         ),
                       ),
                     ),
+
                   ],
                 ),
                 SizedBox(height: 16.0),
@@ -124,7 +145,13 @@ class _BasvurularimState extends State<Basvurularim> {
                   children: [
                     Icon(Icons.explore),
                     SizedBox(width: 8.0),
-                    Expanded(child: Text(ilanlar[position].aciklama)),
+                    Expanded(child: Text(convertJsonToQuillController(ilanlar[position].aciklama).document.toPlainText(),maxLines: 4,)),
+                    IconButton(onPressed: () async {
+                      var temp;
+                      temp=await dbHelper.getBasvuruIdByIlanAndKullanici(ilanlar[position].id.toString(),widget.user!.id.toString() );
+                      await dbHelper.deleteBasvuru(temp);
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>Basvurularim(user: widget.user)));
+                    }, icon: Icon(Icons.delete,size: 30,color: Colors.red,))
                   ],
                 ),
                 SizedBox(height: 8.0),
@@ -179,6 +206,20 @@ class _BasvurularimState extends State<Basvurularim> {
     // NOTICE: Manage Advanced Drawer state through the Controller.
     // _advancedDrawerController.value = AdvancedDrawerValue.visible();
     _advancedDrawerController.showDrawer();
+  }
+  QuillController convertJsonToQuillController(String jsonString) {
+    if (jsonString.isEmpty) {
+      // Handle the empty JSON string case
+      return QuillController.basic(); // Or throw an exception, depending on your requirements
+    }
+
+    var jsonMap = jsonDecode(jsonString);
+    Document doc = Document.fromJson(jsonMap);
+    QuillController controller = QuillController(document: doc, selection: TextSelection(
+      baseOffset: 0,
+      extentOffset: doc.length,
+    ));
+    return controller;
   }
 
 

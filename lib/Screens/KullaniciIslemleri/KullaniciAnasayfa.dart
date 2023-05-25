@@ -253,6 +253,7 @@ class _HomeState extends State<HomeUser> {
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(height: 5,),
                     Text(
                       ilanlar[position].baslik,
                       style: TextStyle(
@@ -282,22 +283,30 @@ class _HomeState extends State<HomeUser> {
                     SizedBox(height: 5.0),
                   ],
                 ),
-                subtitle: Row(
+                subtitle: Column(
                   children: [
-                    Icon(Icons.description, size: 16.0, color: Colors.white),
-                    SizedBox(width: 5.0),
-                    Expanded(
-                      child: Text(
-                        convertJsonToQuillController(ilanlar[position].aciklama).document.toPlainText(),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.white,
+                    Row(
+                      children: [
+                        Icon(Icons.description, size: 16.0, color: Colors.white),
+                        SizedBox(width: 5.0),
+                        SizedBox(height: 5.0),
+                        Expanded(
+                          child: Text(
+                            convertJsonToQuillController(ilanlar[position].aciklama).document.toPlainText(),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
+
                     ),
+                    SizedBox(height: 5,)
                   ],
                 ),
+
               ),
             ),
           ),
