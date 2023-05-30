@@ -262,7 +262,7 @@ class MyDrawerComp extends StatelessWidget {
                                         builder: (context) => GirisEkrani()),
                                     (route) => false);
                                 await dbhelper.updateSirketLoggedInStatus(
-                                    company!.email, false);
+                                    company.email, false);
                               },
                               child: const Text(
                                 "EVET",

@@ -111,6 +111,7 @@ class _IlanDetayState extends State<IlanDetay> {
                               QuillEditor.basic(
                                 controller: _controller,
                                 readOnly: true,
+                                
                               ),
                               TextButton(
                                 onPressed: () {

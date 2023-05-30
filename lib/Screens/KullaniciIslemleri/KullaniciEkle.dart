@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/GirisKullanici.dart';
 import 'package:kariyer_hedefim/Validation/ValidationUser.dart';
 import 'package:intl/intl.dart';
 
+import '../../Components/Phoneformat.dart';
 import '../../Models/Kullanici.dart';
 
 class UsersAdd extends StatefulWidget {
@@ -61,7 +63,7 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
               SizedBox(
                 height: 5.0,
               ),
-              buildTelefon(),
+              buildTelefon2(),
               SizedBox(
                 height: 5.0,
               ),
@@ -207,6 +209,50 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
       ],
     );
   }
+
+  buildTelefon2() {
+    return  Container(
+
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 25),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              "Telefon Numarası",
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            InternationalPhoneNumberInput(
+              onInputChanged: (PhoneNumber number) {
+                // burada numarayı aldığınızda yapılması gereken işlemleri yapabilirsiniz
+              },
+              onSaved: (PhoneNumber? number) {
+                txtTelefon.text = number?.phoneNumber ?? '';
+              },
+              selectorConfig: SelectorConfig(
+                selectorType: PhoneInputSelectorType.DIALOG,
+                showFlags: true,
+              ),
+              ignoreBlank: true,
+              autoValidateMode: AutovalidateMode.disabled,
+              selectorTextStyle:
+              TextStyle(color: Colors.black, fontFamily: 'Comic Neue'),
+              //initialValue: PhoneNumber(isoCode: ''), // başlangıç ülke kodu
+              formatInput: true,
+              keyboardType:
+              TextInputType.numberWithOptions(signed: true, decimal: true),
+              inputDecoration: InputDecoration(
+                border: InputBorder.none,
+                filled: true,
+              ),
+              maxLength: 13,
+            ),
+          ],
+        ),
+      );
+    }
+
 
   buildAdres() {
     return Column(

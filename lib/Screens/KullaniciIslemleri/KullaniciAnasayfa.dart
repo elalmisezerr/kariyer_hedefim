@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
-import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Models/Ilan.dart';
@@ -12,8 +10,6 @@ import 'package:kariyer_hedefim/Screens/GirisEkran%C4%B1.dart';
 import 'package:kariyer_hedefim/Screens/IlanIslemleri/IlanDetay.dart';
 import 'package:kariyer_hedefim/Models/Kullanici.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/GirisKullanici.dart';
-import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciDetay.dart';
-import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/Basvurularim.dart';
 
 import '../../Data/GoogleSignin.dart';
 
@@ -367,6 +363,10 @@ QuillController convertJsonToQuillController(String jsonString) {
   return controller;
 }
 
+
+
+
+
 class DataSearch extends SearchDelegate<String> {
   var dbHelper = DatabaseProvider();
   _HomeState? homeuser;
@@ -375,11 +375,26 @@ class DataSearch extends SearchDelegate<String> {
   );
   User user;
   Ilanlar? selectedilanlar;
+  BuildContext? context;
 
   @override
   List<Widget>? buildActions(BuildContext context) {
-    return [IconButton(onPressed: () {}, icon: Icon(Icons.clear))];
+    return [
+      IconButton(
+        onPressed: () {
+          query = '';
+        },
+        icon: Icon(Icons.clear),
+      ),
+      IconButton(
+        onPressed: () {
+          showResults(context);
+        },
+        icon: Icon(Icons.search),
+      ),
+    ];
   }
+
 
   @override
   Widget? buildLeading(BuildContext context) {
@@ -399,6 +414,9 @@ class DataSearch extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
+    if (selectedilanlar == null) {
+      return Container(); // Return an empty container or handle the null case accordingly
+    }
     return Container(
       margin: EdgeInsets.only(top: 10),
       color: Colors.white,
@@ -497,6 +515,7 @@ class DataSearch extends SearchDelegate<String> {
     );
   }
 
+  @override
   Widget buildSuggestions(BuildContext context) {
     return FutureBuilder<List<Ilanlar?>>(
       future: getilanlar(),
@@ -510,9 +529,9 @@ class DataSearch extends SearchDelegate<String> {
           final suggestionsList = query.isEmpty
               ? ilanlar.map((i) => i!.baslik).toList()
               : ilanlar
-                  .where((i) => i!.baslik.startsWith(query))
-                  .map((i) => i!.baslik)
-                  .toList();
+              .where((i) => i!.baslik.startsWith(query))
+              .map((i) => i!.baslik)
+              .toList();
           return ListView.builder(
             itemBuilder: (context, index) => ListTile(
               leading: Icon(Icons.work_outline_sharp),
@@ -545,4 +564,14 @@ class DataSearch extends SearchDelegate<String> {
       },
     );
   }
+
+  @override
+  void querySubmitted(String query) {
+    final ilanlar = getilanlar();
+    ilanlar.then((list) {
+      selectedilanlar = list.firstWhere((i) => i.baslik == query);
+      showResults(context!);
+    });
+  }
 }
+

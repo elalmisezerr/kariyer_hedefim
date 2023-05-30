@@ -137,7 +137,7 @@ class GirisEkrani extends StatelessWidget {
           shadowColor: Colors.blueGrey,
         ),
         child: const Text(
-          'Kullanıcı Girişi',
+          'Kullanıcı Giriş',
           style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       );
