@@ -346,135 +346,157 @@ class DataSearch extends SearchDelegate<String> {
   var dbHelper = DatabaseProvider();
   _HomeCompanyState? homeuser;
   DataSearch(
-    this.company,
-  );
+      this.company,
+      );
   Company company;
   Ilanlar? selectedilanlar;
+  BuildContext? context;
 
   @override
   List<Widget>? buildActions(BuildContext context) {
-    return [IconButton(onPressed: () {}, icon: Icon(Icons.clear))];
+    return [
+      IconButton(
+        onPressed: () {
+          query = '';
+        },
+        icon: Icon(Icons.clear),
+      ),
+      IconButton(
+        onPressed: () {
+          showResults(context);
+        },
+        icon: Icon(Icons.search),
+      ),
+    ];
+  }
+
+
+  String? checkJobTime(String? value) {
+    if (value != null && value.isNotEmpty) {
+      if (value == '1') {
+        return "Tam Zamanlı";
+      } else if (value == '2') {
+        return "Yarı Zamanlı";
+      } else if (value == '3') {
+        return "Her İkisi";
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
   }
 
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-        onPressed: () {
-          close(context, "");
-        },
-        icon: AnimatedIcon(
-          icon: AnimatedIcons.menu_arrow,
-          progress: transitionAnimation,
-        ));
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    if (selectedilanlar == null) {
-      return Container(); // Return an empty container if selectedilanlar is null
-    }
-    return Container(
-      margin: EdgeInsets.only(top: 10),
-      color: Colors.white,
-      child: Column(
-        children: [
-          Card(
-            clipBehavior: Clip.antiAlias,
-            elevation: 8.0,
-            shadowColor: Colors.amber,
-            shape: RoundedRectangleBorder(
-              side: BorderSide(
-                color: Colors.white,
-              ),
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: GestureDetector(
-              onTap: () {
-                print(selectedilanlar!.tarih);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => IlanDuzenleme(
-                        ilanlar: selectedilanlar, company: company),
-                  ),
-                );
-              },
-              child: Container(
-                decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                        colors: [Colors.black, Colors.blue],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight)),
-                child: ListTile(
-                  leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(25.0),
-                    child: Image.network(
-                      'https://img.freepik.com/free-vector/hiring-process_23-2148642176.jpg?w=826&t=st=1679557821~exp=1679558421~hmac=4d5df907230cd7727dfe0cd2aab440d3c1f6d192152521b83d90f489de2a564d',
-                      width: 50.0,
-                      height: 50.0,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        selectedilanlar!.baslik,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 5.0),
-                      Row(
-                        children: [
-                          Row(children: [
-                            Icon(
-                              Icons.category,
-                              size: 19.0,
-                              color: Colors.red,
-                            ),
-                          ]),
-                          VerticalDivider(color: Colors.white),
-                          Icon(
-                            Icons.access_time,
-                            size: 16.0,
-                            color: Colors.white,
-                          ),
-                          SizedBox(width: 5.0),
-                          Text(
-                            selectedilanlar!.tarih,
-                            style: TextStyle(
-                              fontSize: 14.0,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  subtitle: Text(
-                    convertJsonToQuillController(selectedilanlar!.aciklama)
-                        .document
-                        .toPlainText(),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+      onPressed: () {
+        close(context, "");
+      },
+      icon: AnimatedIcon(
+        icon: AnimatedIcons.menu_arrow,
+        progress: transitionAnimation,
       ),
     );
   }
 
+  Future<List<Ilanlar>> getilanlar() async {
+    return await dbHelper.getIlanlarWithId(company.id.toString());
+  }
+  @override
+  Widget buildResults(BuildContext context) {
+    return Builder(
+      builder: (BuildContext context) {
+        return FutureBuilder<List<Ilanlar>>(
+          future: getilanlar(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error Occurred'));
+            } else {
+              final ilanlar = snapshot.data!;
+              final lowerCaseQuery = query.toLowerCase();
+              final filteredList = ilanlar.where((ilan) {
+                final baslik = ilan.baslik.toLowerCase();
+                final aciklama = convertJsonToQuillController(ilan.aciklama).document.toPlainText().toLowerCase();
+                return baslik.contains(lowerCaseQuery) || aciklama.contains(lowerCaseQuery);
+              }).toList();
+
+              if (filteredList.isEmpty) {
+                return Center(child: Text('No results found.'));
+              }
+
+              return ListView(
+                children: filteredList.map((ilan) {
+                  return  InkWell(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>IlanDuzenleme(company: company,ilanlar: ilan,)));
+                    },
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  ilan.baslik,
+                                  style: TextStyle(
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8.0),
+                            Container(
+                              height: 30.0,
+                              child: Text(
+                                convertJsonToQuillController(ilan.aciklama)
+                                    .document
+                                    .toPlainText(),
+                                style: TextStyle(fontSize: 16.0),
+                                maxLines: 3,
+                              ),
+                            ),
+                            SizedBox(height: 8.0),
+                            Divider(height: 20, thickness: 1, color: Colors.grey),
+                            Row(
+                              children: [
+                                Icon(Icons.access_time),
+                                SizedBox(width: 5.0),
+                                Text(checkJobTime(
+                                    ilan.calisma_zamani.toString()) ??
+                                    ""),
+                                SizedBox(width: 10.0),
+                                Icon(Icons.date_range),
+                                SizedBox(width: 5.0),
+                                Text(ilan.tarih),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+
+
+                }).toList(),
+              );
+            }
+          },
+        );
+      },
+    );
+  }
+
+  @override
   Widget buildSuggestions(BuildContext context) {
-    return FutureBuilder<List<Ilanlar?>>(
-      future: dbHelper.getIlanlar(),
+    return FutureBuilder<List<Ilanlar>>(
+      future: getilanlar(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -483,34 +505,40 @@ class DataSearch extends SearchDelegate<String> {
         } else {
           final ilanlar = snapshot.data!;
           final suggestionsList = query.isEmpty
-              ? ilanlar.map((i) => i!.baslik).toList()
-              : ilanlar
-                  .where((i) => i!.baslik.startsWith(query))
-                  .map((i) => i!.baslik)
-                  .toList();
+              ? ilanlar
+              : ilanlar.where((i) {
+            final lowerCaseQuery = query.toLowerCase();
+            final baslik = i.baslik.toLowerCase();
+            final aciklama = convertJsonToQuillController(i.aciklama)
+                .document
+                .toPlainText()
+                .toLowerCase();
+            return baslik.contains(lowerCaseQuery) ||
+                aciklama.contains(lowerCaseQuery);
+          }).toList();
           return ListView.builder(
             itemBuilder: (context, index) => ListTile(
               leading: Icon(Icons.work_outline_sharp),
               title: RichText(
                 text: TextSpan(
-                  text: suggestionsList[index].substring(0, query.length),
+                  text: suggestionsList[index].baslik.substring(0, query.length),
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
                   ),
                   children: [
                     TextSpan(
-                      text: suggestionsList[index].substring(query.length),
+                      text: suggestionsList[index].baslik.substring(query.length),
                       style: TextStyle(
                         color: Colors.grey,
                       ),
                     ),
                   ],
                 ),
+
               ),
               onTap: () {
-                selectedilanlar = ilanlar
-                    .firstWhere((i) => i!.baslik == suggestionsList[index]);
+                selectedilanlar = suggestionsList[index];
                 showResults(context);
               },
             ),
@@ -520,4 +548,201 @@ class DataSearch extends SearchDelegate<String> {
       },
     );
   }
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+// class DataSearch extends SearchDelegate<String> {
+//   var dbHelper = DatabaseProvider();
+//   _HomeCompanyState? homeuser;
+//   DataSearch(
+//       this.company,
+//       );
+//   Company company;
+//   Ilanlar? selectedilanlar;
+//
+//   @override
+//   List<Widget>? buildActions(BuildContext context) {
+//     return [IconButton(onPressed: () {}, icon: Icon(Icons.clear))];
+//   }
+//
+//   @override
+//   Widget? buildLeading(BuildContext context) {
+//     return IconButton(
+//         onPressed: () {
+//           close(context, "");
+//         },
+//         icon: AnimatedIcon(
+//           icon: AnimatedIcons.menu_arrow,
+//           progress: transitionAnimation,
+//         ));
+//   }
+//
+//   @override
+//   Widget buildResults(BuildContext context) {
+//     if (selectedilanlar == null) {
+//       return Container(); // Return an empty container if selectedilanlar is null
+//     }
+//     return Container(
+//       margin: EdgeInsets.only(top: 10),
+//       color: Colors.white,
+//       child: Column(
+//         children: [
+//           Card(
+//             clipBehavior: Clip.antiAlias,
+//             elevation: 8.0,
+//             shadowColor: Colors.amber,
+//             shape: RoundedRectangleBorder(
+//               side: BorderSide(
+//                 color: Colors.white,
+//               ),
+//               borderRadius: BorderRadius.circular(10.0),
+//             ),
+//             child: GestureDetector(
+//               onTap: () {
+//                 print(selectedilanlar!.tarih);
+//                 Navigator.push(
+//                   context,
+//                   MaterialPageRoute(
+//                     builder: (context) => IlanDuzenleme(
+//                         ilanlar: selectedilanlar, company: company),
+//                   ),
+//                 );
+//               },
+//               child: Container(
+//                 decoration: const BoxDecoration(
+//                     gradient: LinearGradient(
+//                         colors: [Colors.black, Colors.blue],
+//                         begin: Alignment.topLeft,
+//                         end: Alignment.bottomRight)),
+//                 child: ListTile(
+//                   leading: ClipRRect(
+//                     borderRadius: BorderRadius.circular(25.0),
+//                     child: Image.network(
+//                       'https://img.freepik.com/free-vector/hiring-process_23-2148642176.jpg?w=826&t=st=1679557821~exp=1679558421~hmac=4d5df907230cd7727dfe0cd2aab440d3c1f6d192152521b83d90f489de2a564d',
+//                       width: 50.0,
+//                       height: 50.0,
+//                       fit: BoxFit.cover,
+//                     ),
+//                   ),
+//                   title: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Text(
+//                         selectedilanlar!.baslik,
+//                         style: TextStyle(
+//                           color: Colors.white,
+//                           fontWeight: FontWeight.bold,
+//                         ),
+//                       ),
+//                       SizedBox(height: 5.0),
+//                       Row(
+//                         children: [
+//                           Row(children: [
+//                             Icon(
+//                               Icons.category,
+//                               size: 19.0,
+//                               color: Colors.red,
+//                             ),
+//                           ]),
+//                           VerticalDivider(color: Colors.white),
+//                           Icon(
+//                             Icons.access_time,
+//                             size: 16.0,
+//                             color: Colors.white,
+//                           ),
+//                           SizedBox(width: 5.0),
+//                           Text(
+//                             selectedilanlar!.tarih,
+//                             style: TextStyle(
+//                               fontSize: 14.0,
+//                               color: Colors.white,
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ],
+//                   ),
+//                   subtitle: Text(
+//                     convertJsonToQuillController(selectedilanlar!.aciklama)
+//                         .document
+//                         .toPlainText(),
+//                     maxLines: 2,
+//                     overflow: TextOverflow.ellipsis,
+//                     style: TextStyle(
+//                       color: Colors.white,
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   Widget buildSuggestions(BuildContext context) {
+//     return FutureBuilder<List<Ilanlar?>>(
+//       future: dbHelper.getIlanlar(),
+//       builder: (context, snapshot) {
+//         if (snapshot.connectionState == ConnectionState.waiting) {
+//           return Center(child: CircularProgressIndicator());
+//         } else if (snapshot.hasError) {
+//           return Center(child: Text('Error Occurred'));
+//         } else {
+//           final ilanlar = snapshot.data!;
+//           final suggestionsList = query.isEmpty
+//               ? ilanlar.map((i) => i!.baslik).toList()
+//               : ilanlar
+//               .where((i) => i!.baslik.startsWith(query))
+//               .map((i) => i!.baslik)
+//               .toList();
+//           return ListView.builder(
+//             itemBuilder: (context, index) => ListTile(
+//               leading: Icon(Icons.work_outline_sharp),
+//               title: RichText(
+//                 text: TextSpan(
+//                   text: suggestionsList[index].substring(0, query.length),
+//                   style: TextStyle(
+//                     color: Colors.black,
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                   children: [
+//                     TextSpan(
+//                       text: suggestionsList[index].substring(query.length),
+//                       style: TextStyle(
+//                         color: Colors.grey,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//               onTap: () {
+//                 selectedilanlar = ilanlar
+//                     .firstWhere((i) => i!.baslik == suggestionsList[index]);
+//                 showResults(context);
+//               },
+//             ),
+//             itemCount: suggestionsList.length,
+//           );
+//         }
+//       },
+//     );
+//   }
+// }

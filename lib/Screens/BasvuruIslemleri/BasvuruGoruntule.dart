@@ -52,6 +52,28 @@ class _BasvuruGoruntuleState extends State<BasvuruGoruntule> {
   }
 
   ListView buildUserList(final List<User> users) {
+    if (users.isEmpty) {
+      return ListView(
+        children: [
+          ListTile(
+            title:Center(
+              child: Column(
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height*(0.3),),
+                  Icon(Icons.folder_off_outlined,size: 40,color: Colors.red,),
+                  Text('Bu ilana başvuran kimse bulunamadı!!',style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.red,
+                  ),),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
     return ListView.builder(
       itemCount: users.length,
       itemBuilder: (BuildContext context, int position) {
