@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Models/Kurum.dart';
 import 'package:kariyer_hedefim/Screens/SirketIslemleri/GirisSirket.dart';
@@ -232,7 +233,7 @@ class _CompanyAddState extends State<CompanyAdd>
     );
   }
 
-  buildTelefon() {
+  buildTelefon2() {
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
       child: TextField(
@@ -247,6 +248,73 @@ class _CompanyAddState extends State<CompanyAdd>
             filled: true,
             fillColor: Colors.white),
         cursorColor: Colors.yellow,
+      ),
+    );
+  }
+
+  buildTelefon() {
+    return  Padding(
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 5,
+          ),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.grey,
+                width: 1.0,
+              ),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        hintText: "Telefon Numarasını Giriniz",
+                        labelText: "Telefon",
+                        border: InputBorder.none,
+                        filled: true,
+                        fillColor: Colors.white,
+                        labelStyle: TextStyle(color: Colors.grey),
+                        hintStyle: TextStyle(color: Colors.grey),
+                      ),
+                      child: InternationalPhoneNumberInput(
+                        onInputChanged: (PhoneNumber number) {
+                          // burada numarayı aldığınızda yapılması gereken işlemleri yapabilirsiniz
+                        },
+                        onSaved: (PhoneNumber? number) {
+                          txtTelefon.text = number?.phoneNumber ?? '';
+                        },
+                        selectorConfig: SelectorConfig(
+                          selectorType: PhoneInputSelectorType.DIALOG,
+                          showFlags: true,
+                        ),
+                        ignoreBlank: true,
+                        autoValidateMode: AutovalidateMode.disabled,
+                        selectorTextStyle:
+                        TextStyle(color: Colors.black, fontFamily: 'Comic Neue'),
+                        initialValue: PhoneNumber(isoCode: 'TR'),
+                        formatInput: true,
+                        keyboardType:
+                        TextInputType.numberWithOptions(signed: true, decimal: true),
+                        maxLength: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -275,28 +343,23 @@ class _CompanyAddState extends State<CompanyAdd>
   buildSaveButton() {
     return Padding(
       padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
-
       child: ElevatedButton(
         onPressed: () async {
-          if(txtpassWord.text==txtpassWord2.text){
+          if (txtpassWord.text == txtpassWord2.text) {
             if (formKey.currentState!.validate()) {
               formKey.currentState!.save();
-              bool kullaniciVarMi =
-              await dbHelper.kullaniciAdiKontrolEt(txtuserName.text);
-              bool sirketVarmi =
-              await dbHelper.sirketAdiKontrolEt(txtuserName.text);
+              bool kullaniciVarMi = await dbHelper.kullaniciAdiKontrolEt(txtuserName.text);
+              bool sirketVarmi = await dbHelper.sirketAdiKontrolEt(txtuserName.text);
               bool kayitVarmi = sirketVarmi || kullaniciVarMi;
               if (kayitVarmi == false) {
                 addCompanies();
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => LoginCompany()));
                 String email = 'szrelalmis@gmail.com';
                 await dbHelper.checkIsAdmin(email);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => LoginCompany()));
               } else {
                 if (sirketVarmi == true && kullaniciVarMi == false) {
                   _showResendDialog();
-                }
-                if (sirketVarmi == false && kullaniciVarMi == true) {
+                } else if (sirketVarmi == false && kullaniciVarMi == true) {
                   _showResendDialog2();
                 }
               }
@@ -308,16 +371,19 @@ class _CompanyAddState extends State<CompanyAdd>
                 ),
               );
             }
-
-          }else{
+          } else {
             ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: Color(0xffbf1922),
-                  content: Text('Şifreler uyuşmuyor!!!.',textAlign: TextAlign.center,),
-
-                ));
+              SnackBar(
+                backgroundColor: Color(0xffbf1922),
+                content: Text(
+                  'Şifreler uyuşmuyor!!!.',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
           }
         },
+
         child: Text(
           "Ekle",
           style: TextStyle(fontSize: 20, color: Colors.white),
@@ -329,11 +395,13 @@ class _CompanyAddState extends State<CompanyAdd>
       ),
     );
   }
+
   String hashPassword(String password) {
     var bytes = utf8.encode(password);
     var digest = sha256.convert(bytes);
     return digest.toString();
   }
+
   void addCompanies() async {
     var result = await dbHelper.insertCompany(Company.withoutId(
       isim: txtName.text,

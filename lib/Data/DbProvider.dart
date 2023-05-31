@@ -1,7 +1,5 @@
 import 'dart:convert';
-
 import 'package:crypto/crypto.dart';
-import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Models/Kurum.dart';
 import 'package:kariyer_hedefim/Models/Ilan.dart';
 import 'package:kariyer_hedefim/Models/Basvuru.dart';
@@ -9,6 +7,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:async';
 import '../Models/Kullanici.dart';
+import '../Models/Log.dart';
 
 class DatabaseProvider {
   static final DatabaseProvider dbProvider = DatabaseProvider();
@@ -50,6 +49,9 @@ class DatabaseProvider {
         "CREATE TABLE basvurular (id INTEGER PRIMARY KEY AUTOINCREMENT,ilan_id TEXT,kullanici_id TEXT,basvuru_tarihi TEXT,FOREIGN KEY (ilan_id) REFERENCES ilanlar(id) ON DELETE CASCADE,FOREIGN KEY (kullanici_id) REFERENCES users(id) ON DELETE CASCADE);");
     await db.execute(
         "CREATE TABLE ilanlar (id INTEGER PRIMARY KEY AUTOINCREMENT,baslik TEXT,aciklama TEXT,sirket_id TEXT,tarih TEXT,calisma_zamani INTEGER,FOREIGN KEY (sirket_id) REFERENCES sirketler(id) ON DELETE CASCADE);");
+    await db.execute(
+      "CREATE TABLE log (id INTEGER PRIMARY KEY AUTOINCREMENT,kisi TEXT,kull_id TEXT,cevirimici TEXT,islem TEXT,tarih TEXT);"
+    );
   }
   // Future insertInitialCompanyData(Database db) async {
   //   String email = 'szrelalmis@gmail.com';
@@ -182,7 +184,8 @@ class DatabaseProvider {
     } else {
       return null;
     }
-  }Future<int?> getBasvuruIdByIlanAndKullanici(String ilan,String kullanici) async {
+  }
+  Future<int?> getBasvuruIdByIlanAndKullanici(String ilan,String kullanici) async {
     final db = await dbProvider.db;
     final result =
         await db!.query( 'basvurular',
@@ -251,6 +254,19 @@ class DatabaseProvider {
       throw Exception("Aynı kayıt zaten mevcut.");
     }
   }
+
+  Future<int> insertLog( LogModel log) async {
+    Database? db = await this.db;
+    try {
+      var result = await db!.insert(
+        "log",
+        log.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      return result;
+    } catch (e) {
+      throw Exception("Aynı kayıt zaten mevcut.");
+    }}
 
   Future<int> insertIlan(Ilanlar ilanlar) async {
     Database? db = await this.db;
@@ -397,6 +413,38 @@ class DatabaseProvider {
       whereArgs: [email],
     );
   }
+  Future<String> getUserLoggedInStatus(String email) async {
+    Database? db = await this.db;
+    List<Map<String, dynamic>> result = await db!.query(
+      'users',
+      columns: ['isLoggedIn'],
+      where: 'email = ?',
+      whereArgs: [email],
+    );
+
+    if (result.isNotEmpty) {
+      String isLoggedIn = (result[0]['isLoggedIn'] == 1) as String;
+      return isLoggedIn;
+    } else {
+      throw Exception('User not found');
+    }
+  }
+  Future<String> getSirketLoggedInStatus(String email) async {
+    Database? db = await this.db;
+    List<Map<String, dynamic>> results = await db!.query(
+      'sirketler',
+      columns: ['isLoggedIn'],
+      where: 'email = ?',
+      whereArgs: [email],
+    );
+    if (results.isNotEmpty) {
+      String isLoggedInValue = (results[0]['isLoggedIn']).toString();
+      return isLoggedInValue;
+    }else {
+      throw Exception('Company not found');
+    }
+  }
+
 
   Future<void> updateSirketLoggedInStatus(String email, bool isLoggedIn) async {
     Database? db = await this.db;

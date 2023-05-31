@@ -10,6 +10,7 @@ import 'package:kariyer_hedefim/Screens/SirketIslemleri/SirketAnasayfa.dart';
 import 'package:kariyer_hedefim/Screens/SirketIslemleri/SirketDetay.dart';
 
 import '../Data/DbProvider.dart';
+import '../Data/GoogleSignin.dart';
 import '../Models/Kullanici.dart';
 import '../Screens/AdminIslemleri/AdmEditIlan.dart';
 import '../Screens/AdminIslemleri/AdmEditUsers.dart';
@@ -159,6 +160,23 @@ class MyDrawerComp extends StatelessWidget {
   MyDrawerComp({Key? key, required this.company}) : super(key: key);
   Company company;
   var dbhelper = DatabaseProvider();
+
+  void logout(BuildContext context) async {
+    await dbhelper.updateSirketLoggedInStatus(company!.email, false);
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => GirisEkrani()),
+    );
+    logoutgoogle();
+  }
+
+
+  void logoutgoogle() {
+    if (GoogleSignInApi != null) {
+      GoogleSignInApi.logout();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -256,13 +274,7 @@ class MyDrawerComp extends StatelessWidget {
                             ),
                             TextButton(
                               onPressed: () async {
-                                Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => GirisEkrani()),
-                                    (route) => false);
-                                await dbhelper.updateSirketLoggedInStatus(
-                                    company.email, false);
+                             logout(context);
                               },
                               child: const Text(
                                 "EVET",

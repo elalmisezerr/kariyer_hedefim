@@ -4,7 +4,6 @@ import 'package:kariyer_hedefim/Components/MyDrawer.dart';
 import 'package:kariyer_hedefim/Models/Kurum.dart';
 
 import '../../Data/DbProvider.dart';
-import '../../Data/GoogleSignin.dart';
 import '../GirisEkranı.dart';
 
 class HomeAdmin extends StatefulWidget {

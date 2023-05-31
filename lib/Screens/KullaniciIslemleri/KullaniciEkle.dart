@@ -26,9 +26,11 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
   var txtBirthDate = TextEditingController();
   var txtuserName = TextEditingController();
   var txtpassWord = TextEditingController();
+  var txtpassWord2 = TextEditingController();
   var txtTelefon = TextEditingController();
   var txtAdres = TextEditingController();
   DateTime? _selectedDate;
+  bool _isObscured = true;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +65,11 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
               SizedBox(
                 height: 5.0,
               ),
-              buildTelefon2(),
+              buildPassword2(),
+              SizedBox(
+                height: 5.0,
+              ),
+              buildTelefon(),
               SizedBox(
                 height: 5.0,
               ),
@@ -83,17 +89,19 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Adınızı giriniz",
-          textAlign: TextAlign.left,
+        SizedBox(
+          height: 5,
         ),
-        SizedBox(height: 5.0),
         TextFormField(
           validator: validateName,
           decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.person),
-          ),
+              prefixIcon: Icon(Icons.person),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              hintText: "Adınızı Giriniz",
+              labelText: "Ad",
+              filled: true,
+              fillColor: Colors.white),
           controller: txtName,
         )
       ],
@@ -104,17 +112,17 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Soyadınızı giriniz",
-          textAlign: TextAlign.left,
-        ),
         SizedBox(height: 5.0),
         TextFormField(
           validator: validateSurName,
           decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.person),
-          ),
+              prefixIcon: Icon(Icons.person),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              hintText: "Soyadınızı Giriniz",
+              labelText: "Soyad",
+              filled: true,
+              fillColor: Colors.white),
           controller: txtSurname,
         )
       ],
@@ -125,16 +133,16 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Kullanıcı adı giriniz",
-          textAlign: TextAlign.left,
-        ),
         SizedBox(height: 5.0),
         TextFormField(
           decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.email),
-          ),
+              prefixIcon: Icon(Icons.email),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              hintText: "Email Giriniz",
+              labelText: "Email",
+              filled: true,
+              fillColor: Colors.white),
           controller: txtuserName,
           keyboardType: TextInputType.emailAddress,
         )
@@ -146,20 +154,43 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Doğum tarihinizi seçin",
-          textAlign: TextAlign.left,
-        ),
         SizedBox(height: 5.0),
         TextFormField(
           validator: validateBirtdate,
           readOnly: true,
           onTap: _showDatePicker,
           decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.cake),
-          ),
+              prefixIcon: Icon(Icons.cake),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              hintText: "Doğum Tarihinizi Seçiniz",
+              labelText: "Doğum Tarihi",
+              filled: true,
+              fillColor: Colors.white),
           controller: txtBirthDate, // değiştirildi
+        )
+      ],
+    );
+  }
+
+  buildPasswordold() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 5.0),
+        TextFormField(
+          validator: validatePassword,
+          decoration: InputDecoration(
+              prefixIcon: Icon(Icons.home),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              hintText: "Şifrenizi Giriniz",
+              labelText: "Şifre",
+              filled: true,
+              fillColor: Colors.white),
+          controller: txtpassWord,
+          obscureText: _isObscured,
+          keyboardType: TextInputType.visiblePassword,
         )
       ],
     );
@@ -169,26 +200,73 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Şifrenizi girin",
-          textAlign: TextAlign.left,
-        ),
         SizedBox(height: 5.0),
-        TextFormField(
-          validator: validatePassword,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.lock),
-          ),
+        TextField(
           controller: txtpassWord,
-          obscureText: true,
+          obscureText: _isObscured,
           keyboardType: TextInputType.visiblePassword,
-        )
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.lock),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            hintText: "Şifre Giriniz",
+            labelText: "Şifre",
+            filled: true,
+            fillColor: Colors.white,
+            suffixIcon: IconButton(
+              icon: Icon(
+                _isObscured ? Icons.visibility : Icons.visibility_off,
+                color: Colors.grey,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isObscured = !_isObscured;
+                });
+              },
+            ),
+          ),
+          cursorColor: Colors.yellow,
+        ),
       ],
     );
   }
 
-  buildTelefon() {
+  buildPassword2() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 5,),
+        TextField(
+          controller: txtpassWord2,
+          obscureText: _isObscured,
+          keyboardType: TextInputType.visiblePassword,
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.lock),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            hintText: "Şifrenizi Tekrar Giriniz",
+            labelText: "Şifre Tekrarı",
+            filled: true,
+            fillColor: Colors.white,
+            suffixIcon: IconButton(
+              icon: Icon(
+                _isObscured ? Icons.visibility : Icons.visibility_off,
+                color: Colors.grey,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isObscured = !_isObscured;
+                });
+              },
+            ),
+          ),
+          cursorColor: Colors.yellow,
+        ),
+      ],
+    );
+  }
+
+  buildTelefon2() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -210,65 +288,85 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
     );
   }
 
-  buildTelefon2() {
-    return  Container(
-
-        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 25),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              "Telefon Numarası",
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            InternationalPhoneNumberInput(
-              onInputChanged: (PhoneNumber number) {
-                // burada numarayı aldığınızda yapılması gereken işlemleri yapabilirsiniz
-              },
-              onSaved: (PhoneNumber? number) {
-                txtTelefon.text = number?.phoneNumber ?? '';
-              },
-              selectorConfig: SelectorConfig(
-                selectorType: PhoneInputSelectorType.DIALOG,
-                showFlags: true,
-              ),
-              ignoreBlank: true,
-              autoValidateMode: AutovalidateMode.disabled,
-              selectorTextStyle:
-              TextStyle(color: Colors.black, fontFamily: 'Comic Neue'),
-              //initialValue: PhoneNumber(isoCode: ''), // başlangıç ülke kodu
-              formatInput: true,
-              keyboardType:
-              TextInputType.numberWithOptions(signed: true, decimal: true),
-              inputDecoration: InputDecoration(
-                border: InputBorder.none,
-                filled: true,
-              ),
-              maxLength: 13,
-            ),
-          ],
+  buildTelefon() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 5,
         ),
-      );
-    }
-
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.grey,
+              width: 1.0,
+            ),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(2.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      hintText: "Telefon Numarasını Giriniz",
+                      labelText: "Telefon",
+                      border: InputBorder.none,
+                      filled: true,
+                      fillColor: Colors.white,
+                      labelStyle: TextStyle(color: Colors.grey),
+                      hintStyle: TextStyle(color: Colors.grey),
+                    ),
+                    child: InternationalPhoneNumberInput(
+                      onInputChanged: (PhoneNumber number) {
+                        // burada numarayı aldığınızda yapılması gereken işlemleri yapabilirsiniz
+                      },
+                      onSaved: (PhoneNumber? number) {
+                        txtTelefon.text = number?.phoneNumber ?? '';
+                      },
+                      selectorConfig: SelectorConfig(
+                        selectorType: PhoneInputSelectorType.DIALOG,
+                        showFlags: true,
+                      ),
+                      ignoreBlank: true,
+                      autoValidateMode: AutovalidateMode.disabled,
+                      selectorTextStyle: TextStyle(
+                          color: Colors.black, fontFamily: 'Comic Neue'),
+                      initialValue: PhoneNumber(isoCode: 'TR'),
+                      formatInput: true,
+                      keyboardType: TextInputType.numberWithOptions(
+                          signed: true, decimal: true),
+                      maxLength: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   buildAdres() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Adresinizi girin",
-          textAlign: TextAlign.left,
-        ),
         SizedBox(height: 5.0),
         TextFormField(
           validator: validateAdres,
           decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.house),
-          ),
+              prefixIcon: Icon(Icons.house),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              hintText: "Adresinizi Giriniz",
+              labelText: "Adres",
+              filled: true,
+              fillColor: Colors.white),
           controller: txtAdres,
         )
       ],
@@ -288,39 +386,54 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
     }
   }
 
-
   buildSaveButton() {
     return Padding(
       padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
       child: ElevatedButton(
         onPressed: () async {
-          if (formKey.currentState!.validate()) {
-            formKey.currentState!.save();
-            bool kullaniciVarMi = await dbHelper.kullaniciAdiKontrolEt(txtuserName.text) ;
-            bool sirketVarmi= await dbHelper.sirketAdiKontrolEt(txtuserName.text);
-            bool kayitVarmi= sirketVarmi || kullaniciVarMi;
-            if (kayitVarmi == false) {
-              addUsers();
-              String email = 'szrelalmis@gmail.com';
-              await dbHelper.checkIsAdmin(email);
-              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginUser()), (route) => false);
-            } else { if(sirketVarmi==true &&kullaniciVarMi==false){
-              _showResendDialog();
+          if(txtpassWord.text==txtpassWord2.text){
+            if (formKey.currentState!.validate()) {
+              formKey.currentState!.save();
+              bool kullaniciVarMi =
+              await dbHelper.kullaniciAdiKontrolEt(txtuserName.text);
+              bool sirketVarmi =
+              await dbHelper.sirketAdiKontrolEt(txtuserName.text);
+              bool kayitVarmi = sirketVarmi || kullaniciVarMi;
+              if (kayitVarmi == false) {
+                addUsers();
+                String email = 'szrelalmis@gmail.com';
+                await dbHelper.checkIsAdmin(email);
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginUser()),
+                        (route) => false);
+              } else {
+                if (sirketVarmi == true && kullaniciVarMi == false) {
+                  _showResendDialog();
+                }
+                if (sirketVarmi == false && kullaniciVarMi == true) {
+                  _showResendDialog2();
+                }
+              }
             }
-            if(sirketVarmi==false &&kullaniciVarMi==true){
-              _showResendDialog2();
-            }
-            }
+          }else{
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: Color(0xffbf1922),
+                  content: Text('Şifreler uyuşmuyor!!!.',textAlign: TextAlign.center,),
+
+                ));
           }
-        },
+          },
         child: Text(
           "Ekle",
           style: TextStyle(fontSize: 20, color: Colors.white),
-        ),style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10)),
-          primary: Color(0xffbf1922)),
+        ),
+        style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            primary: Color(0xffbf1922)),
       ),
     );
   }
@@ -346,6 +459,7 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
       },
     );
   }
+
   void _showResendDialogcheck() {
     AlertDialog alert = AlertDialog(
       title: Text("Uyarı"),
@@ -367,6 +481,7 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
       },
     );
   }
+
   void _showResendDialog2() {
     AlertDialog alert = AlertDialog(
       title: Text("Uyarı"),
@@ -388,16 +503,18 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
       },
     );
   }
+
   String hashPassword(String password) {
     var bytes = utf8.encode(password);
     var digest = sha256.convert(bytes);
     return digest.toString();
   }
+
   void addUsers() async {
     var result = await dbHelper.insertUser(User.withOutId(
       ad: txtName.text,
       soyad: txtSurname.text,
-      dogumtarihi:txtBirthDate.text,
+      dogumtarihi: txtBirthDate.text,
       email: txtuserName.text,
       password: hashPassword(txtpassWord.text),
       telefon: txtTelefon.text,

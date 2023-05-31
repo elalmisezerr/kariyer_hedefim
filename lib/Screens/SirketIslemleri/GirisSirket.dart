@@ -4,12 +4,14 @@ import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
+import 'package:kariyer_hedefim/Models/Kurum.dart';
 import 'package:kariyer_hedefim/Screens/GirisEkranı.dart';
 import 'package:kariyer_hedefim/components/Button.dart';
 import 'package:kariyer_hedefim/components/Square.dart';
 import 'package:kariyer_hedefim/components/TextFormField.dart';
 import 'package:kariyer_hedefim/validation/ValidationLogin.dart';
 import '../../Data/GoogleSignin.dart';
+import '../../Models/Log.dart';
 import '../AdminIslemleri/HomeAdmin.dart';
 import 'ResetPasswordSirket/Deneme.dart';
 import 'SirketAnasayfa.dart';
@@ -29,7 +31,8 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
   final passwordController = TextEditingController();
   var formKey = GlobalKey<FormState>();
   bool _isObscured = true;
-
+  LogModel? log;
+  Company? company;
   @override
   void initState() {
     super.initState();
@@ -104,6 +107,46 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
     );
   }
 
+  // LogModel? logg(String islem){
+  //   log= LogModel.withoutId(
+  //     kisi: "Kurum:  "+company!.email,
+  //     kull_id: company!.id.toString(),
+  //     cevirimici: ,
+  //     islem: islem,
+  //     tarih: DateTime.now().toString(),
+  //   );
+  //   return log;
+  //
+  // }
+
+  Future<String?> isLogedin() async {
+    var temp = await dbHelper.getSirketLoggedInStatus(userNameController.text);
+    if (temp == null) {
+      return "";
+    } else {
+      if (temp == "0") {
+        return "Çevirim Dışı";
+      } else if (temp == "1") {
+        return "Çevrimiçi";
+      }
+    }
+    return null;
+  }
+
+  Future<LogModel> logg(String islem) async {
+    String? cevirimDurumu = await isLogedin();
+    log = LogModel.withoutId(
+      kisi: "Kullanıcı:" + company!.email,
+      kull_id: company!.id.toString(),
+      cevirimici: cevirimDurumu!,
+      islem: islem,
+      tarih: DateTime.now().toString(),
+    );
+    return log!;
+  }
+
+
+
   List<Widget> govde() {
     return [
       // logo
@@ -170,7 +213,11 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
 
       // forgot password?
       InkWell(
-        onTap: () {
+        onTap: () async {
+          company=await dbHelper.getCompanyByEmail(userNameController.text);
+          var x=await logg("Şifre sıfırlama sayfasına gidildi");
+          await dbHelper.insertLog(x! as LogModel);
+
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => ResetPasswordPage()));
         },
@@ -192,6 +239,9 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
       ),
       // sign in button
       MyButton(onTap: () async {
+        company=await dbHelper.getCompanyByEmail(userNameController.text);
+        var x=await logg("Kurumsal Giriş Yapıldı");
+        await dbHelper.insertLog(x! as LogModel);
         await girisYap(
             userNameController.text, hashPassword(passwordController.text));
       }),
@@ -287,6 +337,9 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
           ));
         } else {
           await dbHelper.updateSirketLoggedInStatus(result.email, true);
+          company=await dbHelper.getCompanyByEmail(userNameController.text);
+          var x=await logg("Kurumsal giriş yapıldı");
+          await dbHelper.insertLog(x! as LogModel);
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -296,7 +349,8 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
                     )),
           );
           ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Center(child: Text("Giriş Başarılı!"))));
+              SnackBar( backgroundColor: Color(0xffbf1922),content: Center(child: Text("Giriş Başarılı!"))
+              ));
         }
       } else {
         print("Hatalı Giriş");
@@ -342,6 +396,9 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
               await dbHelper.kullaniciAdiKontrolEt(user.email.toString()) ||
                   await dbHelper.sirketAdiKontrolEt(user.email.toString());
           if (kullaniciVarMi == false) {
+            company=await dbHelper.getCompanyByEmail(userNameController.text);
+            var x=logg("Google ile kayıt olunan sayfaya gidildi");
+            await dbHelper.insertLog(x! as LogModel);
             Navigator.of(context).pushReplacement(MaterialPageRoute(
                 builder: (context) => LoginGooleCompany(user: user)));
             ScaffoldMessenger.of(context)
@@ -352,6 +409,9 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
             var temp = await dbHelper.getCompanyByEmail(user.email.toString());
             if (temp != null) {
               await dbHelper.updateSirketLoggedInStatus(temp.email, true);
+              company=await dbHelper.getCompanyByEmail(userNameController.text);
+              var x=logg("Google ile kurumsal giriş yapıldı");
+              await dbHelper.insertLog(x! as LogModel);
               Navigator.push(
                 context,
                 MaterialPageRoute(

@@ -220,17 +220,19 @@ class _HomeState extends State<HomeUser> {
     // _advancedDrawerController.value = AdvancedDrawerValue.visible();
     _advancedDrawerController.showDrawer();
   }
-
-  void logout() {
-    setState(() async {
-      if (GoogleSignInApi != null) {
-        await GoogleSignInApi.logout();
-      }
+  void logout() async {
       await dbHelper.updateUserLoggedInStatus(widget.Myuser!.email, false);
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => GirisEkrani()));
-    });
+    logoutgoogle();
   }
+
+  void logoutgoogle() {
+    if (GoogleSignInApi != null) {
+      GoogleSignInApi.logout();
+    }
+  }
+
 
   ListView buildIlanList(final List<Ilanlar> ilanlar) {
     return ListView.builder(
@@ -266,11 +268,8 @@ class _HomeState extends State<HomeUser> {
               child: ListTile(
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(25.0),
-                  child: Image.network(
-                    'https://img.freepik.com/free-vector/hiring-process_23-2148642176.jpg?w=826&t=st=1679557821~exp=1679558421~hmac=4d5df907230cd7727dfe0cd2aab440d3c1f6d192152521b83d90f489de2a564d',
-                    width: 50.0,
-                    height: 50.0,
-                    fit: BoxFit.cover,
+                  child: Image.asset(
+                    'assect/images/jobsearch.jpg',
                   ),
                 ),
                 title: Column(
@@ -319,7 +318,7 @@ class _HomeState extends State<HomeUser> {
                         Expanded(
                           child: Text(
                             convertJsonToQuillController(
-                                    ilanlar[position].aciklama)
+                                ilanlar[position].aciklama)
                                 .document
                                 .toPlainText(),
                             maxLines: 2,
@@ -340,6 +339,8 @@ class _HomeState extends State<HomeUser> {
             ),
           ),
         );
+
+
       },
     );
   }
@@ -366,13 +367,10 @@ QuillController convertJsonToQuillController(String jsonString) {
 
 
 
-
 class DataSearch extends SearchDelegate<String> {
   var dbHelper = DatabaseProvider();
   _HomeState? homeuser;
-  DataSearch(
-    this.user,
-  );
+  DataSearch(this.user);
   User user;
   Ilanlar? selectedilanlar;
   BuildContext? context;
@@ -395,129 +393,162 @@ class DataSearch extends SearchDelegate<String> {
     ];
   }
 
-
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-        onPressed: () {
-          close(context, "");
-        },
-        icon: AnimatedIcon(
-          icon: AnimatedIcons.menu_arrow,
-          progress: transitionAnimation,
-        ));
+      onPressed: () {
+        close(context, "");
+      },
+      icon: AnimatedIcon(
+        icon: AnimatedIcons.menu_arrow,
+        progress: transitionAnimation,
+      ),
+    );
   }
 
   Future<List<Ilanlar>> getilanlar() async {
     return await dbHelper.getIlanlar();
   }
-
   @override
   Widget buildResults(BuildContext context) {
-    if (selectedilanlar == null) {
-      return Container(); // Return an empty container or handle the null case accordingly
-    }
-    return Container(
-      margin: EdgeInsets.only(top: 10),
-      color: Colors.white,
-      child: Column(
-        children: [
-          Card(
-            clipBehavior: Clip.antiAlias,
-            elevation: 8.0,
-            shadowColor: Colors.amber,
-            shape: RoundedRectangleBorder(
-              side: BorderSide(
-                color: Colors.white,
-              ),
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        IlanDetay(ilanlar: selectedilanlar, user: user),
-                  ),
-                );
-              },
-              child: Container(
-                decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                        colors: [Colors.red, Colors.orange],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight)),
-                child: ListTile(
-                  leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(25.0),
-                    child: Image.network(
-                      'https://img.freepik.com/free-vector/hiring-process_23-2148642176.jpg?w=826&t=st=1679557821~exp=1679558421~hmac=4d5df907230cd7727dfe0cd2aab440d3c1f6d192152521b83d90f489de2a564d',
-                      width: 50.0,
-                      height: 50.0,
-                      fit: BoxFit.cover,
+    return Builder(
+      builder: (BuildContext context) {
+        return FutureBuilder<List<Ilanlar>>(
+          future: getilanlar(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error Occurred'));
+            } else {
+              final ilanlar = snapshot.data!;
+              final lowerCaseQuery = query.toLowerCase();
+              final filteredList = ilanlar.where((ilan) {
+                final baslik = ilan.baslik.toLowerCase();
+                final aciklama = convertJsonToQuillController(ilan.aciklama).document.toPlainText().toLowerCase();
+                return baslik.contains(lowerCaseQuery) || aciklama.contains(lowerCaseQuery);
+              }).toList();
+
+              if (filteredList.isEmpty) {
+                return Center(child: Text('No results found.'));
+              }
+
+              return ListView(
+                children: filteredList.map((ilan) {
+                  return Card(
+                    clipBehavior: Clip.antiAlias,
+                    elevation: 8.0,
+                    shadowColor: Colors.amber,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        color: Colors.white,
+                      ),
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
-                  ),
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        selectedilanlar!.baslik,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                    color: Color(0xffbf1922),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => IlanDetay(
+                                ilanlar: ilan, user: user),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                                colors: [Color(0xffbf1922), Colors.red],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight)),
+                        child: ListTile(
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(25.0),
+                            child:Image.asset(
+                              'assect/images/jobsearch.jpg',
+                            ),
+                          ),
+                          title: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Text(
+                                ilan.baslik,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Divider(color: Colors.white),
+                              SizedBox(height: 5.0),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.access_time,
+                                    size: 16.0,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(width: 5.0),
+                                  Text(
+                                    ilan.tarih,
+                                    style: TextStyle(
+                                      fontSize: 14.0,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 5.0),
+                            ],
+                          ),
+                          subtitle: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.description,
+                                      size: 16.0, color: Colors.white),
+                                  SizedBox(width: 5.0),
+                                  SizedBox(height: 5.0),
+                                  Expanded(
+                                    child: Text(
+                                      convertJsonToQuillController(
+                                          ilan.aciklama)
+                                          .document
+                                          .toPlainText(),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 5,
+                              )
+                            ],
+                          ),
                         ),
                       ),
-                      SizedBox(height: 5.0),
-                      Row(
-                        children: [
-                          Row(children: [
-                            Icon(
-                              Icons.category,
-                              size: 19.0,
-                              color: Colors.red,
-                            ),
-                          ]),
-                          VerticalDivider(color: Colors.white),
-                          Icon(
-                            Icons.access_time,
-                            size: 16.0,
-                            color: Colors.white,
-                          ),
-                          SizedBox(width: 5.0),
-                          Text(
-                            selectedilanlar!.tarih,
-                            style: TextStyle(
-                              fontSize: 14.0,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  subtitle: Text(
-                    convertJsonToQuillController(selectedilanlar!.aciklama)
-                        .document
-                        .toPlainText(),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Colors.white,
                     ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+                  );
+
+                }).toList(),
+              );
+            }
+          },
+        );
+      },
     );
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return FutureBuilder<List<Ilanlar?>>(
+    return FutureBuilder<List<Ilanlar>>(
       future: getilanlar(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -527,34 +558,40 @@ class DataSearch extends SearchDelegate<String> {
         } else {
           final ilanlar = snapshot.data!;
           final suggestionsList = query.isEmpty
-              ? ilanlar.map((i) => i!.baslik).toList()
-              : ilanlar
-              .where((i) => i!.baslik.startsWith(query))
-              .map((i) => i!.baslik)
-              .toList();
+              ? ilanlar
+              : ilanlar.where((i) {
+            final lowerCaseQuery = query.toLowerCase();
+            final baslik = i.baslik.toLowerCase();
+            final aciklama = convertJsonToQuillController(i.aciklama)
+                .document
+                .toPlainText()
+                .toLowerCase();
+            return baslik.contains(lowerCaseQuery) ||
+                aciklama.contains(lowerCaseQuery);
+          }).toList();
           return ListView.builder(
             itemBuilder: (context, index) => ListTile(
               leading: Icon(Icons.work_outline_sharp),
               title: RichText(
                 text: TextSpan(
-                  text: suggestionsList[index].substring(0, query.length),
+                  text: suggestionsList[index].baslik.substring(0, query.length),
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
                   ),
                   children: [
                     TextSpan(
-                      text: suggestionsList[index].substring(query.length),
+                      text: suggestionsList[index].baslik.substring(query.length),
                       style: TextStyle(
                         color: Colors.grey,
                       ),
                     ),
                   ],
                 ),
+
               ),
               onTap: () {
-                selectedilanlar = ilanlar
-                    .firstWhere((i) => i!.baslik == suggestionsList[index]);
+                selectedilanlar = suggestionsList[index];
                 showResults(context);
               },
             ),
@@ -565,13 +602,8 @@ class DataSearch extends SearchDelegate<String> {
     );
   }
 
-  @override
-  void querySubmitted(String query) {
-    final ilanlar = getilanlar();
-    ilanlar.then((list) {
-      selectedilanlar = list.firstWhere((i) => i.baslik == query);
-      showResults(context!);
-    });
-  }
+
+
+
 }
 

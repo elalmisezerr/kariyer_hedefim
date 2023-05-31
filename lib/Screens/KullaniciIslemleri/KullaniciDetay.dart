@@ -199,6 +199,7 @@ class _UserDetailState extends State<UserDetail> {
               height: 5.0,
             ),
             buildUpdateButton(),
+            SizedBox(height: 5,)
           ],
         ),
       ),

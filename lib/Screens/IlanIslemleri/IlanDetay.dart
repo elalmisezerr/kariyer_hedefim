@@ -58,43 +58,85 @@ class _IlanDetayState extends State<IlanDetay> {
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Form(
-          key: _key,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: Text(
-                          widget.ilanlar!.baslik.toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+      body: SingleChildScrollView(
+        child: Container(
+          child: Form(
+            key: _key,
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      widget.ilanlar!.baslik.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
-                      SizedBox(height: 16.0),
-                      if (!showFullDescription)
-                        Column(
+                      textAlign: TextAlign.left,
+                    ),
+                    SizedBox(height: 16.0),
+                    if (!showFullDescription)
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               _controller.document.toPlainText(),
                               maxLines: 3,
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.center,
+                              child: TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    showFullDescription = true;
+                                  });
+                                },
+                                child: Text(
+                                  'Daha Fazla Gör',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    color: Color(0xffbf1922),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+
+                    if (showFullDescription)
+                      Container(
+                        child: Column(
+                          children: [
+                            QuillEditor(
+                              controller: _controller,
+                              focusNode: FocusNode(),
+                              scrollController: ScrollController(),
+                              readOnly: true,
+                              padding: EdgeInsets.all(4.0),
+                              autoFocus: false,
+                              expands: false,
+                              scrollable: true,
+                              showCursor: false,
                             ),
                             TextButton(
                               onPressed: () {
                                 setState(() {
-                                  showFullDescription = true;
+                                  showFullDescription = false;
                                 });
                               },
                               child: Text(
-                                'Daha Fazla Gör',
+                                'Küçült',
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15,
@@ -103,75 +145,48 @@ class _IlanDetayState extends State<IlanDetay> {
                             ),
                           ],
                         ),
-                      if (showFullDescription)
-                        Container(
-                          // height: MediaQuery.of(context).size.height*(0.7),
-                          child: Column(
-                            children: [
-                              QuillEditor.basic(
-                                controller: _controller,
-                                readOnly: true,
-                                
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    showFullDescription = false;
-                                  });
-                                },
-                                child: Text(
-                                  'Küçült',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                      color: Color(0xffbf1922)),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-
-                ElevatedButton(
-                  onPressed: () async {
-                    bool basvuruVarmi = await dbHelper.basvuruKontrolEt(
-                        widget.user!.id.toString(),
-                        widget.ilanlar!.id.toString());
-                    _key.currentState!.save();
-                    if (basvuruVarmi == false) {
-                      sendEmail(subject.text, body.text, email.text);
-                      dbHelper.insertBasvuru(Basvuru.withoutId(
-                        basvuruTarihi: DateTime.now().toString(),
-                        ilanId: widget.ilanlar!.id.toString(),
-                        kullaniciId: widget.user!.id.toString(),
-                      ));
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  HomeUser(Myuser: widget.user)));
-                    } else {
-                      _showResendDialog();
-                    }
-                  },
-                  child: Text(
-                    "Başvur",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                      padding:
+                      ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        bool basvuruVarmi = await dbHelper.basvuruKontrolEt(
+                            widget.user!.id.toString(),
+                            widget.ilanlar!.id.toString());
+                        _key.currentState!.save();
+                        if (basvuruVarmi == false) {
+                          sendEmail(subject.text, body.text, email.text);
+                          dbHelper.insertBasvuru(Basvuru.withoutId(
+                            basvuruTarihi: DateTime.now().toString(),
+                            ilanId: widget.ilanlar!.id.toString(),
+                            kullaniciId: widget.user!.id.toString(),
+                          ));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      HomeUser(Myuser: widget.user)));
+                        } else {
+                          _showResendDialog();
+                        }
+                      },
+                      child: Text(
+                        "Başvur",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                          padding:
                           EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      primary: Color(0xffbf1922)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          primary: Color(0xffbf1922)),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
       ),
+
     );
   }
 
@@ -263,13 +278,12 @@ class _IlanDetayState extends State<IlanDetay> {
     var jsonMap = jsonDecode(jsonString);
     Document doc = Document.fromJson(jsonMap);
     QuillController controller = QuillController(
-        document: doc,
-        selection: TextSelection(
-          baseOffset: 0,
-          extentOffset: doc.length,
-        ));
+      document: doc,
+      selection: const TextSelection.collapsed(offset: 0),
+    );
     return controller;
   }
+
 
   sendEmail(String subject, String body, String recipientemail) async {
     final Email email = Email(

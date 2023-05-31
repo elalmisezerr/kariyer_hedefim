@@ -105,11 +105,7 @@ class TrCupertinoLocalizations extends CupertinoLocalizations {
   DatePickerDateTimeOrder get datePickerDateTimeOrder =>
       throw UnimplementedError();
 
-  @override
-  String datePickerDayOfMonth(int dayIndex) {
-    // TODO: implement datePickerDayOfMonth
-    throw UnimplementedError();
-  }
+
 
   @override
   String datePickerHour(int hour) {
@@ -230,6 +226,16 @@ class TrCupertinoLocalizations extends CupertinoLocalizations {
   @override
   // TODO: implement todayLabel
   String get todayLabel => throw UnimplementedError();
+
+  @override
+  String datePickerDayOfMonth(int dayIndex, [int? weekDay]) {
+    // TODO: implement datePickerDayOfMonth
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement noSpellCheckReplacementsLabel
+  String get noSpellCheckReplacementsLabel => throw UnimplementedError();
 }
 
 class _TrCupertinoLocalizationsDelegate

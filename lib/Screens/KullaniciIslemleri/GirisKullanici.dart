@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +13,7 @@ import 'package:kariyer_hedefim/components/TextFormField.dart';
 import 'package:kariyer_hedefim/validation/ValidationLogin.dart';
 import '../../Data/GoogleSignin.dart';
 import '../../Models/Kullanici.dart';
+import '../../Models/Log.dart';
 import 'KullaniciAnasayfa.dart';
 import 'KullaniciEkle.dart';
 
@@ -31,6 +31,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
   final passwordController = TextEditingController();
   var formKey = GlobalKey<FormState>();
   bool _isObscured = true;
+  LogModel? log;
 
   @override
   void initState() {
@@ -272,6 +273,31 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
       ),
     ];
   }
+  Future<String?> isLogedin() async {
+    var temp = await dbHelper.getUserLoggedInStatus(userNameController.text);
+    if (temp == null) {
+      return "";
+    } else {
+      if (temp == "0") {
+        return "Çevirim Dışı";
+      } else if (temp == "1") {
+        return "Çevrimiçi";
+      }
+    }
+  }
+
+  Future<LogModel?> logg(String islem) async {
+    String? cevirimDurumu = await isLogedin();
+    log = LogModel.withoutId(
+      kisi: "Kullanıcı:" + user!.ad,
+      kull_id: user!.id.toString(),
+      cevirimici: cevirimDurumu!,
+      islem: islem,
+      tarih: DateTime.now().toString(),
+    );
+    return log;
+  }
+
 
   Future<void> girisYap(String x, String y) async {
     if (formKey.currentState!.validate()) {
@@ -281,6 +307,9 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             backgroundColor: Color(0xffbf1922),
             content: Text("Giriş Başarılı!")));
+        user=await dbHelper.getUserByEmail(userNameController.text);
+        var x=logg("Giriş Yapıldı");
+        await dbHelper.insertLog(x! as LogModel);
         await dbHelper.updateUserLoggedInStatus(result.email, true);
         Navigator.push(
             context,
