@@ -31,12 +31,43 @@ class _IlanDetayState extends State<IlanDetay> {
   var email = TextEditingController();
   var body = TextEditingController();
   var subject = TextEditingController();
+  String? selectedFilePath;
+  File? selectedFile;
 
   @override
   void initState() {
     _controller = convertJsonToQuillController(widget.ilanlar!.aciklama);
-    // TODO: implement initState
+    mail();
     super.initState();
+  }
+
+  Future<void> mail() async {
+    email.text =
+        (await dbHelper.getCompanyById(widget.ilanlar!.sirket_id!))!.email;
+    subject.text = """
+  Sayın İşveren,
+
+Başvurduğunuz iş ilanınızı büyük bir ilgi ve heyecanla gördüm ve bu fırsatı değerlendirmek istiyorum. Kendimi tanıtmak ve neden bu pozisyona uygun olduğumu anlatmak için bu başvuru mektubunu yazıyorum.
+
+Ben ${widget.user!.ad} ${widget.user!.soyad}, ${widget.ilanlar!.baslik} pozisyonu için nitelikli bir adayım. [Şirket İsmi]'nde çalışma fırsatı benim için heyecan verici bir adım olacaktır.
+
+Deneyim:
+
+Takım çalışmasına büyük önem veririm ve liderlik becerilerimi geliştirmek için sürekli olarak kendimi geliştirme fırsatları ararım. Önceki projelerimde farklı disiplinlerden oluşan ekiplerle başarılı bir şekilde çalıştım ve sorunları etkili bir şekilde çözmek için iş birliği yapma yeteneğimle takdir edildim. İyi bir iletişimciyim ve paydaşlarla, müşterilerle ve ekiple etkili bir şekilde iletişim kurabilme yeteneğine sahibim.
+
+${(await dbHelper.getCompanyById(widget.ilanlar!.sirket_id!))!.isim}, sektördeki yenilikçi çözümleri ve başarılı projeleriyle tanınan öncü bir şirkettir. Şirketinizin müşteri odaklı yaklaşımı, yaratıcı vizyonu ve mükemmeliyetçi değerleri beni etkilemiştir. Şirketinize katılmak ve benzersiz yeteneklerimi kullanarak başarılı projelere katkıda bulunmak istiyorum.
+
+Bu pozisyon için başvurduğum için içtenlikle ilgimi ve neden bu şirketle çalışmak istediğimi anlattığım için teşekkür ederim. Başvurumun dikkate alınmasını umuyor ve olumlu bir yanıt bekliyorum.
+
+
+Saygılarımla,
+
+${widget.user!.ad} ${widget.user!.soyad}
+${widget.user!.email}
+${widget.user!.telefon}
+
+
+  """;
   }
 
   @override
@@ -112,8 +143,6 @@ class _IlanDetayState extends State<IlanDetay> {
                           ],
                         ),
                       ),
-
-
                     if (showFullDescription)
                       Container(
                         child: Column(
@@ -146,38 +175,119 @@ class _IlanDetayState extends State<IlanDetay> {
                           ],
                         ),
                       ),
-                    ElevatedButton(
+                    TextButton(
                       onPressed: () async {
-                        bool basvuruVarmi = await dbHelper.basvuruKontrolEt(
-                            widget.user!.id.toString(),
-                            widget.ilanlar!.id.toString());
-                        _key.currentState!.save();
-                        if (basvuruVarmi == false) {
-                          sendEmail(subject.text, body.text, email.text);
-                          dbHelper.insertBasvuru(Basvuru.withoutId(
-                            basvuruTarihi: DateTime.now().toString(),
-                            ilanId: widget.ilanlar!.id.toString(),
-                            kullaniciId: widget.user!.id.toString(),
-                          ));
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      HomeUser(Myuser: widget.user)));
-                        } else {
-                          _showResendDialog();
+                        FilePickerResult? result =
+                            await FilePicker.platform.pickFiles();
+                        if (result != null) {
+                          selectedFile = File(result.files.single.path!);
+                          try {
+                            setState(() {
+                              selectedFilePath = selectedFile!.path;
+                            });
+                          } catch (e) {
+                            // Kaydetme hatası oluştuğunda işlem yapabilirsiniz
+                            print('PDF kaydedilemedi: $e');
+                          }
                         }
                       },
-                      child: Text(
-                        "Başvur",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                          padding:
-                          EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          primary: Color(0xffbf1922)),
+                      child: selectedFilePath != null
+                          ? Text(
+                              'Seçilen Dosya: ${selectedFilePath!.split('/').last}')
+                          : Text('Seçilen Dosya: Dosya Bulunamadı'),
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              bool basvuruVarmi = await dbHelper.basvuruKontrolEt(
+                                  widget.user!.id.toString(),
+                                  widget.ilanlar!.id.toString());
+                              _key.currentState!.save();
+                              if (basvuruVarmi == false) {
+                                if (selectedFilePath != null) {
+                                  Text('Selected File: $selectedFilePath');
+                                }
+                                await dbHelper.savePDFToDatabase(
+                                    selectedFile!, widget.user!.id!);
+                                dbHelper.insertBasvuru(Basvuru.withoutId(
+                                  basvuruTarihi: DateTime.now().toString(),
+                                  ilanId: widget.ilanlar!.id.toString(),
+                                  kullaniciId: widget.user!.id.toString(),
+                                ));
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            HomeUser(Myuser: widget.user)));
+                              } else {
+                                _showResendDialog();
+                              }
+                            },
+                            child: Text(
+                              "Uygulama üzerinden başvur",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 50, vertical: 15),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                primary: Color(0xffbf1922)),
+                          ),
+                        ),
+                        SizedBox(width: 10,),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (_key.currentState!.validate()) {
+                                _key.currentState!.save();
+                                bool basvuruVarmi = await dbHelper.basvuruKontrolEt(
+                                    widget.user!.id.toString(),
+                                    widget.ilanlar!.id.toString());
+                                if (basvuruVarmi == false) {
+                                  if (selectedFilePath != null) {
+                                    Text('Selected File: $selectedFilePath');
+                                  }
+                                  sendEmail(
+                                    subject.text,
+                                    body.text,
+                                    email.text,
+                                  );
+
+                                  dbHelper.insertBasvuru(Basvuru.withoutId(
+                                    basvuruTarihi: DateTime.now().toString(),
+                                    ilanId: widget.ilanlar!.id.toString(),
+                                    kullaniciId: widget.user!.id.toString(),
+                                  ));
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          HomeUser(Myuser: widget.user),
+                                    ),
+                                  );
+                                } else {
+                                  _showResendDialog();
+                                }
+                              }
+                            },
+                            child: Text(
+                              "Mail üzerinden başvur",
+                              style:
+                              TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                                padding:
+                                EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                primary: Color(0xffbf1922)),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -186,7 +296,6 @@ class _IlanDetayState extends State<IlanDetay> {
           ),
         ),
       ),
-
     );
   }
 
@@ -284,15 +393,14 @@ class _IlanDetayState extends State<IlanDetay> {
     return controller;
   }
 
-
-  sendEmail(String subject, String body, String recipientemail) async {
+  sendEmail(String subject, String body, String recipientEmail) async {
     final Email email = Email(
       body: body,
       subject: subject,
-      recipients: [recipientemail],
-// cc: ['cc@example.com'],
-// bcc: ['bcc@example.com'],
-// attachmentPaths: ['/path/to/attachment.zip'],
+      recipients: [recipientEmail],
+      attachmentPaths: selectedFilePath != null
+          ? [selectedFilePath!]
+          : null, // Add the selected file path here if it exists
       isHTML: false,
     );
     await FlutterEmailSender.send(email);

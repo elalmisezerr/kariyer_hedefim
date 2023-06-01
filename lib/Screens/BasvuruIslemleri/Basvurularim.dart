@@ -226,6 +226,7 @@ class _BasvurularimState extends State<Basvurularim> {
                                 onPressed: () async {
                                   temp=await dbHelper.getBasvuruIdByIlanAndKullanici(ilanlar[position].id.toString(),widget.user!.id.toString() );
                                   await dbHelper.deleteBasvuru(temp);
+                                  await dbHelper.deletePdf(widget.user!.id!);
                                   Navigator.push(context, MaterialPageRoute(builder: (context)=>Basvurularim(user: widget.user)));
                                   setState(() {}); // Liste güncelle
                                 },

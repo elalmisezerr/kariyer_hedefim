@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:kariyer_hedefim/Models/Kurum.dart';
 import 'package:kariyer_hedefim/Models/Ilan.dart';
@@ -8,6 +10,7 @@ import 'package:path/path.dart';
 import 'dart:async';
 import '../Models/Kullanici.dart';
 import '../Models/Log.dart';
+import '../Models/PffModel.dart';
 
 class DatabaseProvider {
   static final DatabaseProvider dbProvider = DatabaseProvider();
@@ -42,13 +45,20 @@ class DatabaseProvider {
       isLoggedIn INTEGER
     );
 ''');
+    await db.execute('''
+    CREATE TABLE pdf_table (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      kullanici_id INTEGER UNIQUE,
+      pdf BLOB
+    );
+''');
 
     await db.execute(
         "CREATE TABLE sirketler (id INTEGER PRIMARY KEY AUTOINCREMENT,isim TEXT,email TEXT,sifre TEXT,telefon TEXT,adres TEXT,isLoggedIn INTEGER,isAdmin INTEGER DEFAULT 0);");
     await db.execute(
         "CREATE TABLE basvurular (id INTEGER PRIMARY KEY AUTOINCREMENT,ilan_id TEXT,kullanici_id TEXT,basvuru_tarihi TEXT,FOREIGN KEY (ilan_id) REFERENCES ilanlar(id) ON DELETE CASCADE,FOREIGN KEY (kullanici_id) REFERENCES users(id) ON DELETE CASCADE);");
     await db.execute(
-        "CREATE TABLE ilanlar (id INTEGER PRIMARY KEY AUTOINCREMENT,baslik TEXT,aciklama TEXT,sirket_id TEXT,tarih TEXT,calisma_zamani INTEGER,FOREIGN KEY (sirket_id) REFERENCES sirketler(id) ON DELETE CASCADE);");
+        "CREATE TABLE ilanlar (id INTEGER PRIMARY KEY AUTOINCREMENT,baslik TEXT,aciklama TEXT,sirket_id TEXT,tarih TEXT,calisma_zamani INTEGER,calisma_sekli INTEGER,FOREIGN KEY (sirket_id) REFERENCES sirketler(id) ON DELETE CASCADE);");
     await db.execute(
       "CREATE TABLE log (id INTEGER PRIMARY KEY AUTOINCREMENT,kisi TEXT,kull_id TEXT,cevirimici TEXT,islem TEXT,tarih TEXT);"
     );
@@ -152,7 +162,6 @@ class DatabaseProvider {
       },
     );
   }
-
   Future<Company?> getCompanyById(int id) async {
     final db = await dbProvider.db;
     final result =
@@ -163,7 +172,6 @@ class DatabaseProvider {
       return null;
     }
   }
-
   Future<Company?> getCompanyByEmail(String mail) async {
     final db = await dbProvider.db;
     final result =
@@ -174,7 +182,6 @@ class DatabaseProvider {
       return null;
     }
   }
-
   Future<User?> getUserByEmail(String mail) async {
     final db = await dbProvider.db;
     final result =
@@ -199,7 +206,6 @@ class DatabaseProvider {
       return null;
     }
   }
-
   Future<bool> isAdminUser(String email) async {
     final db = await dbProvider.db;
     final result = await db!
@@ -225,6 +231,55 @@ class DatabaseProvider {
       throw Exception("Aynı kayıt zaten mevcut.");
     }
   }
+
+  Future<void> savePDFToDatabase(File pdfFile, int kullaniciId) async {
+    Database? db = await this.db;
+    try {
+      final Uint8List pdfBytes = await pdfFile.readAsBytes();
+      List<Map<String, dynamic>> existingRecords = await db!.query(
+        'pdf_table',
+        where: 'kullanici_id = ?',
+        whereArgs: [kullaniciId],
+      );
+
+      if (existingRecords.isEmpty) {
+        await db.insert(
+          'pdf_table',
+          PdfModel(
+            id: null,
+            kullaniciId: kullaniciId,
+            pdf: pdfBytes,
+          ).toMap(),
+        );
+      } else {
+        throw Exception("Aynı kayıt zaten mevcut.");
+      }
+    } catch (e) {
+      throw Exception("Hata oluştu: $e");
+    }
+  }
+  Future<List<Uint8List>> loadPDFsByUserId(int kullaniciId) async {
+    try {
+      Database? db = await this.db;
+      List<Map<String, dynamic>> result = await db!.query(
+        'pdf_table',
+        where: 'kullanici_id = ?',
+        whereArgs: [kullaniciId],
+      );
+
+      List<Uint8List> pdfBytesList = [];
+      for (Map<String, dynamic> row in result) {
+        Uint8List pdfBytes = row['pdf'];
+        pdfBytesList.add(pdfBytes);
+      }
+
+      return pdfBytesList;
+    } catch (e) {
+      print('PDF yüklenirken bir hata oluştu: $e');
+      return [];
+    }
+  }
+
 
   Future<int> insertCompany(Company company) async {
     Database? db = await this.db;
@@ -304,7 +359,11 @@ class DatabaseProvider {
     var result = await db!.rawDelete("delete from ilanlar where id=$id");
     return result;
   }
-
+  Future<int> deletePdf(int id) async {
+    Database? db = await this.db;
+    var result = await db!.rawDelete("delete from pdf_table where kullanici_id=$id");
+    return result;
+  }
   Future<int> deleteBasvuru(int id) async {
     Database? db = await this.db;
     var result = await db!.rawDelete("delete from basvurular where id=$id");
@@ -413,7 +472,7 @@ class DatabaseProvider {
       whereArgs: [email],
     );
   }
-  Future<String> getUserLoggedInStatus(String email) async {
+  Future<bool?> getUserLoggedInStatus(String email) async {
     Database? db = await this.db;
     List<Map<String, dynamic>> result = await db!.query(
       'users',
@@ -423,24 +482,27 @@ class DatabaseProvider {
     );
 
     if (result.isNotEmpty) {
-      String isLoggedIn = (result[0]['isLoggedIn'] == 1) as String;
+      bool isLoggedIn = (result[0]['isLoggedIn'] == 1);
       return isLoggedIn;
+
     } else {
       throw Exception('User not found');
     }
   }
-  Future<String> getSirketLoggedInStatus(String email) async {
+  Future<bool?> getSirketLoggedInStatus(String email) async {
     Database? db = await this.db;
-    List<Map<String, dynamic>> results = await db!.query(
+    List<Map<String, dynamic>> result = await db!.query(
       'sirketler',
       columns: ['isLoggedIn'],
       where: 'email = ?',
       whereArgs: [email],
     );
-    if (results.isNotEmpty) {
-      String isLoggedInValue = (results[0]['isLoggedIn']).toString();
-      return isLoggedInValue;
-    }else {
+
+    if (result.isNotEmpty) {
+      bool isLoggedIn = (result[0]['isLoggedIn'] == 1);
+      return isLoggedIn;
+
+    } else {
       throw Exception('Company not found');
     }
   }

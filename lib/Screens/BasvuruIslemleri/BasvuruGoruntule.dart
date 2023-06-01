@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kariyer_hedefim/Data/DbProvider.dart';
 import 'package:kariyer_hedefim/Models/Basvuru.dart';
-import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/Detay/BasvuranDetay.dart';
+import 'package:kariyer_hedefim/Screens/BasvuruIslemleri/Detay/PdfView.dart';
 
 import '../../Models/Ilan.dart';
 import '../../Models/Kullanici.dart';
@@ -161,7 +161,7 @@ class _BasvuruGoruntuleState extends State<BasvuruGoruntule> {
               ),
               trailing: InkWell(
                   onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>BasvuranDetay()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>PDFViewerPage(kullanici_id: users[position].id, )));
                   },
                   child: Icon(Icons.file_open_outlined,size: 45,
                   color: Color(0xffbf1922),)),

@@ -7,6 +7,7 @@ class Ilanlar {
   int? sirket_id;
   String tarih;
   int calisma_zamani;
+  int calisma_sekli;
   //String kategori; // kategori özelliği eklendi
   Ilanlar(
       {this.id,
@@ -15,6 +16,7 @@ class Ilanlar {
         required this.sirket_id,
         required this.tarih,
         required this.calisma_zamani,
+        required this.calisma_sekli,
        // required this.kategori
       });
 
@@ -24,6 +26,7 @@ class Ilanlar {
         required this.sirket_id,
         required this.tarih,
         required this.calisma_zamani,
+        required this.calisma_sekli,
         //required this.kategori
       });
 
@@ -35,6 +38,7 @@ class Ilanlar {
       sirket_id: int.parse(map['sirket_id'].toString()),
       tarih: map['tarih'] as String,
       calisma_zamani: int.parse(map['calisma_zamani'].toString()),
+      calisma_sekli: int.parse(map['calisma_sekli'].toString()),
      //kategori: map['kategori'] as String, // kategori özelliği eklendi
     );
   }
@@ -46,6 +50,7 @@ class Ilanlar {
       "sirket_id": sirket_id,
       "tarih": tarih,
       "calisma_zamani": calisma_zamani,
+      "calisma_sekli": calisma_sekli,
       //"kategori": kategori // kategori özelliği eklendi
     };
   }

@@ -275,28 +275,42 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
   }
   Future<String?> isLogedin() async {
     var temp = await dbHelper.getUserLoggedInStatus(userNameController.text);
+    print(await dbHelper.getUserLoggedInStatus(userNameController.text));
     if (temp == null) {
       return "";
     } else {
-      if (temp == "0") {
-        return "Çevirim Dışı";
-      } else if (temp == "1") {
+      bool isLoggedIn = "${temp}".toLowerCase() == 'true'; // String değeri bool tipine dönüştürülüyor
+      print(temp);
+      if (temp) {
         return "Çevrimiçi";
+      } else if (!temp) {
+        return "Çevirim Dışı";
+      } else {
+        // "0" veya "1" dışında bir değer varsa buraya girer
+        return "Bilinmeyen Durum";
       }
     }
   }
 
+
+
   Future<LogModel?> logg(String islem) async {
     String? cevirimDurumu = await isLogedin();
-    log = LogModel.withoutId(
-      kisi: "Kullanıcı:" + user!.ad,
-      kull_id: user!.id.toString(),
-      cevirimici: cevirimDurumu!,
-      islem: islem,
-      tarih: DateTime.now().toString(),
-    );
+    LogModel? log;
+    if (cevirimDurumu != null) {
+      log = LogModel.withoutId(
+        kisi: "Kullanıcı: " + user!.email,
+        kull_id: user!.id.toString(),
+        cevirimici: cevirimDurumu,
+        islem: islem,
+        tarih: DateTime.now().toString(),
+      );
+    } else {
+      throw Exception("Failed to get cevirimDurumu");
+    }
     return log;
   }
+
 
 
   Future<void> girisYap(String x, String y) async {
@@ -305,31 +319,32 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
       var result = await dbHelper.checkUser(x, y);
       if (result != null) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            backgroundColor: Color(0xffbf1922),
-            content: Text("Giriş Başarılı!")));
-        user=await dbHelper.getUserByEmail(userNameController.text);
-        var x=logg("Giriş Yapıldı");
-        await dbHelper.insertLog(x! as LogModel);
+          backgroundColor: Color(0xffbf1922),
+          content: Text("Giriş Başarılı!"),
+        ));
+        user = await dbHelper.getUserByEmail(userNameController.text);
         await dbHelper.updateUserLoggedInStatus(result.email, true);
+        var logResult = await logg("Giriş Yapıldı");
+        await dbHelper.insertLog(logResult!); // Ensure logResult is not null before inserting
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => HomeUser(
-                      Myuser: result,
-                    )));
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeUser(Myuser: result),
+          ),
+        );
       } else {
         print("Hatalı Giriş");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Color(0xffbf1922),
-            content: Text('Giriş Bilgileri Hatalı!!!',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                )),
-            duration: Duration(
-              seconds: 2,
+            content: Text(
+              'Giriş Bilgileri Hatalı!!!',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+              ),
             ),
+            duration: Duration(seconds: 2),
           ),
         );
       }

@@ -35,6 +35,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
   TextEditingController? txtSirketId = TextEditingController();
   TextEditingController? txtTarih = TextEditingController();
   String? selectedValue = "1";
+  String? selectedValue2 = "2";
   final _advancedDrawerController = AdvancedDrawerController();
   void _handleMenuButtonPressed() {
     // NOTICE: Manage Advanced Drawer state through the Controller.
@@ -158,12 +159,11 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
                 SizedBox(),
                 buildAciklama(),
                 buildTarih(),
-                SizedBox(
-                  height: 15,
-                ),
                 //DrpMenu(),
                 checkBox(context),
-                SizedBox(),
+                SizedBox(height: 15,),
+                checkBox2(context),
+                SizedBox(height: 15,),
                 buildSaveButton(),
               ],
             ),
@@ -323,62 +323,217 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
   bool _value3 = false;
 
   Widget checkBox(context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        CheckboxListTile(
-          value: _value1,
-          onChanged: (bool? value) {
-            setState(() {
-              _value1 = value!;
-              if (_value1) {
-                selectedValue = "1";
-                _value2 = false;
-                _value3 = false;
-              }
-            });
-          },
-          title: Text('Tam Zamanlı'),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color:Color(0xffbf1922)),
+          borderRadius: BorderRadius.circular(10.0),
         ),
-        CheckboxListTile(
-          value: _value2,
-          onChanged: (bool? value) {
-            setState(() {
-              _value2 = value!;
-              if (_value2) {
-                selectedValue = "2";
-                _value1 = false;
-                _value3 = false;
-              }
-            });
-          },
-          title: Text('Yarı Zamanlı'),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Expanded(
+              child: CheckboxListTile(
+                activeColor: Color(0xffbf1922),
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.all(0),
+                value: _value1,
+                onChanged: (bool? value) {
+                  setState(() {
+                    _value1 = value!;
+                    if (_value1) {
+                      selectedValue = "1";
+                      _value2 = false;
+                      _value3 = false;
+                    }
+                  });
+                },
+                title: Text(
+                  'Tam Zamanlı',
+                  style: TextStyle(
+                      fontSize: 15,
+                    color: Color(0xffbf1922)
+                  ),
+                  overflow: TextOverflow.visible,
+                  maxLines: 3,
+                ),
+              ),
+            ),
+            Expanded(
+              child: CheckboxListTile(
+                activeColor: Color(0xffbf1922),
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.only(left:0, right:0, top: 4.0, bottom: 4.0),
+                value: _value2,
+                onChanged: (bool? value) {
+                  setState(() {
+                    _value2 = value!;
+                    if (_value2) {
+                      selectedValue = "2";
+                      _value1 = false;
+                      _value3 = false;
+                    }
+                  });
+                },
+                title: Text(
+                  'Yarı Zamanlı',
+                  style: TextStyle(
+                      fontSize: 15,
+                      color: Color(0xffbf1922)
+                  ),
+                  overflow: TextOverflow.visible,
+                  maxLines: 3,
+                ),
+              ),
+            ),
+            Expanded(
+              child: CheckboxListTile(
+                activeColor: Color(0xffbf1922),
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.all(0),
+                value: _value3,
+                onChanged: (bool? value) {
+                  setState(() {
+                    _value3 = value!;
+                    if (_value3) {
+                      selectedValue = "3";
+                      _value1 = true;
+                      _value2 = true;
+                    } else {
+                      _value1 = false;
+                      _value2 = false;
+                    }
+                  });
+                },
+                title: Text(
+                  'Her İkisi',
+                  style: TextStyle(
+                    fontSize: 17,
+                      color: Color(0xffbf1922)
+                  ),
+                  overflow: TextOverflow.visible,
+                  maxLines: 3,
+                ),
+              ),
+            ),
+          ],
         ),
-        CheckboxListTile(
-          value: _value3,
-          onChanged: (bool? value) {
-            setState(() {
-              _value3 = value!;
-              if (_value3) {
-                selectedValue = "3";
-                _value1 = true;
-                _value2 = true;
-              } else {
-                _value1 = false;
-                _value2 = false;
-              }
-            });
-          },
-          title: Text('Her İkisi'),
+      ),
+    );
+  }
+
+  bool online = false;
+  bool yuzyuze = false;
+  bool hibrit = false;
+
+  Widget checkBox2(context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color:Color(0xffbf1922)),
+          borderRadius: BorderRadius.circular(10.0),
         ),
-      ],
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Expanded(
+              child: CheckboxListTile(
+                activeColor: Color(0xffbf1922),
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.all(0),
+                value: online,
+                onChanged: (bool? value) {
+                  setState(() {
+                    online = value!;
+                    if (online) {
+                      selectedValue2 = "1";
+                      yuzyuze = false;
+                      hibrit = false;
+                    }
+                  });
+                },
+                title: Text(
+                  'Online',
+                  style: TextStyle(
+                    color: Color(0xffbf1922),
+                  ),
+                  overflow: TextOverflow.visible,
+                  maxLines: 3,
+                ),
+              ),
+            ),
+            Expanded(
+              child: CheckboxListTile(
+                activeColor: Color(0xffbf1922),
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.all(0),
+                value: yuzyuze,
+                onChanged: (bool? value) {
+                  setState(() {
+                    yuzyuze = value!;
+                    if (yuzyuze) {
+                      selectedValue2 = "2";
+                      online = false;
+                      hibrit = false;
+                    }
+                  });
+                },
+                title: Text(
+                  'Yüzyüze',
+                  style: TextStyle(
+                      fontSize: 14,
+                    color: Color(0xffbf1922)
+                  ),
+                  overflow: TextOverflow.visible,
+                  maxLines: 3,
+                ),
+              ),
+            ),
+            Expanded(
+              child: CheckboxListTile(
+                activeColor: Color(0xffbf1922),
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.all(0),
+                value: hibrit,
+                onChanged: (bool? value) {
+                  setState(() {
+                    hibrit = value!;
+                    if (hibrit) {
+                      selectedValue2 = "3";
+                      online = true;
+                      yuzyuze = true;
+                    } else {
+                      online = false;
+                      yuzyuze = false;
+                    }
+                  });
+                },
+                title: Text(
+                  'Hibrit',
+                  style: TextStyle(
+                    color: Color(0xffbf1922)
+                  ),
+                  overflow: TextOverflow.visible,
+                  maxLines: 3,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   //Kaydetme butonu
   buildSaveButton() {
     return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
       child: ElevatedButton(
         onPressed: () async {
           if (formKey.currentState!.validate()) {
@@ -407,6 +562,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
       sirket_id: int.parse(txtSirketId!.text),
       tarih: txtTarih!.text,
       calisma_zamani: int.parse(selectedValue ?? "1"),
+      calisma_sekli: int.parse(selectedValue ?? "2"),
       //kategori: "",
     ));
     Navigator.push(

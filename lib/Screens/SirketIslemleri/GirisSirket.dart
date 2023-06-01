@@ -121,16 +121,21 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
 
   Future<String?> isLogedin() async {
     var temp = await dbHelper.getSirketLoggedInStatus(userNameController.text);
+    print(await dbHelper.getSirketLoggedInStatus(userNameController.text));
     if (temp == null) {
       return "";
     } else {
-      if (temp == "0") {
-        return "Çevirim Dışı";
-      } else if (temp == "1") {
+      bool isLoggedIn = "${temp}".toLowerCase() == 'true'; // String değeri bool tipine dönüştürülüyor
+      print(temp);
+      if (temp) {
         return "Çevrimiçi";
+      } else if (!temp) {
+        return "Çevirim Dışı";
+      } else {
+        // "0" veya "1" dışında bir değer varsa buraya girer
+        return "Bilinmeyen Durum";
       }
     }
-    return null;
   }
 
   Future<LogModel> logg(String islem) async {
@@ -240,8 +245,6 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
       // sign in button
       MyButton(onTap: () async {
         company=await dbHelper.getCompanyByEmail(userNameController.text);
-        var x=await logg("Kurumsal Giriş Yapıldı");
-        await dbHelper.insertLog(x! as LogModel);
         await girisYap(
             userNameController.text, hashPassword(passwordController.text));
       }),
