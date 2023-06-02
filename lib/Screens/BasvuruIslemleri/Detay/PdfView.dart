@@ -1,9 +1,6 @@
-import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
-
 import '../../../Data/DbProvider.dart';
 
 class PDFViewerPage extends StatefulWidget {
@@ -28,11 +25,13 @@ class _PDFViewerPageState extends State<PDFViewerPage> {
   }
 
   void loadPDF() async {
-    List<Uint8List> pdfs = await dbHelper.loadPDFsByUserId(widget.kullanici_id!);
-    setState(() {
-      pdfBytesList = pdfs;
-      pdfReady = true;
-    });
+    List<Uint8List>? pdfs = await dbHelper.loadPDFsByUserId(widget.kullanici_id!);
+    if (pdfs != null && pdfs.isNotEmpty && pdfs[0] != null) {
+      setState(() {
+        pdfBytesList = pdfs;
+        pdfReady = true;
+      });
+    }
   }
 
   @override
@@ -41,9 +40,9 @@ class _PDFViewerPageState extends State<PDFViewerPage> {
       appBar: AppBar(
         title: Text('PDF Viewer'),
       ),
-      body: pdfReady
+      body: pdfReady && pdfBytesList.isNotEmpty && pdfBytesList[0] != null
           ? PDFView(
-        pdfData: pdfBytesList[0],
+        pdfData: pdfBytesList[0]!,
         onPageChanged: (int? page, int? total) {
           setState(() {
             pageNumber = page!;

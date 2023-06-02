@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/GirisKullanici.dart';
 import 'package:kariyer_hedefim/Screens/KullaniciIslemleri/KullaniciAnasayfa.dart';
 import 'package:kariyer_hedefim/Validation/ValidationUser.dart';
@@ -171,7 +172,7 @@ class _LoginGoogleUsersState extends State<LoginGoogleUsers>
     );
   }
 
-  buildTelefon() {
+  buildTelefon2() {
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
       child: TextField(
@@ -189,6 +190,73 @@ class _LoginGoogleUsersState extends State<LoginGoogleUsers>
       ),
     );
   }
+  buildTelefon() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 5,
+          ),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.grey,
+                width: 1.0,
+              ),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        hintText: "Telefon Numarasını Giriniz",
+                        labelText: "Telefon",
+                        border: InputBorder.none,
+                        filled: true,
+                        fillColor: Colors.white,
+                        labelStyle: TextStyle(color: Colors.grey),
+                        hintStyle: TextStyle(color: Colors.grey),
+                      ),
+                      child: InternationalPhoneNumberInput(
+                        onInputChanged: (PhoneNumber number) {
+                          // burada numarayı aldığınızda yapılması gereken işlemleri yapabilirsiniz
+                        },
+                        onSaved: (PhoneNumber? number) {
+                          txtTelefon.text = number?.phoneNumber ?? '';
+                        },
+                        selectorConfig: SelectorConfig(
+                          selectorType: PhoneInputSelectorType.DIALOG,
+                          showFlags: true,
+                        ),
+                        ignoreBlank: true,
+                        autoValidateMode: AutovalidateMode.disabled,
+                        selectorTextStyle: TextStyle(
+                            color: Colors.black, fontFamily: 'Comic Neue'),
+                        initialValue: PhoneNumber(isoCode: 'TR'),
+                        formatInput: true,
+                        keyboardType: TextInputType.numberWithOptions(
+                            signed: true, decimal: true),
+                        maxLength: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   buildAdres() {
     return Padding(

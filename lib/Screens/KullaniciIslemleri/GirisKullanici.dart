@@ -418,6 +418,9 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
       if (user.email.toString() == "szrelalmis@gmail.com") {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("Giriş Başarılı!")));
+        await dbHelper.updateSirketLoggedInStatus(user.email.toString(), true);
+        var logResult = await logg("Admin Girişi Yapıldı");
+        await dbHelper.insertLog(logResult!);
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -432,6 +435,7 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
           if (kullaniciVarMi == false) {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(backgroundColor: Color(0xffbf1922),content: Text("Giriş Başarılı!")));
+
             Navigator.of(context).pushReplacement(MaterialPageRoute(
                 builder: (context) => LoginGoogleUsers(userr: user)));
             String email = 'szrelalmis@gmail.com';
@@ -444,7 +448,8 @@ class _LoginUser extends State<LoginUser> with Loginvalidationmixin {
                 "Giriş Başarılı!",
               )));
               await dbHelper.updateUserLoggedInStatus(temp.email, true);
-
+              var logResult = await logg("Kullanıcı Girişi Yapıldı");
+              await dbHelper.insertLog(logResult!);
               Navigator.push(
                 context,
                 MaterialPageRoute(

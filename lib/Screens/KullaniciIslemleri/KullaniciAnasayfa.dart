@@ -195,7 +195,7 @@ class _HomeState extends State<HomeUser> {
                   icon: Icon(Icons.logout))
             ],
           ),
-          body: Container(
+          body:Container(
             child: FutureBuilder<List<Ilanlar>>(
               future: dbHelper.getIlanlar(),
               builder: (context, snapshot) {
@@ -205,11 +205,30 @@ class _HomeState extends State<HomeUser> {
                   return Center(child: Text('Hata: ${snapshot.error}'));
                 } else {
                   final ilanlar = snapshot.data ?? [];
-                  return buildIlanList(ilanlar);
+                  if (ilanlar.isEmpty) {
+                    return Center(
+                      child: Column(
+                        children: [
+                          SizedBox(height: MediaQuery.of(context).size.height*(0.3),),
+                          Icon(Icons.folder_off_outlined,size: 40,color: Colors.red,),
+                          Text('İlan bulunmamaktadır!!',style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.red,
+                          ),
+                            maxLines: 2,
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    return buildIlanList(ilanlar);
+                  }
                 }
               },
             ),
-          ),
+          )
+          ,
         ),
       ),
     );

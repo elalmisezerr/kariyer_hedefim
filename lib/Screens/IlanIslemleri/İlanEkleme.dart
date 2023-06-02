@@ -533,7 +533,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
   //Kaydetme butonu
   buildSaveButton() {
     return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
       child: ElevatedButton(
         onPressed: () async {
           if (formKey.currentState!.validate()) {
@@ -562,7 +562,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
       sirket_id: int.parse(txtSirketId!.text),
       tarih: txtTarih!.text,
       calisma_zamani: int.parse(selectedValue ?? "1"),
-      calisma_sekli: int.parse(selectedValue ?? "2"),
+      calisma_sekli: int.parse(selectedValue2 ?? "1"),
       //kategori: "",
     ));
     Navigator.push(

@@ -373,12 +373,28 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
     );
   }
 
+
   Future<void> _showDatePicker() async {
+    final ThemeData datePickerTheme = ThemeData.light().copyWith(
+      colorScheme: ColorScheme.light(
+        primary:Color(0xffbf1922), // Set the primary color to red
+        onPrimary: Colors.white,
+      ),
+    );
+
     final DateTime? selectedDate = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(1900),
-        lastDate: DateTime(2025));
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2025),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: datePickerTheme,
+          child: child!,
+        );
+      },
+    );
+
     if (selectedDate != null) {
       setState(() {
         txtBirthDate.text = DateFormat('dd-MM-yyyy').format(selectedDate);

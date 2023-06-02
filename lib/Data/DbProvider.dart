@@ -62,6 +62,22 @@ class DatabaseProvider {
     await db.execute(
       "CREATE TABLE log (id INTEGER PRIMARY KEY AUTOINCREMENT,kisi TEXT,kull_id TEXT,cevirimici TEXT,islem TEXT,tarih TEXT);"
     );
+
+    // Add this code after creating the database and table
+
+// Check if the record with the given email already exists
+    // Check if the record with the given email already exists
+    var queryResult = await db.rawQuery("SELECT COUNT(*) FROM sirketler WHERE email = 'szrelalmis@gmail.com'");
+    if (Sqflite.firstIntValue(queryResult) != 0) {
+      // Record already exists, no need to add it again
+      return;
+    }
+
+    // Record does not exist, insert a new record
+    var insertQuery = "INSERT INTO sirketler (isim, email, sifre, telefon, adres, isLoggedIn, isAdmin) "
+        "VALUES ('Sezer A.ş', 'szrelalmis@gmail.com', '${hashPassword("12345678")}', '12345678', 'Boş', 0, 1)";
+    await db.rawInsert(insertQuery);
+
   }
   // Future insertInitialCompanyData(Database db) async {
   //   String email = 'szrelalmis@gmail.com';

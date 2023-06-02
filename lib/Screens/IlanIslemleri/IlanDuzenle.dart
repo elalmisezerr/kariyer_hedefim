@@ -499,6 +499,8 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
       ),
     );
   }
+
+  //Kaydetme butonu
   buildUpdateButton() {
     return Row(
       children: [
@@ -549,21 +551,22 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
                                 ilanlar!.aciklama != txtaciklama.text ||
                                 ilanlar!.tarih != txtTarih.text ||
                                 company!.id != ilanlar!.sirket_id ||
-                                temp!= ilanlar!.calisma_zamani||tempskli!= ilanlar!.calisma_sekli) {
+                                int.parse(temp!) != ilanlar!.calisma_zamani) {
                               updatedIlan = Ilanlar(
                                 id: ilanlar!.id,
                                 baslik: txtBaslik.text,
                                 aciklama: txtaciklama.text,
                                 tarih: txtTarih.text,
                                 sirket_id: company!.id,
-                                calisma_zamani: int.parse(selectedValue!),
-                                calisma_sekli: int.parse(selectedValue2!),
+                                calisma_zamani: int.parse(temp!),
+                                calisma_sekli: int.parse(tempskli!),
                               );
                             } else {
-                              updatedIlan = widget.ilanlar!;
+                              updatedIlan = ilanlar!;
                             }
                             await dbHelper.updateIlan(updatedIlan);
                           }
+
                           Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -630,8 +633,8 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
                       ),
                       TextButton(
                         child: Text('EVET',style: TextStyle(
-                          color: Colors.white,
-                        ),),
+                  color: Colors.white,
+                  ),),
                         onPressed: () async {
                           await dbHelper.deleteIlan(ilanlar!.id!);
                           Navigator.push(
@@ -664,6 +667,7 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
       ],
     );
   }
+
   buildBasvuranlarButton() {
     return Padding(
       padding: EdgeInsets.only(top: 20),

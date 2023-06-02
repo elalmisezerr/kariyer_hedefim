@@ -387,20 +387,22 @@ ${widget.user!.telefon}
     var jsonMap = jsonDecode(jsonString);
     Document doc = Document.fromJson(jsonMap);
     QuillController controller = QuillController(
-      document: doc,
-      selection: const TextSelection.collapsed(offset: 0),
-    );
+        document: doc,
+        selection: TextSelection(
+          baseOffset: 0,
+          extentOffset: doc.length,
+        ));
     return controller;
   }
 
-  sendEmail(String subject, String body, String recipientEmail) async {
+  sendEmail(String subject, String body, String recipientemail) async {
     final Email email = Email(
       body: body,
       subject: subject,
-      recipients: [recipientEmail],
-      attachmentPaths: selectedFilePath != null
-          ? [selectedFilePath!]
-          : null, // Add the selected file path here if it exists
+      recipients: [recipientemail],
+// cc: ['cc@example.com'],
+// bcc: ['bcc@example.com'],
+// attachmentPaths: ['/path/to/attachment.zip'],
       isHTML: false,
     );
     await FlutterEmailSender.send(email);

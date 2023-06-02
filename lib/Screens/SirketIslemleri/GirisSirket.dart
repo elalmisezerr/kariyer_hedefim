@@ -119,9 +119,9 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
   //
   // }
 
-  Future<String?> isLogedin() async {
-    var temp = await dbHelper.getSirketLoggedInStatus(userNameController.text);
-    print(await dbHelper.getSirketLoggedInStatus(userNameController.text));
+  Future<String?> isLogedin(String x) async {
+    var temp = await dbHelper.getSirketLoggedInStatus(x);
+    print(await dbHelper.getSirketLoggedInStatus(x));
     if (temp == null) {
       return "";
     } else {
@@ -138,8 +138,15 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
     }
   }
 
-  Future<LogModel> logg(String islem) async {
-    String? cevirimDurumu = await isLogedin();
+  Future<LogModel> logg(String islem, String mail) async {
+    String? cevirimDurumu = await isLogedin(mail);
+    if (company != null) {
+      company = await dbHelper.getCompanyByEmail(mail);
+    } else {
+      // Handle the case where `company` is null
+      // You can return an error LogModel or throw an exception
+      throw Exception("Company is null");
+    }
     log = LogModel.withoutId(
       kisi: "Kullanıcı:" + company!.email,
       kull_id: company!.id.toString(),
@@ -149,7 +156,6 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
     );
     return log!;
   }
-
 
 
   List<Widget> govde() {
@@ -219,10 +225,6 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
       // forgot password?
       InkWell(
         onTap: () async {
-          company=await dbHelper.getCompanyByEmail(userNameController.text);
-          var x=await logg("Şifre sıfırlama sayfasına gidildi");
-          await dbHelper.insertLog(x! as LogModel);
-
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => ResetPasswordPage()));
         },
@@ -341,7 +343,7 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
         } else {
           await dbHelper.updateSirketLoggedInStatus(result.email, true);
           company=await dbHelper.getCompanyByEmail(userNameController.text);
-          var x=await logg("Kurumsal giriş yapıldı");
+          var x=await logg("Kurumsal giriş yapıldı",company!.email);
           await dbHelper.insertLog(x! as LogModel);
           Navigator.push(
             context,
@@ -383,48 +385,48 @@ class _LoginCompany extends State<LoginCompany> with Loginvalidationmixin {
   Future signIn() async {
     final user = await GoogleSignInApi.login();
     if (user == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(backgroundColor: Color(0xffbf1922),content: Text("Giriş başarısız!")));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(backgroundColor: Color(0xffbf1922), content: Text("Giriş başarısız!")));
     } else {
       if (user.email.toString() == "szrelalmis@gmail.com") {
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => HomeAdmin(Mycompany: user)));
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(backgroundColor: Color(0xffbf1922),content: Text("Giriş Başarılı!")));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(backgroundColor: Color(0xffbf1922), content: Text("Giriş Başarılı!")));
       } else {
         if (user.email.isNotEmpty) {
           bool kullaniciVarMi =
               await dbHelper.kullaniciAdiKontrolEt(user.email.toString()) ||
                   await dbHelper.sirketAdiKontrolEt(user.email.toString());
           if (kullaniciVarMi == false) {
-            company=await dbHelper.getCompanyByEmail(userNameController.text);
-            var x=logg("Google ile kayıt olunan sayfaya gidildi");
-            await dbHelper.insertLog(x! as LogModel);
+            company = await dbHelper.getCompanyByEmail(userNameController.text);
             Navigator.of(context).pushReplacement(MaterialPageRoute(
                 builder: (context) => LoginGooleCompany(user: user)));
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(backgroundColor: Color(0xffbf1922),content: Text("Giriş Başarılı!")));
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(backgroundColor: Color(0xffbf1922), content: Text("Giriş Başarılı!")));
             String email = 'szrelalmis@gmail.com';
             await dbHelper.checkIsAdmin(email);
           } else {
             var temp = await dbHelper.getCompanyByEmail(user.email.toString());
             if (temp != null) {
               await dbHelper.updateSirketLoggedInStatus(temp.email, true);
-              company=await dbHelper.getCompanyByEmail(userNameController.text);
-              var x=logg("Google ile kurumsal giriş yapıldı");
-              await dbHelper.insertLog(x! as LogModel);
+              company = await dbHelper.getCompanyByEmail(user.email);
+              if(company!=null){
+                var x = await logg("Google ile kurumsal giriş yapıldı",user.email);
+                await dbHelper.insertLog(x);
+              }
               Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => HomeCompany(
-                          company: temp,
-                          isLoggedin: true,
-                        )),
+                      company: temp,
+                      isLoggedin: true,
+                    )),
               );
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(backgroundColor: Color(0xffbf1922),content: Text("Giriş başarılı!")));
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(backgroundColor: Color(0xffbf1922), content: Text("Giriş başarılı!")));
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(

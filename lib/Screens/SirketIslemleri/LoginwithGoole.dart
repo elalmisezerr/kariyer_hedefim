@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import '../../Data/DbProvider.dart';
 import '../../Data/GoogleSignin.dart';
 import '../../Models/Kurum.dart';
+import '../../Models/Log.dart';
 import 'GirisSirket.dart';
 
 class LoginGooleCompany extends StatefulWidget {
@@ -25,6 +26,9 @@ class _LoginGooleCompanyState extends State<LoginGooleCompany> {
   late final String fullName;
   late final String firstName;
   late final String email;
+  LogModel? log;
+
+
   @override
   void initState() {
     fullName = widget.user.displayName ?? '';
@@ -142,7 +146,7 @@ class _LoginGooleCompanyState extends State<LoginGooleCompany> {
     );
   }
 
-  buildTelefon() {
+  buildTelefon2() {
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
       child: TextField(
@@ -160,6 +164,73 @@ class _LoginGooleCompanyState extends State<LoginGooleCompany> {
       ),
     );
   }
+  buildTelefon() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 5,
+          ),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.grey,
+                width: 1.0,
+              ),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        hintText: "Telefon Numarasını Giriniz",
+                        labelText: "Telefon",
+                        border: InputBorder.none,
+                        filled: true,
+                        fillColor: Colors.white,
+                        labelStyle: TextStyle(color: Colors.grey),
+                        hintStyle: TextStyle(color: Colors.grey),
+                      ),
+                      child: InternationalPhoneNumberInput(
+                        onInputChanged: (PhoneNumber number) {
+                          // burada numarayı aldığınızda yapılması gereken işlemleri yapabilirsiniz
+                        },
+                        onSaved: (PhoneNumber? number) {
+                          txtTelefon.text = number?.phoneNumber ?? '';
+                        },
+                        selectorConfig: SelectorConfig(
+                          selectorType: PhoneInputSelectorType.DIALOG,
+                          showFlags: true,
+                        ),
+                        ignoreBlank: true,
+                        autoValidateMode: AutovalidateMode.disabled,
+                        selectorTextStyle: TextStyle(
+                            color: Colors.black, fontFamily: 'Comic Neue'),
+                        initialValue: PhoneNumber(isoCode: 'TR'),
+                        formatInput: true,
+                        keyboardType: TextInputType.numberWithOptions(
+                            signed: true, decimal: true),
+                        maxLength: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   buildAdres() {
     return Padding(
@@ -181,6 +252,45 @@ class _LoginGooleCompanyState extends State<LoginGooleCompany> {
       ),
     );
   }
+
+  Future<String?> isLogedin(String x) async {
+    var temp = await dbHelper.getSirketLoggedInStatus(x);
+    print(await dbHelper.getSirketLoggedInStatus(x));
+    if (temp == null) {
+      return "";
+    } else {
+      bool isLoggedIn = "${temp}".toLowerCase() == 'true'; // String değeri bool tipine dönüştürülüyor
+      print(temp);
+      if (temp) {
+        return "Çevrimiçi";
+      } else if (!temp) {
+        return "Çevirim Dışı";
+      } else {
+        // "0" veya "1" dışında bir değer varsa buraya girer
+        return "Bilinmeyen Durum";
+      }
+    }
+  }
+
+  Future<LogModel> logg(String islem, String mail) async {
+    String? cevirimDurumu = await isLogedin(mail);
+    if (company != null) {
+      company = await dbHelper.getCompanyByEmail(mail);
+    } else {
+      // Handle the case where `company` is null
+      // You can return an error LogModel or throw an exception
+      throw Exception("Company is null");
+    }
+    log = LogModel.withoutId(
+      kisi: "Kullanıcı:" + company!.email,
+      kull_id: company!.id.toString(),
+      cevirimici: cevirimDurumu!,
+      islem: islem,
+      tarih: DateTime.now().toString(),
+    );
+    return log!;
+  }
+
 
   buildSaveButton() {
     return TextButton(

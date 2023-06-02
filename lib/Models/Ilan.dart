@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 
+
 class Ilanlar {
   int? id;
   String baslik;
@@ -42,6 +43,7 @@ class Ilanlar {
      //kategori: map['kategori'] as String, // kategori özelliği eklendi
     );
   }
+
   Map<String, dynamic> toMap() {
     return {
       "id": id,
@@ -54,4 +56,6 @@ class Ilanlar {
       //"kategori": kategori // kategori özelliği eklendi
     };
   }
+
+
 }

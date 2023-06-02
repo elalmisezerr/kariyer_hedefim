@@ -200,11 +200,10 @@ class _HomeCompanyState extends State<HomeCompany>
               )
             ],
           ),
-          body: Container(
+          body:Container(
             child: Center(
               child: FutureBuilder<List<Ilanlar>>(
-                future:
-                    dbHelper.getIlanlarWithId(widget.company!.id.toString()),
+                future: dbHelper.getIlanlarWithId(widget.company!.id.toString()),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -212,6 +211,25 @@ class _HomeCompanyState extends State<HomeCompany>
                     return Center(child: Text('Hata: ${snapshot.error}'));
                   } else {
                     final ilanlar = snapshot.data ?? [];
+
+                    if (ilanlar.isEmpty) {
+                      return Center(
+                        child: Column(
+                          children: [
+                            SizedBox(height: MediaQuery.of(context).size.height*(0.3),),
+                            Icon(Icons.folder_off_outlined,size: 40,color: Colors.red,),
+                            Text('İlan bulunmamaktadır!!',style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: Colors.red,
+                            ),
+                            maxLines: 2,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
                     return buildIlanList(ilanlar);
                   }
                 },
@@ -431,9 +449,12 @@ class DataSearch extends SearchDelegate<String> {
 
               return ListView(
                 children: filteredList.map((ilan) {
-                  return  InkWell(
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>IlanDuzenleme(company: company,ilanlar: ilan,)));
+                  return InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => IlanDuzenleme(company: company, ilanlar: ilan)),
+                      );
                     },
                     child: Card(
                       child: Padding(
@@ -470,9 +491,7 @@ class DataSearch extends SearchDelegate<String> {
                               children: [
                                 Icon(Icons.access_time),
                                 SizedBox(width: 5.0),
-                                Text(checkJobTime(
-                                    ilan.calisma_zamani.toString()) ??
-                                    ""),
+                                Text(checkJobTime(ilan.calisma_zamani.toString()) ?? ""),
                                 SizedBox(width: 10.0),
                                 Icon(Icons.date_range),
                                 SizedBox(width: 5.0),
@@ -484,8 +503,6 @@ class DataSearch extends SearchDelegate<String> {
                       ),
                     ),
                   );
-
-
                 }).toList(),
               );
             }
