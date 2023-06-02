@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+
 import '../../../Data/DbProvider.dart';
 
 class PDFViewerPage extends StatefulWidget {
@@ -40,7 +43,7 @@ class _PDFViewerPageState extends State<PDFViewerPage> {
       appBar: AppBar(
         title: Text('PDF Viewer'),
       ),
-      body: pdfReady && pdfBytesList.isNotEmpty && pdfBytesList[0] != null
+      body: pdfReady
           ? PDFView(
         pdfData: pdfBytesList[0]!,
         onPageChanged: (int? page, int? total) {

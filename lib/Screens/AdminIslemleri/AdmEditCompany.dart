@@ -24,12 +24,11 @@ class _AdmEditCompanyState extends State<AdmEditCompany> {
     _advancedDrawerController.showDrawer();
   }
 
-  void logout() {
-    setState(() async {
+  Future<void> logout() async {
       await GoogleSignInApi.logout();
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => GirisEkrani()));
-    });
+
   }
   @override
   Widget build(BuildContext context) {
@@ -76,8 +75,53 @@ class _AdmEditCompanyState extends State<AdmEditCompany> {
                     showSearch(context: context, delegate: DataSearch(widget.company!));
                   },
                   icon: Icon(Icons.search)),*/
-            IconButton(onPressed: () async {
-            logout();
+            IconButton(onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    backgroundColor:Color(0xffbf1922),
+                    title: Text(
+                      "Güvenli Çıkış Yapın",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white),
+                    ),
+                    content: SingleChildScrollView(
+                      child: ListBody(
+                        children: <Widget>[
+                          Text(
+                            "Çıkış yapmak istiyor musunuz?",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text(
+                          "HAYIR",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => logout(),
+                        child: const Text(
+                          "EVET",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
+                    ],
+                  ));
+
             }, icon: Icon(Icons.logout))
           ],
         ),
@@ -96,6 +140,23 @@ class _AdmEditCompanyState extends State<AdmEditCompany> {
                 );
               } else {
                 final companies = snapshot.data ?? [];
+                if(companies.isEmpty){
+                  return Center(
+                    child: Column(
+                      children: [
+                        SizedBox(height: MediaQuery.of(context).size.height*(0.3),),
+                        Icon(Icons.folder_off_outlined,size: 40,color: Colors.red,),
+                        Text('Görüntülenecek şirket bulunmamaktadır!!',style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.red,
+                        ),
+                          maxLines: 2,
+                        ),
+                      ],
+                    ),
+                  );
+                }
                 return buildUserList(companies);
               }
             },

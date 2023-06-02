@@ -49,7 +49,7 @@ class _IlanDetayState extends State<IlanDetay> {
 
 Başvurduğunuz iş ilanınızı büyük bir ilgi ve heyecanla gördüm ve bu fırsatı değerlendirmek istiyorum. Kendimi tanıtmak ve neden bu pozisyona uygun olduğumu anlatmak için bu başvuru mektubunu yazıyorum.
 
-Ben ${widget.user!.ad} ${widget.user!.soyad}, ${widget.ilanlar!.baslik} pozisyonu için nitelikli bir adayım. [Şirket İsmi]'nde çalışma fırsatı benim için heyecan verici bir adım olacaktır.
+Ben ${widget.user!.ad} ${widget.user!.soyad}, ${widget.ilanlar!.baslik} pozisyonu için nitelikli bir adayım. ${(await dbHelper.getCompanyById(widget.ilanlar!.sirket_id!))!.isim}'nde çalışma fırsatı benim için heyecan verici bir adım olacaktır.
 
 Deneyim:
 
@@ -228,7 +228,7 @@ ${widget.user!.telefon}
                             child: Text(
                               "Uygulama üzerinden başvur",
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 18),
+                                  fontWeight: FontWeight.bold, fontSize: 15),
                             ),
                             style: ElevatedButton.styleFrom(
                                 padding: EdgeInsets.symmetric(
@@ -277,7 +277,7 @@ ${widget.user!.telefon}
                             child: Text(
                               "Mail üzerinden başvur",
                               style:
-                              TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                              TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                             ),
                             style: ElevatedButton.styleFrom(
                                 padding:
@@ -400,6 +400,8 @@ ${widget.user!.telefon}
       body: body,
       subject: subject,
       recipients: [recipientemail],
+attachmentPaths:[selectedFilePath!],
+
 // cc: ['cc@example.com'],
 // bcc: ['bcc@example.com'],
 // attachmentPaths: ['/path/to/attachment.zip'],

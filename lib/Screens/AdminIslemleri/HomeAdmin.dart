@@ -24,10 +24,8 @@ class _HomeAdminState extends State<HomeAdmin> {
   }
 
   void logout() {
-    setState(() {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => GirisEkrani()));
-    });
   }
   @override
   Widget build(BuildContext context) {
@@ -99,26 +97,53 @@ class _HomeAdminState extends State<HomeAdmin> {
                     showSearch(context: context, delegate: DataSearch(widget.company!));
                   },
                   icon: Icon(Icons.search)),*/
-                IconButton(onPressed: () async {
-                  AlertDialog(
-                    backgroundColor: Color(0xffbf1922),
-                    title: Text("Çıkış yapmak istiyor musunuz?",style: TextStyle(
-                        fontWeight: FontWeight.bold,color: Colors.white
-                    ),),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: Text("HAYIR",style: TextStyle(
-                          color: Colors.white,
-                        ),),
-                      ),
-                      TextButton(
-                        onPressed: () =>logout,
-                        child: Text("EVET",style: TextStyle(
-                          color: Colors.white,),
+                IconButton(onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        backgroundColor:Color(0xffbf1922),
+                        title: Text(
+                          "Güvenli Çıkış Yapın",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white),
                         ),
-                      )],
-                  );
+                        content: SingleChildScrollView(
+                          child: ListBody(
+                            children: <Widget>[
+                              Text(
+                                "Çıkış yapmak istiyor musunuz?",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text(
+                              "HAYIR",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => logout(),
+                            child: const Text(
+                              "EVET",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
+                        ],
+                      ));
+
                 }, icon: Icon(Icons.logout))
               ],
             ),

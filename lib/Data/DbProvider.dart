@@ -384,6 +384,10 @@ class DatabaseProvider {
     Database? db = await this.db;
     var result = await db!.rawDelete("delete from basvurular where id=$id");
     return result;
+  }Future<int> deleteLog(int id) async {
+    Database? db = await this.db;
+    var result = await db!.rawDelete("delete from log where id=$id");
+    return result;
   }
 
   //Update Methods

@@ -14,6 +14,7 @@ import '../Data/GoogleSignin.dart';
 import '../Models/Kullanici.dart';
 import '../Screens/AdminIslemleri/AdmEditIlan.dart';
 import '../Screens/AdminIslemleri/AdmEditUsers.dart';
+import '../Screens/AdminIslemleri/Logg.dart';
 import '../Screens/BasvuruIslemleri/Basvurularim.dart';
 import '../Screens/KullaniciIslemleri/KullaniciAnasayfa.dart';
 import '../Screens/KullaniciIslemleri/KullaniciDetay.dart';
@@ -374,7 +375,7 @@ class _MyDrawerAdminState extends State<MyDrawerAdmin> {
                       MaterialPageRoute(
                           builder: (context) => const AdmEditCompany()));
                 },
-                leading: const Icon(Icons.description),
+                leading: const Icon(Icons.business),
                 title: const Text('Şirket İşlemleri',
                     style: TextStyle(fontSize: 18)),
               ),
@@ -397,6 +398,21 @@ class _MyDrawerAdminState extends State<MyDrawerAdmin> {
             ),
             const SizedBox(
               height: 10,
+            ),Expanded(
+              child: ListTile(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => LogListPage()));
+                },
+                leading: const Icon(Icons.list),
+                title: const Text('Log kayıtları İşlemleri',
+                    style: TextStyle(fontSize: 18)),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
             ),
             Expanded(
               child: ListTile(
@@ -406,7 +422,7 @@ class _MyDrawerAdminState extends State<MyDrawerAdmin> {
                       MaterialPageRoute(
                           builder: (context) => const AdmEditUsers()));
                 },
-                leading: const Icon(Icons.description),
+                leading: const Icon(Icons.person),
                 title: const Text('Kullanıcı İşlemleri',
                     style: TextStyle(fontSize: 18)),
               ),

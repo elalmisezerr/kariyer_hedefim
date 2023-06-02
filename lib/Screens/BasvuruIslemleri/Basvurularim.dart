@@ -169,9 +169,7 @@ class _BasvurularimState extends State<Basvurularim> {
   }
   void logout() {
     setState(() async {
-      if (GoogleSignInApi != null) {
         await GoogleSignInApi.logout();
-      }
       await dbHelper.updateUserLoggedInStatus(widget.user!.email, false);
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => GirisEkrani()));

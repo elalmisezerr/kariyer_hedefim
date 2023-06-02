@@ -387,6 +387,7 @@ class _UsersAddState extends State<UsersAdd> with Useraddvalidationmixin {
       initialDate: DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime(2025),
+      locale: const Locale('tr', 'TR') ,
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: datePickerTheme,

@@ -258,17 +258,7 @@ class _HomeState extends State<HomeUser> {
       itemCount: ilanlar.length,
       itemBuilder: (BuildContext context, int position) {
         return Card(
-          clipBehavior: Clip.antiAlias,
-          elevation: 8.0,
-          shadowColor: Colors.amber,
-          shape: RoundedRectangleBorder(
-            side: BorderSide(
-              color: Colors.white,
-            ),
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          color: Color(0xffbf1922),
-          child: GestureDetector(
+          child: InkWell(
             onTap: () {
               Navigator.push(
                 context,
@@ -278,82 +268,56 @@ class _HomeState extends State<HomeUser> {
                 ),
               );
             },
-            child: Container(
-              decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                      colors: [Color(0xffbf1922), Colors.red],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight)),
-              child: ListTile(
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(25.0),
-                  child: Image.asset(
-                    'assect/images/jobsearch.jpg',
-                  ),
-                ),
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      ilanlar[position].baslik,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        ilanlar[position].baslik,
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
+                    ],
+                  ),
+                  SizedBox(height: 8.0),
+                  Container(
+                    height: 30.0,
+                    child: Text(
+                      convertJsonToQuillController(
+                        ilanlar[position].aciklama,
+                      ).document.toPlainText(),
+                      style: TextStyle(fontSize: 16.0),
+                      maxLines: 3,
                     ),
-                    Divider(color: Colors.white),
-                    SizedBox(height: 5.0),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.access_time,
-                          size: 16.0,
-                          color: Colors.white,
-                        ),
-                        SizedBox(width: 5.0),
-                        Text(
-                          ilanlar[position].tarih,
-                          style: TextStyle(
-                            fontSize: 14.0,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 5.0),
-                  ],
-                ),
-                subtitle: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.description,
-                            size: 16.0, color: Colors.white),
-                        SizedBox(width: 5.0),
-                        SizedBox(height: 5.0),
-                        Expanded(
-                          child: Text(
-                            convertJsonToQuillController(
-                                ilanlar[position].aciklama)
-                                .document
-                                .toPlainText(),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 5,
-                    )
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 8.0),
+                  Divider(height: 20, thickness: 1, color: Colors.grey),
+                  Row(
+                    children: [
+                      Icon(Icons.access_time),
+                      SizedBox(width: 5.0),
+                      Text(
+                        checkJobTime(ilanlar[position].calisma_zamani.toString()) ?? "",
+                      ),
+                      SizedBox(width: 10.0),
+                      Icon(Icons.layers),
+                      SizedBox(width: 5.0),
+                      Text(
+                        checkCalismasekli(ilanlar[position].calisma_sekli.toString()) ?? "",
+                      ),
+                      SizedBox(width: 10.0),
+                      Icon(Icons.date_range),
+                      SizedBox(width: 5.0),
+                      Text(ilanlar[position].tarih),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
@@ -362,6 +326,38 @@ class _HomeState extends State<HomeUser> {
 
       },
     );
+  }
+}
+
+String? checkCalismasekli(String? value) {
+  if (value != null && value.isNotEmpty) {
+    if (value == '1') {
+      return "Online";
+    } else if (value == '2') {
+      return "Yüzyüze";
+    } else if (value == '3') {
+      return "Hibrit";
+    } else {
+      return null;
+    }
+  } else {
+    return null;
+  }
+}
+
+String? checkJobTime(String? value) {
+  if (value != null && value.isNotEmpty) {
+    if (value == '1') {
+      return "Tam Zamanlı";
+    } else if (value == '2') {
+      return "Yarı Zamanlı";
+    } else if (value == '3') {
+      return "Her İkisi";
+    } else {
+      return null;
+    }
+  } else {
+    return null;
   }
 }
 
@@ -454,18 +450,8 @@ class DataSearch extends SearchDelegate<String> {
 
               return ListView(
                 children: filteredList.map((ilan) {
-                  return Card(
-                    clipBehavior: Clip.antiAlias,
-                    elevation: 8.0,
-                    shadowColor: Colors.amber,
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                        color: Colors.white,
-                      ),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    color: Color(0xffbf1922),
-                    child: GestureDetector(
+                  return  Card(
+                    child: InkWell(
                       onTap: () {
                         Navigator.push(
                           context,
@@ -475,82 +461,56 @@ class DataSearch extends SearchDelegate<String> {
                           ),
                         );
                       },
-                      child: Container(
-                        decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                                colors: [Color(0xffbf1922), Colors.red],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight)),
-                        child: ListTile(
-                          leading: ClipRRect(
-                            borderRadius: BorderRadius.circular(25.0),
-                            child:Image.asset(
-                              'assect/images/jobsearch.jpg',
-                            ),
-                          ),
-                          title: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                ilan.baslik,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  ilan.baslik,
+                                  style: TextStyle(
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
+                              ],
+                            ),
+                            SizedBox(height: 8.0),
+                            Container(
+                              height: 30.0,
+                              child: Text(
+                                convertJsonToQuillController(
+                                  ilan.aciklama,
+                                ).document.toPlainText(),
+                                style: TextStyle(fontSize: 16.0),
+                                maxLines: 3,
                               ),
-                              Divider(color: Colors.white),
-                              SizedBox(height: 5.0),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.access_time,
-                                    size: 16.0,
-                                    color: Colors.white,
-                                  ),
-                                  SizedBox(width: 5.0),
-                                  Text(
-                                    ilan.tarih,
-                                    style: TextStyle(
-                                      fontSize: 14.0,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 5.0),
-                            ],
-                          ),
-                          subtitle: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.description,
-                                      size: 16.0, color: Colors.white),
-                                  SizedBox(width: 5.0),
-                                  SizedBox(height: 5.0),
-                                  Expanded(
-                                    child: Text(
-                                      convertJsonToQuillController(
-                                          ilan.aciklama)
-                                          .document
-                                          .toPlainText(),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              )
-                            ],
-                          ),
+                            ),
+                            SizedBox(height: 8.0),
+                            Divider(height: 20, thickness: 1, color: Colors.grey),
+                            Row(
+                              children: [
+                                Icon(Icons.access_time),
+                                SizedBox(width: 5.0),
+                                Text(
+                                  checkJobTime(ilan.calisma_zamani.toString()) ?? "",
+                                ),
+                                SizedBox(width: 10.0),
+                                Icon(Icons.layers),
+                                SizedBox(width: 5.0),
+                                Text(
+                                  checkCalismasekli(ilan.calisma_sekli.toString()) ?? "",
+                                ),
+                                SizedBox(width: 10.0),
+                                Icon(Icons.date_range),
+                                SizedBox(width: 5.0),
+                                Text(ilan.tarih),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ),

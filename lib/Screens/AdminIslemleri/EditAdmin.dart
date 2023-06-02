@@ -113,7 +113,6 @@ class _EditAdminState extends State<EditAdmin> {
           SizedBox(
             height: 5.0,
           ),
-          buildPassword(),
           SizedBox(
             height: 5.0,
           ),

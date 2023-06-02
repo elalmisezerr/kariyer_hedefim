@@ -160,11 +160,41 @@ class _BasvuruGoruntuleState extends State<BasvuruGoruntule> {
                 ],
               ),
               trailing: InkWell(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>PDFViewerPage(kullanici_id: users[position].id, )));
-                  },
-                  child: Icon(Icons.file_open_outlined,size: 45,
-                  color: Color(0xffbf1922),)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PDFViewerPage(kullanici_id: users[position].id),
+                    ),
+                  );
+                },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.file_open_outlined,
+                      size: 40,
+                      color: Color(0xffbf1922),
+                    ),
+                    SizedBox(height: 5), // Add some spacing between the icon and the text
+                    Expanded(
+
+                      child: Text(
+                        'Open PDF',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.visible,
+                      ),
+                    ),
+
+                  ],
+                ),
+              ),
+
               onTap: () {},
             ),
           ),

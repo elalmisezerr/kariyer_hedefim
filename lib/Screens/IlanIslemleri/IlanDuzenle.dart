@@ -269,11 +269,27 @@ class _IlanDuzenlemeState extends State<IlanDuzenleme>
 
   //Tarih seçici
   Future<void> _showDatePicker() async {
+    final ThemeData datePickerTheme = ThemeData.light().copyWith(
+      colorScheme: ColorScheme.light(
+        primary:Color(0xffbf1922), // Set the primary color to red
+        onPrimary: Colors.white,
+      ),
+    );
+
+
     final DateTime? selectedDate = await showDatePicker(
         context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime(1900),
-        lastDate: DateTime(2025));
+        lastDate: DateTime(2025),
+      locale: const Locale('tr', 'TR'), // Türkçe dil desteği ekledik
+      builder: (BuildContext context, Widget? child) {
+      return Theme(
+        data: datePickerTheme,
+        child: child!,
+      );
+    },
+    );
     if (selectedDate != null) {
       setState(() {
         txtTarih.text = DateFormat('dd-MM-yyyy').format(selectedDate);

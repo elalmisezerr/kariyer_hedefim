@@ -12,6 +12,7 @@ import 'package:kariyer_hedefim/Screens/SirketIslemleri/SirketAnasayfa.dart';
 import 'package:kariyer_hedefim/Validation/ValidationIlan.dart';
 
 import '../../Models/Ilan.dart';
+import '../../Models/Log.dart';
 import '../GirisEkranı.dart';
 import 'Aciklama.dart';
 
@@ -42,6 +43,7 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
     // _advancedDrawerController.value = AdvancedDrawerValue.visible();
     _advancedDrawerController.showDrawer();
   }
+  LogModel? log;
 
   @override
   void initState() {
@@ -294,13 +296,27 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
 
   //Tarih seçici
   Future<void> _showDatePicker() async {
+    final ThemeData datePickerTheme = ThemeData.light().copyWith(
+      colorScheme: ColorScheme.light(
+        primary:Color(0xffbf1922), // Set the primary color to red
+        onPrimary: Colors.white,
+      ),
+    );
+
+
     final DateTime? selectedDate = await showDatePicker(
         context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime(1900),
         lastDate: DateTime(2025),
-        locale: const Locale('tr', 'TR') // Türkçe dil desteği ekledik
-        );
+        locale: const Locale('tr', 'TR'), // Türkçe dil desteği ekledik
+        builder: (BuildContext context, Widget? child) {
+      return Theme(
+        data: datePickerTheme,
+        child: child!,
+      );
+    },
+    );
     if (selectedDate != null) {
       setState(() {
         // Use DateFormat to format the selected date
@@ -309,6 +325,42 @@ class _IlanEkleState extends State<IlanEkle> with IlanValidationMixin {
     }
   }
 
+  Future<String?> isLogedin(String x) async {
+    var temp = await dbHelper.getSirketLoggedInStatus(x);
+    print(await dbHelper.getSirketLoggedInStatus(x));
+    if (temp == null) {
+      return "";
+    } else { // String değeri bool tipine dönüştürülüyor
+      print(temp);
+      if (temp) {
+        return "Çevrimiçi";
+      } else if (!temp) {
+        return "Çevirim Dışı";
+      } else {
+        // "0" veya "1" dışında bir değer varsa buraya girer
+        return "Bilinmeyen Durum";
+      }
+    }
+  }
+
+  Future<LogModel> logg(String islem, String mail) async {
+    String? cevirimDurumu = await isLogedin(mail);
+    if (widget.company != null) {
+      widget.company = await dbHelper.getCompanyByEmail(mail);
+    } else {
+      // Handle the case where `company` is null
+      // You can return an error LogModel or throw an exception
+      throw Exception("Company is null");
+    }
+    log = LogModel.withoutId(
+      kisi: "Kullanıcı:" + widget.company!.email,
+      kull_id: widget.company!.id.toString(),
+      cevirimici: cevirimDurumu!,
+      islem: islem,
+      tarih: DateTime.now().toString(),
+    );
+    return log!;
+  }
   //Çıkış Fonsiyonu
   void logout() {
     setState(() {
